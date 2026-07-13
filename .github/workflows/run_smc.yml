@@ -1,0 +1,54 @@
+name: Run Smart Money Concepts Engine
+
+on:
+  # ASX closes at 16:00 Sydney time; this cron fires ~40 minutes after close.
+  # Two cron lines cover both AEST (UTC+10, roughly Apr-Oct) and AEDT (UTC+11,
+  # roughly Oct-Apr) so one of them is always close to on-time; engine.py itself
+  # doesn't depend on wall-clock precision since it just pulls the latest daily
+  # bar yfinance has, so the "wrong season" run is a harmless re-check.
+  schedule:
+    - cron: "40 6 * * 1-5" # ~16:40 AEST (UTC+10)
+    - cron: "40 5 * * 1-5" # ~16:40 AEDT (UTC+11)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: run-smc-engine
+  cancel-in-progress: false
+
+jobs:
+  run-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run SMC engine
+        run: python scripts/engine.py
+
+      - name: Commit and push updated SMC data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- public/smc_data.json; then
+            echo "No change in smc_data.json, skipping commit."
+            exit 0
+          fi
+          git add public/smc_data.json
+          git commit -m "chore: update SMC data [skip ci]"
+          git push
