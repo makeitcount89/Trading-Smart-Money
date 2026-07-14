@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 # 1. UNIVERSE DEFINITION
 # ============================================================================
 TICKERS = [
-    "A200.AX", "A2M.AX", "ACDC.AX", "AGL.AX", "AGVT.AX", "ALL.AX", "AMP.AX", 
+    "A200.AX", "ACDC.AX", "AGL.AX", "AGVT.AX", "ALL.AX", "AMP.AX", 
     "ANZ.AX", "APA.AX", "ARB.AX", "ASIA.AX", "ASX.AX", "ATEC.AX", "AUB.AX", 
     "BNKS.AX", "CAR.AX", "EVN.AX", "FUEL.AX", "GDX.AX", "GGUS.AX", "GMD.AX", 
     "GMG.AX", "HACK.AX", "HJPN.AX", "IMD.AX", "JHX.AX", "LNAS.AX", "MNRS.AX", 
