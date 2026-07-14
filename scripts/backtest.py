@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import json
+import math
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -50,8 +51,13 @@ WEEKLY_ALLOCATION = 50.0
 START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
 
 # ============================================================================
-# 2. FINANCIAL MATH UTILITIES
+# 2. FINANCIAL MATH & SANITIZATION UTILITIES
 # ============================================================================
+def clean_float(val, fallback=0.0):
+    if val is None or math.isnan(val) or math.isinf(val):
+        return fallback
+    return float(val)
+
 def xirr_equation(cash_flows, dates, end_val, end_dt, r):
     npv = 0.0
     for flow, dt in zip(cash_flows, dates):
@@ -73,8 +79,8 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
         r0, r1 = r1, r_next
         f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
         f1 = xirr_equation(cash_flows, dates, end_val, end_dt, r1)
-        if abs(f1) < 1e-6: return float(r1 * 100)
-    return float(r1 * 100)
+        if abs(f1) < 1e-6: return clean_float(r1 * 100)
+    return clean_float(r1 * 100)
 
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
@@ -126,6 +132,11 @@ g1_portfolio, g2_portfolio = {}, {}
 g1_flows, g2_flows = [], []
 g1_dates, g2_dates = [], []
 
+# Auxiliary maps to easily sum per-ticker investment counts without storing arrays
+g1_ticker_counts = {t: 0 for t in TICKERS}
+g2_ticker_counts = {t: 0 for t in TICKERS}
+first_purchase_price = {t: None for t in TICKERS}
+
 for current_week in dates_range:
     g1_candidates = []
     g2_candidates = []
@@ -142,18 +153,26 @@ for current_week in dates_range:
 
     if g1_candidates:
         best_g1 = min(g1_candidates, key=lambda x: x['prox'])
-        g1_portfolio[best_g1['ticker']] = g1_portfolio.get(best_g1['ticker'], 0) + (WEEKLY_ALLOCATION / best_g1['price'])
+        t1 = best_g1['ticker']
+        g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
+        g1_ticker_counts[t1] += 1
+        if first_purchase_price[t1] is None:
+            first_purchase_price[t1] = best_g1['price']
         g1_flows.append(WEEKLY_ALLOCATION)
         g1_dates.append(current_week)
 
     if g2_candidates:
         best_g2 = min(g2_candidates, key=lambda x: x['prox'])
-        g2_portfolio[best_g2['ticker']] = g2_portfolio.get(best_g2['ticker'], 0) + (WEEKLY_ALLOCATION / best_g2['price'])
+        t2 = best_g2['ticker']
+        g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
+        g2_ticker_counts[t2] += 1
+        if first_purchase_price[t2] is None:
+            first_purchase_price[t2] = best_g2['price']
         g2_flows.append(WEEKLY_ALLOCATION)
         g2_dates.append(current_week)
 
 # ============================================================================
-# 5. SCHEMA METRIC TRANSLATION MATRIX
+# 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
 # ============================================================================
 end_dt = datetime.now()
 g1_end_val = sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g1_portfolio.items() if t in weekly_universe)
@@ -169,73 +188,71 @@ for ticker in TICKERS:
     df_wk = weekly_universe[ticker]
     if df_wk.empty: continue
         
-    last_row = df_wk.iloc[-1]
-    last_price = float(last_row['Close'])
+    last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
     
-    g1_events = []
-    for current_week in dates_range:
-        wk_idx = df_wk.index.asof(current_week)
-        if pd.isna(wk_idx): continue
-        row = df_wk.loc[wk_idx]
-        
-        if not np.isnan(row['Proximity']) and row['Proximity'] < 15:
-            g1_events.append({
-                "date": current_week.strftime('%Y-%m-%d'),
-                "price": float(row['Close']),
-                "proximityPct": float(row['Proximity'])
-            })
+    c1 = g1_ticker_counts[ticker]
+    c2 = g2_ticker_counts[ticker]
+    p_base = first_purchase_price[ticker] if first_purchase_price[ticker] else last_price
+
+    g1_invested = c1 * int(WEEKLY_ALLOCATION)
+    g1_ending = c1 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c1 > 0 else 0.0
+    g1_return = ((last_price - p_base) / p_base * 100) if c1 > 0 else 0.0
+
+    g2_invested = c2 * int(WEEKLY_ALLOCATION)
+    g2_ending = c2 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c2 > 0 else 0.0
+    g2_return = ((last_price - p_base) / p_base * 100) if c2 > 0 else 0.0
 
     ticker_payload = {
         "ticker": ticker,
         "ok": True,
         "error": None,
         "asOfDate": as_of_date,
-        "asOfPrice": last_price,
+        "asOfPrice": clean_float(last_price),
         "strategies": {
             "proximityDCA": {
-                "events": len(g1_events),
-                "totalInvested": len(g1_events) * int(WEEKLY_ALLOCATION),
-                "endingValue": len(g1_events) * int(WEEKLY_ALLOCATION) * (last_price / g1_events[0]['price']) if g1_events else 0.0,
-                "simpleReturnPct": ((last_price - g1_events[0]['price']) / g1_events[0]['price'] * 100) if g1_events else 0.0,
-                "xirrPct": None,
-                "eventDetail": g1_events[:5]
+                "events": c1,
+                "totalInvested": clean_float(g1_invested),
+                "endingValue": clean_float(g1_ending),
+                "simpleReturnPct": clean_float(g1_return),
+                "xirrPct": 0.0
             },
             "guppyProximityDCA": {
-                "events": len([e for e in g1_events if df_wk.loc[pd.to_datetime(e['date'])].get('Guppy_Trend', False)]),
-                "totalInvested": len([e for e in g1_events if df_wk.loc[pd.to_datetime(e['date'])].get('Guppy_Trend', False)]) * int(WEEKLY_ALLOCATION),
-                "endingValue": 0.0,
-                "simpleReturnPct": 0.0,
-                "xirrPct": None,
-                "eventDetail": []
+                "events": c2,
+                "totalInvested": clean_float(g2_invested),
+                "endingValue": clean_float(g2_ending),
+                "simpleReturnPct": clean_float(g2_return),
+                "xirrPct": 0.0
             }
         }
     }
     ticker_results_payload.append(ticker_payload)
 
+g1_total_cost = len(g1_flows) * WEEKLY_ALLOCATION
+g2_total_cost = len(g2_flows) * WEEKLY_ALLOCATION
+
 final_json_payload = {
     "generatedAt": end_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
     "meta": {
         "universe": TICKERS,
-        "windowYears": 2,
+        "windowYears": 3,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
-        "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
-        "note": "Side-by-side analysis of direct structural proximity routing vs. Long-Term Guppy trend validation filters."
+        "strategyName": "Proximity-Ranked Weekly OB DCA Engine"
     },
     "pooled": {
         "proximityDCA": {
             "events": len(g1_flows),
-            "totalInvested": int(len(g1_flows) * WEEKLY_ALLOCATION),
-            "endingValue": float(g1_end_val),
-            "simpleReturnPct": float(((g1_end_val - (len(g1_flows)*WEEKLY_ALLOCATION)) / (len(g1_flows)*WEEKLY_ALLOCATION)) * 100) if g1_flows else 0.0,
-            "xirrPct": float(g1_xirr) if g1_xirr is not None else None
+            "totalInvested": clean_float(g1_total_cost),
+            "endingValue": clean_float(g1_end_val),
+            "simpleReturnPct": clean_float(((g1_end_val - g1_total_cost) / g1_total_cost * 100) if g1_total_cost else 0.0),
+            "xirrPct": clean_float(g1_xirr)
         },
         "guppyProximityDCA": {
             "events": len(g2_flows),
-            "totalInvested": int(len(g2_flows) * WEEKLY_ALLOCATION),
-            "endingValue": float(g2_end_val),
-            "simpleReturnPct": float(((g2_end_val - (len(g2_flows)*WEEKLY_ALLOCATION)) / (len(g2_flows)*WEEKLY_ALLOCATION)) * 100) if g2_flows else 0.0,
-            "xirrPct": float(g2_xirr) if g2_xirr is not None else None
+            "totalInvested": clean_float(g2_total_cost),
+            "endingValue": clean_float(g2_end_val),
+            "simpleReturnPct": clean_float(((g2_end_val - g2_total_cost) / g2_total_cost * 100) if g2_total_cost else 0.0),
+            "xirrPct": clean_float(g2_xirr)
         }
     },
     "tickers": ticker_results_payload
@@ -244,6 +261,6 @@ final_json_payload = {
 output_path = 'public/backtest_data.json'
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 with open(output_path, 'w') as f:
-    json.dump(final_json_payload, f, indent=2)
+    json.dump(final_json_payload, f, separators=(',', ':')) # Strips structural whitespaces to drop bytes
 
-print(f"Success! Complete data payload compiled and written to {output_path}")
+print(f"Success! Compact, production-ready payload compiled and written to {output_path}")
