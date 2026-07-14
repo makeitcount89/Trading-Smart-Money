@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T12:20:35.140944+00:00",
+  "generatedAt": "2026-07-14T15:06:12.969382+00:00",
   "meta": {
     "universe": [
       "ASIA.AX",
@@ -15,1052 +15,725 @@
       "GGUS.AX"
     ],
     "windowYears": 2,
-    "amountPerEvent": 100.0,
-    "orderBlockKind": "weekly bullish order blocks -- 'retrace' combines internal (5-bar, ~5wk) and swing (50-bar, ~1yr) structure; 'retraceSwing'/'retraceInternal' isolate each",
-    "retraceDefinition": "first bar after formation whose low wicks back into the order block (first touch only, one event per order block)",
-    "fixedWeekday": "Monday",
-    "randomSeed": 42,
-    "xirrMethod": "money-weighted annualized return, bisection solve, actual/365 day count",
-    "note": "All strategies buy and hold -- no stop-loss or exit rule. Pooled figures combine cash flows across the whole universe into one XIRR per strategy."
+    "amountPerWeek": 50.0,
+    "strategyName": "Proximity-Ranked Weekly OB DCA Router",
+    "note": "Every week, $50 is fully deployed into the one asset closest to or deepest within its latest unmitigated weekly bullish OB."
   },
   "pooled": {
-    "retrace": {
-      "events": 23,
-      "totalInvested": 2300.0,
-      "endingValue": 3314.6,
-      "simpleReturnPct": 44.11,
-      "xirrPct": 38.45
-    },
-    "retraceSwing": {
-      "events": 1,
-      "totalInvested": 100.0,
-      "endingValue": 146.96,
-      "simpleReturnPct": 46.96,
-      "xirrPct": 35.46
-    },
-    "retraceInternal": {
-      "events": 22,
-      "totalInvested": 2200.0,
-      "endingValue": 3167.64,
-      "simpleReturnPct": 43.98,
-      "xirrPct": 38.61
-    },
-    "fixedWeeklyDca": {
-      "events": 1155,
-      "totalInvested": 115500.0,
-      "endingValue": 150107.03,
-      "simpleReturnPct": 29.96,
-      "xirrPct": 28.59
-    },
-    "randomWeeklyDca": {
-      "events": 1150,
-      "totalInvested": 115000.0,
-      "endingValue": 148953.51,
-      "simpleReturnPct": 29.52,
-      "xirrPct": 28.23
-    },
-    "lumpSum": {
-      "events": 11,
-      "totalInvested": 1100.0,
-      "endingValue": 1682.59,
-      "simpleReturnPct": 52.96,
-      "xirrPct": 23.71
+    "proximityDCA": {
+      "events": 105,
+      "totalInvested": 5250.0,
+      "endingValue": 7241.09,
+      "simpleReturnPct": 37.93,
+      "xirrPct": 35.78
     }
   },
   "tickers": [
     {
       "ticker": "ASIA.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 20.33,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 344.28,
-          "simpleReturnPct": 72.14,
-          "xirrPct": 88.85,
-          "eventDetail": [
-            {
-              "date": "2025-04-07",
-              "price": 10.01,
-              "obTop": 9.8,
-              "obBottom": 9.41,
-              "obFormedDate": "2024-12-23",
-              "kind": "internal"
-            },
-            {
-              "date": "2026-03-30",
-              "price": 14.4,
-              "obTop": 14.15,
-              "obBottom": 13.64,
-              "obFormedDate": "2026-01-12",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
+        "proximityDCA": {
           "events": 0,
           "totalInvested": 0.0,
           "endingValue": 0.0,
-          "simpleReturnPct": null,
+          "simpleReturnPct": 0.0,
           "xirrPct": null,
           "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 344.28,
-          "simpleReturnPct": 72.14,
-          "xirrPct": 88.85,
-          "eventDetail": [
-            {
-              "date": "2025-04-07",
-              "price": 10.01,
-              "obTop": 9.8,
-              "obBottom": 9.41,
-              "obFormedDate": "2024-12-23",
-              "kind": "internal"
-            },
-            {
-              "date": "2026-03-30",
-              "price": 14.4,
-              "obTop": 14.15,
-              "obBottom": 13.64,
-              "obFormedDate": "2026-01-12",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 17571.85,
-          "simpleReturnPct": 67.35,
-          "xirrPct": 61.1
-        },
-        "randomWeeklyDca": {
-          "events": 104,
-          "totalInvested": 10400.0,
-          "endingValue": 17373.28,
-          "simpleReturnPct": 67.05,
-          "xirrPct": 60.65
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 217.67,
-          "simpleReturnPct": 117.67,
-          "xirrPct": 47.61
         }
       }
     },
     {
       "ticker": "LNAS.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 12.11,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 324.66,
-          "simpleReturnPct": 62.33,
-          "xirrPct": 46.51,
+        "proximityDCA": {
+          "events": 32,
+          "totalInvested": 1600.0,
+          "endingValue": 2164.64,
+          "simpleReturnPct": 35.29,
+          "xirrPct": 21.3,
           "eventDetail": [
             {
-              "date": "2025-04-07",
-              "price": 7.46,
-              "obTop": 5.3,
-              "obBottom": 5.02,
-              "obFormedDate": "2023-03-27",
-              "kind": "internal"
+              "date": "2024-07-15",
+              "price": 10.86,
+              "proximityPct": 1.97
+            },
+            {
+              "date": "2024-07-22",
+              "price": 9.83,
+              "proximityPct": -7.7
+            },
+            {
+              "date": "2024-07-29",
+              "price": 9.24,
+              "proximityPct": -13.24
+            },
+            {
+              "date": "2024-08-05",
+              "price": 7.28,
+              "proximityPct": -31.64
+            },
+            {
+              "date": "2024-08-12",
+              "price": 8.42,
+              "proximityPct": -20.94
+            },
+            {
+              "date": "2024-08-19",
+              "price": 9.42,
+              "proximityPct": -11.55
+            },
+            {
+              "date": "2024-08-26",
+              "price": 9.66,
+              "proximityPct": -9.3
+            },
+            {
+              "date": "2024-09-02",
+              "price": 9.43,
+              "proximityPct": -11.46
+            },
+            {
+              "date": "2024-09-09",
+              "price": 8.29,
+              "proximityPct": -22.16
+            },
+            {
+              "date": "2024-09-16",
+              "price": 9.28,
+              "proximityPct": -12.86
+            },
+            {
+              "date": "2024-09-23",
+              "price": 9.66,
+              "proximityPct": -9.3
+            },
+            {
+              "date": "2024-09-30",
+              "price": 9.735,
+              "proximityPct": -8.59
+            },
+            {
+              "date": "2024-10-07",
+              "price": 9.78,
+              "proximityPct": -8.17
+            },
+            {
+              "date": "2024-10-14",
+              "price": 10.02,
+              "proximityPct": -5.92
+            },
+            {
+              "date": "2024-10-21",
+              "price": 10.07,
+              "proximityPct": -5.45
+            },
+            {
+              "date": "2024-11-04",
+              "price": 9.79,
+              "proximityPct": -8.08
+            },
+            {
+              "date": "2025-01-13",
+              "price": 10.13,
+              "proximityPct": -4.88
+            },
+            {
+              "date": "2025-02-03",
+              "price": 10.26,
+              "proximityPct": -3.66
+            },
+            {
+              "date": "2025-03-03",
+              "price": 10.13,
+              "proximityPct": -4.88
+            },
+            {
+              "date": "2025-03-10",
+              "price": 9.17,
+              "proximityPct": -13.9
+            },
+            {
+              "date": "2025-03-17",
+              "price": 8.59,
+              "proximityPct": -19.34
+            },
+            {
+              "date": "2025-03-24",
+              "price": 8.92,
+              "proximityPct": -16.24
+            },
+            {
+              "date": "2025-03-31",
+              "price": 8.02,
+              "proximityPct": -24.69
             },
             {
               "date": "2025-04-07",
-              "price": 7.46,
-              "obTop": 7.08,
-              "obBottom": 6.47,
-              "obFormedDate": "2023-12-11",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 324.66,
-          "simpleReturnPct": 62.33,
-          "xirrPct": 46.51,
-          "eventDetail": [
-            {
-              "date": "2025-04-07",
-              "price": 7.46,
-              "obTop": 5.3,
-              "obBottom": 5.02,
-              "obFormedDate": "2023-03-27",
-              "kind": "internal"
+              "price": 5.51,
+              "proximityPct": -48.26
             },
             {
-              "date": "2025-04-07",
-              "price": 7.46,
-              "obTop": 7.08,
-              "obBottom": 6.47,
-              "obFormedDate": "2023-12-11",
-              "kind": "internal"
+              "date": "2025-04-14",
+              "price": 7.72,
+              "proximityPct": -27.51
+            },
+            {
+              "date": "2025-04-22",
+              "price": 6.75,
+              "proximityPct": -36.62
+            },
+            {
+              "date": "2025-04-28",
+              "price": 8.04,
+              "proximityPct": -24.51
+            },
+            {
+              "date": "2025-05-05",
+              "price": 8.65,
+              "proximityPct": -18.78
+            },
+            {
+              "date": "2025-05-12",
+              "price": 9.13,
+              "proximityPct": -14.27
+            },
+            {
+              "date": "2025-06-02",
+              "price": 9.77,
+              "proximityPct": -8.26
+            },
+            {
+              "date": "2025-06-16",
+              "price": 10.36,
+              "proximityPct": -2.72
+            },
+            {
+              "date": "2025-06-23",
+              "price": 10.18,
+              "proximityPct": -4.41
             }
           ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 11476.47,
-          "simpleReturnPct": 9.3,
-          "xirrPct": 9.16
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 11401.56,
-          "simpleReturnPct": 8.59,
-          "xirrPct": 8.51
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 111.51,
-          "simpleReturnPct": 11.51,
-          "xirrPct": 5.61
         }
       }
     },
     {
       "ticker": "HJPN.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 30.41,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 171.81,
-          "simpleReturnPct": 71.81,
-          "xirrPct": 32.18,
+        "proximityDCA": {
+          "events": 12,
+          "totalInvested": 600.0,
+          "endingValue": 917.83,
+          "simpleReturnPct": 52.97,
+          "xirrPct": 31.53,
           "eventDetail": [
             {
-              "date": "2024-08-05",
-              "price": 17.7,
-              "obTop": 16.29,
-              "obBottom": 15.8,
-              "obFormedDate": "2023-11-20",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 171.81,
-          "simpleReturnPct": 71.81,
-          "xirrPct": 32.18,
-          "eventDetail": [
+              "date": "2024-10-28",
+              "price": 19.37,
+              "proximityPct": -5.93
+            },
             {
-              "date": "2024-08-05",
-              "price": 17.7,
-              "obTop": 16.29,
-              "obBottom": 15.8,
-              "obFormedDate": "2023-11-20",
-              "kind": "internal"
+              "date": "2024-11-11",
+              "price": 19.94,
+              "proximityPct": -3.16
+            },
+            {
+              "date": "2024-11-18",
+              "price": 19.58,
+              "proximityPct": -4.91
+            },
+            {
+              "date": "2024-11-25",
+              "price": 19.91,
+              "proximityPct": -3.3
+            },
+            {
+              "date": "2024-12-02",
+              "price": 19.75,
+              "proximityPct": -4.08
+            },
+            {
+              "date": "2024-12-09",
+              "price": 19.93,
+              "proximityPct": -3.21
+            },
+            {
+              "date": "2024-12-16",
+              "price": 20.02,
+              "proximityPct": -2.77
+            },
+            {
+              "date": "2025-01-20",
+              "price": 19.95,
+              "proximityPct": -3.11
+            },
+            {
+              "date": "2025-01-28",
+              "price": 20.23,
+              "proximityPct": -1.75
+            },
+            {
+              "date": "2025-02-10",
+              "price": 19.98,
+              "proximityPct": -2.96
+            },
+            {
+              "date": "2025-02-17",
+              "price": 20.25,
+              "proximityPct": -1.65
+            },
+            {
+              "date": "2025-02-24",
+              "price": 19.68,
+              "proximityPct": -4.42
             }
           ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14315.7,
-          "simpleReturnPct": 36.34,
-          "xirrPct": 34.36
-        },
-        "randomWeeklyDca": {
-          "events": 104,
-          "totalInvested": 10400.0,
-          "endingValue": 14180.17,
-          "simpleReturnPct": 36.35,
-          "xirrPct": 34.25
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 143.92,
-          "simpleReturnPct": 43.92,
-          "xirrPct": 20.0
         }
       }
     },
     {
       "ticker": "BNKS.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 13.89,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 3,
-          "totalInvested": 300.0,
-          "endingValue": 453.34,
-          "simpleReturnPct": 51.11,
-          "xirrPct": 50.47,
-          "eventDetail": [
-            {
-              "date": "2025-03-31",
-              "price": 8.31,
-              "obTop": 8.66,
-              "obBottom": 8.24,
-              "obFormedDate": "2025-01-20",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-04-07",
-              "price": 8.14,
-              "obTop": 7.59,
-              "obBottom": 7.27,
-              "obFormedDate": "2024-10-14",
-              "kind": "internal"
-            },
-            {
-              "date": "2026-03-02",
-              "price": 12.02,
-              "obTop": 12.01,
-              "obBottom": 11.56,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 3,
-          "totalInvested": 300.0,
-          "endingValue": 453.34,
-          "simpleReturnPct": 51.11,
-          "xirrPct": 50.47,
-          "eventDetail": [
-            {
-              "date": "2025-03-31",
-              "price": 8.31,
-              "obTop": 8.66,
-              "obBottom": 8.24,
-              "obFormedDate": "2025-01-20",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-04-07",
-              "price": 8.14,
-              "obTop": 7.59,
-              "obBottom": 7.27,
-              "obFormedDate": "2024-10-14",
-              "kind": "internal"
-            },
-            {
-              "date": "2026-03-02",
-              "price": 12.02,
-              "obTop": 12.01,
-              "obBottom": 11.56,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14740.01,
-          "simpleReturnPct": 40.38,
-          "xirrPct": 37.96
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14676.07,
-          "simpleReturnPct": 39.77,
-          "xirrPct": 37.61
-        },
-        "lumpSum": {
-          "events": 1,
+        "proximityDCA": {
+          "events": 2,
           "totalInvested": 100.0,
-          "endingValue": 181.1,
-          "simpleReturnPct": 81.1,
-          "xirrPct": 34.63
+          "endingValue": 106.12,
+          "simpleReturnPct": 6.12,
+          "xirrPct": 74.31,
+          "eventDetail": [
+            {
+              "date": "2026-06-01",
+              "price": 12.98,
+              "proximityPct": 8.08
+            },
+            {
+              "date": "2026-06-09",
+              "price": 13.2,
+              "proximityPct": 1.54
+            }
+          ]
         }
       }
     },
     {
       "ticker": "MNRS.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 12.25,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 90.94,
-          "simpleReturnPct": -9.06,
-          "xirrPct": -90.08,
-          "eventDetail": [
-            {
-              "date": "2026-06-29",
-              "price": 13.47,
-              "obTop": 12.91,
-              "obBottom": 12.15,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
+        "proximityDCA": {
           "events": 0,
           "totalInvested": 0.0,
           "endingValue": 0.0,
-          "simpleReturnPct": null,
+          "simpleReturnPct": 0.0,
           "xirrPct": null,
           "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 90.94,
-          "simpleReturnPct": -9.06,
-          "xirrPct": -90.08,
-          "eventDetail": [
-            {
-              "date": "2026-06-29",
-              "price": 13.47,
-              "obTop": 12.91,
-              "obBottom": 12.15,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 13500.73,
-          "simpleReturnPct": 28.58,
-          "xirrPct": 27.32
-        },
-        "randomWeeklyDca": {
-          "events": 104,
-          "totalInvested": 10400.0,
-          "endingValue": 13292.34,
-          "simpleReturnPct": 27.81,
-          "xirrPct": 26.54
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 188.75,
-          "simpleReturnPct": 88.75,
-          "xirrPct": 37.45
         }
       }
     },
     {
       "ticker": "FUEL.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 8.23,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 5,
-          "totalInvested": 500.0,
-          "endingValue": 684.96,
-          "simpleReturnPct": 36.99,
-          "xirrPct": 28.04,
+        "proximityDCA": {
+          "events": 11,
+          "totalInvested": 550.0,
+          "endingValue": 722.27,
+          "simpleReturnPct": 31.32,
+          "xirrPct": 26.74,
           "eventDetail": [
             {
-              "date": "2024-12-09",
-              "price": 6.4,
-              "obTop": 6.43,
-              "obBottom": 6.26,
-              "obFormedDate": "2024-11-18",
-              "kind": "internal"
+              "date": "2024-12-23",
+              "price": 6.08,
+              "proximityPct": -5.44
             },
             {
-              "date": "2024-12-16",
-              "price": 6.0,
-              "obTop": 6.04,
-              "obBottom": 5.88,
-              "obFormedDate": "2024-04-01",
-              "kind": "internal"
+              "date": "2024-12-30",
+              "price": 6.16,
+              "proximityPct": -4.2
             },
             {
-              "date": "2025-04-07",
-              "price": 5.6,
-              "obTop": 5.84,
-              "obBottom": 5.6,
-              "obFormedDate": "2023-09-11",
-              "kind": "internal"
+              "date": "2025-01-06",
+              "price": 6.27,
+              "proximityPct": -2.49
             },
             {
-              "date": "2025-04-07",
-              "price": 5.6,
-              "obTop": 5.52,
-              "obBottom": 5.23,
-              "obFormedDate": "2024-04-01",
-              "kind": "swing"
+              "date": "2025-06-10",
+              "price": 6.08,
+              "proximityPct": -5.44
             },
             {
-              "date": "2025-12-15",
-              "price": 6.57,
-              "obTop": 6.54,
-              "obBottom": 6.35,
-              "obFormedDate": "2025-11-10",
-              "kind": "internal"
+              "date": "2025-06-30",
+              "price": 6.23,
+              "proximityPct": -3.11
+            },
+            {
+              "date": "2025-07-07",
+              "price": 6.32,
+              "proximityPct": -1.71
+            },
+            {
+              "date": "2025-07-14",
+              "price": 6.41,
+              "proximityPct": -0.31
+            },
+            {
+              "date": "2025-07-21",
+              "price": 6.31,
+              "proximityPct": -1.87
+            },
+            {
+              "date": "2025-07-28",
+              "price": 6.42,
+              "proximityPct": -0.16
+            },
+            {
+              "date": "2025-08-04",
+              "price": 6.36,
+              "proximityPct": -1.09
+            },
+            {
+              "date": "2025-08-11",
+              "price": 6.32,
+              "proximityPct": -1.71
             }
           ]
-        },
-        "retraceSwing": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 146.96,
-          "simpleReturnPct": 46.96,
-          "xirrPct": 35.46,
-          "eventDetail": [
-            {
-              "date": "2025-04-07",
-              "price": 5.6,
-              "obTop": 5.52,
-              "obBottom": 5.23,
-              "obFormedDate": "2024-04-01",
-              "kind": "swing"
-            }
-          ]
-        },
-        "retraceInternal": {
-          "events": 4,
-          "totalInvested": 400.0,
-          "endingValue": 537.99,
-          "simpleReturnPct": 34.5,
-          "xirrPct": 26.21,
-          "eventDetail": [
-            {
-              "date": "2024-12-09",
-              "price": 6.4,
-              "obTop": 6.43,
-              "obBottom": 6.26,
-              "obFormedDate": "2024-11-18",
-              "kind": "internal"
-            },
-            {
-              "date": "2024-12-16",
-              "price": 6.0,
-              "obTop": 6.04,
-              "obBottom": 5.88,
-              "obFormedDate": "2024-04-01",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-04-07",
-              "price": 5.6,
-              "obTop": 5.84,
-              "obBottom": 5.6,
-              "obFormedDate": "2023-09-11",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-12-15",
-              "price": 6.57,
-              "obTop": 6.54,
-              "obBottom": 6.35,
-              "obFormedDate": "2025-11-10",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 12742.37,
-          "simpleReturnPct": 21.36,
-          "xirrPct": 20.64
-        },
-        "randomWeeklyDca": {
-          "events": 104,
-          "totalInvested": 10400.0,
-          "endingValue": 12652.79,
-          "simpleReturnPct": 21.66,
-          "xirrPct": 20.87
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 126.42,
-          "simpleReturnPct": 26.42,
-          "xirrPct": 12.46
         }
       }
     },
     {
       "ticker": "NDQ.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 61.65,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 286.36,
-          "simpleReturnPct": 43.18,
-          "xirrPct": 24.86,
-          "eventDetail": [
-            {
-              "date": "2024-08-05",
-              "price": 41.49,
-              "obTop": 41.07,
-              "obBottom": 40.17,
-              "obFormedDate": "2024-05-20",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-04-07",
-              "price": 44.75,
-              "obTop": 43.06,
-              "obBottom": 41.38,
-              "obFormedDate": "2024-10-07",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
+        "proximityDCA": {
           "events": 0,
           "totalInvested": 0.0,
           "endingValue": 0.0,
-          "simpleReturnPct": null,
+          "simpleReturnPct": 0.0,
           "xirrPct": null,
           "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 286.36,
-          "simpleReturnPct": 43.18,
-          "xirrPct": 24.86,
-          "eventDetail": [
-            {
-              "date": "2024-08-05",
-              "price": 41.49,
-              "obTop": 41.07,
-              "obBottom": 40.17,
-              "obFormedDate": "2024-05-20",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-04-07",
-              "price": 44.75,
-              "obTop": 43.06,
-              "obBottom": 41.38,
-              "obFormedDate": "2024-10-07",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 12768.13,
-          "simpleReturnPct": 21.6,
-          "xirrPct": 20.87
-        },
-        "randomWeeklyDca": {
-          "events": 104,
-          "totalInvested": 10400.0,
-          "endingValue": 12649.38,
-          "simpleReturnPct": 21.63,
-          "xirrPct": 20.82
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 137.7,
-          "simpleReturnPct": 37.7,
-          "xirrPct": 17.37
         }
       }
     },
     {
       "ticker": "HACK.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 16.81,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 3,
-          "totalInvested": 300.0,
-          "endingValue": 375.85,
-          "simpleReturnPct": 25.28,
-          "xirrPct": 61.62,
+        "proximityDCA": {
+          "events": 19,
+          "totalInvested": 950.0,
+          "endingValue": 1259.51,
+          "simpleReturnPct": 32.58,
+          "xirrPct": 145.34,
           "eventDetail": [
             {
-              "date": "2025-11-17",
-              "price": 14.76,
-              "obTop": 14.75,
-              "obBottom": 14.44,
-              "obFormedDate": "2025-10-06",
-              "kind": "internal"
+              "date": "2026-01-19",
+              "price": 14.08,
+              "proximityPct": -4.54
             },
             {
-              "date": "2026-01-19",
-              "price": 13.6,
-              "obTop": 13.76,
-              "obBottom": 13.32,
-              "obFormedDate": "2025-06-23",
-              "kind": "internal"
+              "date": "2026-01-27",
+              "price": 13.89,
+              "proximityPct": -5.83
+            },
+            {
+              "date": "2026-02-02",
+              "price": 13.1,
+              "proximityPct": -11.19
+            },
+            {
+              "date": "2026-02-09",
+              "price": 12.72,
+              "proximityPct": -13.76
+            },
+            {
+              "date": "2026-02-16",
+              "price": 12.53,
+              "proximityPct": -15.05
+            },
+            {
+              "date": "2026-02-23",
+              "price": 11.85,
+              "proximityPct": -19.66
+            },
+            {
+              "date": "2026-03-02",
+              "price": 11.54,
+              "proximityPct": -21.76
+            },
+            {
+              "date": "2026-03-09",
+              "price": 12.15,
+              "proximityPct": -17.63
+            },
+            {
+              "date": "2026-03-16",
+              "price": 12.3,
+              "proximityPct": -16.61
+            },
+            {
+              "date": "2026-03-23",
+              "price": 11.99,
+              "proximityPct": -18.71
+            },
+            {
+              "date": "2026-03-30",
+              "price": 11.75,
+              "proximityPct": -20.34
+            },
+            {
+              "date": "2026-04-07",
+              "price": 12.17,
+              "proximityPct": -17.49
             },
             {
               "date": "2026-04-13",
-              "price": 12.15,
-              "obTop": 11.32,
-              "obBottom": 10.73,
-              "obFormedDate": "2024-10-07",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 3,
-          "totalInvested": 300.0,
-          "endingValue": 375.85,
-          "simpleReturnPct": 25.28,
-          "xirrPct": 61.62,
-          "eventDetail": [
-            {
-              "date": "2025-11-17",
-              "price": 14.76,
-              "obTop": 14.75,
-              "obBottom": 14.44,
-              "obFormedDate": "2025-10-06",
-              "kind": "internal"
+              "price": 11.33,
+              "proximityPct": -23.19
             },
             {
-              "date": "2026-01-19",
-              "price": 13.6,
-              "obTop": 13.76,
-              "obBottom": 13.32,
-              "obFormedDate": "2025-06-23",
-              "kind": "internal"
+              "date": "2026-04-20",
+              "price": 12.18,
+              "proximityPct": -17.42
             },
             {
-              "date": "2026-04-13",
-              "price": 12.15,
-              "obTop": 11.32,
-              "obBottom": 10.73,
-              "obFormedDate": "2024-10-07",
-              "kind": "internal"
+              "date": "2026-04-27",
+              "price": 12.38,
+              "proximityPct": -16.07
+            },
+            {
+              "date": "2026-05-04",
+              "price": 12.62,
+              "proximityPct": -14.44
+            },
+            {
+              "date": "2026-05-11",
+              "price": 13.78,
+              "proximityPct": -6.58
+            },
+            {
+              "date": "2026-05-18",
+              "price": 14.54,
+              "proximityPct": -1.42
+            },
+            {
+              "date": "2026-05-25",
+              "price": 15.7,
+              "proximityPct": 6.44
             }
           ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 12829.29,
-          "simpleReturnPct": 22.18,
-          "xirrPct": 21.41
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 12776.62,
-          "simpleReturnPct": 21.68,
-          "xirrPct": 21.07
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 144.04,
-          "simpleReturnPct": 44.04,
-          "xirrPct": 20.05
         }
       }
     },
     {
       "ticker": "QAU.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 30.3,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 91.54,
-          "simpleReturnPct": -8.46,
-          "xirrPct": -59.19,
+        "proximityDCA": {
+          "events": 5,
+          "totalInvested": 250.0,
+          "endingValue": 235.32,
+          "simpleReturnPct": -5.87,
+          "xirrPct": -77.53,
           "eventDetail": [
             {
-              "date": "2026-06-08",
-              "price": 33.1,
-              "obTop": 32.23,
-              "obBottom": 31.51,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 91.54,
-          "simpleReturnPct": -8.46,
-          "xirrPct": -59.19,
-          "eventDetail": [
+              "date": "2026-06-15",
+              "price": 34.11,
+              "proximityPct": 5.83
+            },
             {
-              "date": "2026-06-08",
-              "price": 33.1,
-              "obTop": 32.23,
-              "obBottom": 31.51,
-              "obFormedDate": "2025-12-22",
-              "kind": "internal"
+              "date": "2026-06-22",
+              "price": 33.29,
+              "proximityPct": 3.29
+            },
+            {
+              "date": "2026-06-29",
+              "price": 32.18,
+              "proximityPct": -0.16
+            },
+            {
+              "date": "2026-07-06",
+              "price": 31.21,
+              "proximityPct": -3.16
+            },
+            {
+              "date": "2026-07-13",
+              "price": 30.44,
+              "proximityPct": -5.55
             }
           ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 11611.14,
-          "simpleReturnPct": 10.58,
-          "xirrPct": 10.4
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 11563.47,
-          "simpleReturnPct": 10.13,
-          "xirrPct": 10.02
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 151.2,
-          "simpleReturnPct": 51.2,
-          "xirrPct": 23.0
         }
       }
     },
     {
       "ticker": "OOO.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 8.03,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 144.95,
-          "simpleReturnPct": 44.95,
-          "xirrPct": 30.77,
+        "proximityDCA": {
+          "events": 24,
+          "totalInvested": 1200.0,
+          "endingValue": 1835.4,
+          "simpleReturnPct": 52.95,
+          "xirrPct": 76.52,
           "eventDetail": [
             {
-              "date": "2025-02-24",
-              "price": 5.54,
-              "obTop": 5.44,
-              "obBottom": 5.13,
-              "obFormedDate": "2025-01-13",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
-          "events": 0,
-          "totalInvested": 0.0,
-          "endingValue": 0.0,
-          "simpleReturnPct": null,
-          "xirrPct": null,
-          "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 144.95,
-          "simpleReturnPct": 44.95,
-          "xirrPct": 30.77,
-          "eventDetail": [
+              "date": "2025-05-19",
+              "price": 5.0,
+              "proximityPct": -8.09
+            },
             {
-              "date": "2025-02-24",
-              "price": 5.54,
-              "obTop": 5.44,
-              "obBottom": 5.13,
-              "obFormedDate": "2025-01-13",
-              "kind": "internal"
+              "date": "2025-05-26",
+              "price": 5.0,
+              "proximityPct": -8.09
+            },
+            {
+              "date": "2025-08-18",
+              "price": 5.34,
+              "proximityPct": -1.84
+            },
+            {
+              "date": "2025-08-25",
+              "price": 5.48,
+              "proximityPct": 0.74
+            },
+            {
+              "date": "2025-09-01",
+              "price": 5.5,
+              "proximityPct": 1.1
+            },
+            {
+              "date": "2025-09-08",
+              "price": 5.42,
+              "proximityPct": -0.37
+            },
+            {
+              "date": "2025-09-15",
+              "price": 5.45,
+              "proximityPct": 0.18
+            },
+            {
+              "date": "2025-09-22",
+              "price": 5.45,
+              "proximityPct": 0.18
+            },
+            {
+              "date": "2025-09-29",
+              "price": 5.66,
+              "proximityPct": 4.04
+            },
+            {
+              "date": "2025-10-06",
+              "price": 5.37,
+              "proximityPct": -1.29
+            },
+            {
+              "date": "2025-10-13",
+              "price": 5.18,
+              "proximityPct": -4.78
+            },
+            {
+              "date": "2025-10-20",
+              "price": 4.99,
+              "proximityPct": -8.27
+            },
+            {
+              "date": "2025-10-27",
+              "price": 5.41,
+              "proximityPct": -0.55
+            },
+            {
+              "date": "2025-11-03",
+              "price": 5.36,
+              "proximityPct": -1.47
+            },
+            {
+              "date": "2025-11-10",
+              "price": 5.28,
+              "proximityPct": -2.94
+            },
+            {
+              "date": "2025-11-17",
+              "price": 5.2,
+              "proximityPct": -4.41
+            },
+            {
+              "date": "2025-11-24",
+              "price": 5.1,
+              "proximityPct": -6.25
+            },
+            {
+              "date": "2025-12-01",
+              "price": 5.23,
+              "proximityPct": -3.86
+            },
+            {
+              "date": "2025-12-08",
+              "price": 5.29,
+              "proximityPct": -2.76
+            },
+            {
+              "date": "2025-12-15",
+              "price": 5.07,
+              "proximityPct": -6.8
+            },
+            {
+              "date": "2025-12-22",
+              "price": 5.04,
+              "proximityPct": -7.35
+            },
+            {
+              "date": "2025-12-29",
+              "price": 5.06,
+              "proximityPct": -6.99
+            },
+            {
+              "date": "2026-01-05",
+              "price": 5.04,
+              "proximityPct": -7.35
+            },
+            {
+              "date": "2026-01-12",
+              "price": 5.24,
+              "proximityPct": -3.68
             }
           ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14482.04,
-          "simpleReturnPct": 37.92,
-          "xirrPct": 35.77
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14484.06,
-          "simpleReturnPct": 37.94,
-          "xirrPct": 36.02
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 134.96,
-          "simpleReturnPct": 34.96,
-          "xirrPct": 16.2
         }
       }
     },
     {
       "ticker": "GGUS.AX",
       "ok": true,
-      "error": null,
       "asOfDate": "2026-07-14",
       "asOfPrice": 60.41,
-      "windowStart": "2024-07-14",
       "strategies": {
-        "retrace": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 345.92,
-          "simpleReturnPct": 72.96,
-          "xirrPct": 39.91,
-          "eventDetail": [
-            {
-              "date": "2024-08-05",
-              "price": 36.12,
-              "obTop": 34.0,
-              "obBottom": 32.26,
-              "obFormedDate": "2024-05-13",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-03-31",
-              "price": 33.81,
-              "obTop": 36.3,
-              "obBottom": 33.66,
-              "obFormedDate": "2024-09-23",
-              "kind": "internal"
-            }
-          ]
-        },
-        "retraceSwing": {
+        "proximityDCA": {
           "events": 0,
           "totalInvested": 0.0,
           "endingValue": 0.0,
-          "simpleReturnPct": null,
+          "simpleReturnPct": 0.0,
           "xirrPct": null,
           "eventDetail": []
-        },
-        "retraceInternal": {
-          "events": 2,
-          "totalInvested": 200.0,
-          "endingValue": 345.92,
-          "simpleReturnPct": 72.96,
-          "xirrPct": 39.91,
-          "eventDetail": [
-            {
-              "date": "2024-08-05",
-              "price": 36.12,
-              "obTop": 34.0,
-              "obBottom": 32.26,
-              "obFormedDate": "2024-05-13",
-              "kind": "internal"
-            },
-            {
-              "date": "2025-03-31",
-              "price": 33.81,
-              "obTop": 36.3,
-              "obBottom": 33.66,
-              "obFormedDate": "2024-09-23",
-              "kind": "internal"
-            }
-          ]
-        },
-        "fixedWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 14069.3,
-          "simpleReturnPct": 33.99,
-          "xirrPct": 32.25
-        },
-        "randomWeeklyDca": {
-          "events": 105,
-          "totalInvested": 10500.0,
-          "endingValue": 13903.77,
-          "simpleReturnPct": 32.42,
-          "xirrPct": 30.99
-        },
-        "lumpSum": {
-          "events": 1,
-          "totalInvested": 100.0,
-          "endingValue": 145.32,
-          "simpleReturnPct": 45.32,
-          "xirrPct": 20.58
         }
       }
     }
