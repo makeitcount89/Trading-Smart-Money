@@ -1,22 +1,294 @@
 {
-  "generatedAt": null,
-  "status": "awaiting_first_run",
+  "generatedAt": "2026-07-14T00:13:16.572207+00:00",
   "meta": {
-    "universe": ["ASIA.AX", "LNAS.AX", "HJPN.AX"],
-    "source": "LuxAlgo Smart Money Concepts (Pine Script v5) ported to Python",
-    "timeframes": [
-      { "key": "1d", "label": "Daily" },
-      { "key": "1wk", "label": "Weekly" }
+    "universe": [
+      "ASIA.AX",
+      "LNAS.AX",
+      "HJPN.AX"
     ],
-    "historyPeriod": "max",
+    "source": "LuxAlgo Smart Money Concepts (Pine Script v5) ported to Python",
+    "timeframe": "1d",
+    "historyPeriod": "5y",
     "swingLength": 50,
     "internalLength": 5,
     "orderBlockCountPerType": 5,
     "atrLength": 200,
-    "priceAdjustment": "raw (Yahoo split-adjusted, not dividend-adjusted) -- matches a default/unadjusted TradingView chart",
     "timezone": "Australia/Adelaide"
   },
-  "ranking": { "1d": [], "1wk": [] },
-  "closestSymbol": { "1d": null, "1wk": null },
-  "symbols": []
+  "ranking": [
+    "ASIA.AX",
+    "HJPN.AX",
+    "LNAS.AX"
+  ],
+  "closestSymbol": "ASIA.AX",
+  "symbols": [
+    {
+      "ticker": "ASIA.AX",
+      "ok": true,
+      "error": null,
+      "lastPrice": 20.41,
+      "lastBarDate": "2026-07-13",
+      "swingTrend": "BULLISH",
+      "internalTrend": "BULLISH",
+      "nearestBullishOrderBlock": {
+        "kind": "internal",
+        "top": 19.4806,
+        "bottom": 19.0565,
+        "date": "2026-05-20",
+        "distancePct": 4.554,
+        "insideZone": false
+      },
+      "bullishOrderBlocks": [
+        {
+          "kind": "internal",
+          "top": 19.4806,
+          "bottom": 19.0565,
+          "date": "2026-05-20",
+          "distancePct": 4.554,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 14.1937,
+          "bottom": 13.7499,
+          "date": "2026-03-31",
+          "distancePct": 30.457,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 13.7453,
+          "bottom": 13.3919,
+          "date": "2025-12-16",
+          "distancePct": 32.654,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 12.3511,
+          "bottom": 12.0664,
+          "date": "2025-08-20",
+          "distancePct": 39.485,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 12.3217,
+          "bottom": 12.1842,
+          "date": "2025-08-29",
+          "distancePct": 39.629,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 9.4423,
+          "bottom": 9.1681,
+          "date": "2025-04-09",
+          "distancePct": 53.737,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 8.2962,
+          "bottom": 8.082,
+          "date": "2024-08-06",
+          "distancePct": 59.352,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 7.124,
+          "bottom": 6.9687,
+          "date": "2024-01-17",
+          "distancePct": 65.095,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 6.5079,
+          "bottom": 6.4308,
+          "date": "2023-05-11",
+          "distancePct": 68.114,
+          "insideZone": false
+        }
+      ],
+      "bearishOrderBlocks": []
+    },
+    {
+      "ticker": "LNAS.AX",
+      "ok": true,
+      "error": null,
+      "lastPrice": 12.13,
+      "lastBarDate": "2026-07-13",
+      "swingTrend": "BULLISH",
+      "internalTrend": "BULLISH",
+      "nearestBullishOrderBlock": {
+        "kind": "internal",
+        "top": 10.4861,
+        "bottom": 10.2534,
+        "date": "2026-06-29",
+        "distancePct": 13.552,
+        "insideZone": false
+      },
+      "bullishOrderBlocks": [
+        {
+          "kind": "internal",
+          "top": 10.4861,
+          "bottom": 10.2534,
+          "date": "2026-06-29",
+          "distancePct": 13.552,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 6.364,
+          "bottom": 6.0945,
+          "date": "2026-03-31",
+          "distancePct": 47.535,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 6.364,
+          "bottom": 6.0945,
+          "date": "2026-03-31",
+          "distancePct": 47.535,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 6.0743,
+          "bottom": 5.8644,
+          "date": "2025-06-13",
+          "distancePct": 49.923,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 5.7712,
+          "bottom": 5.6954,
+          "date": "2025-06-02",
+          "distancePct": 52.422,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 5.6954,
+          "bottom": 5.6371,
+          "date": "2025-05-23",
+          "distancePct": 53.047,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 3.3811,
+          "bottom": 3.0838,
+          "date": "2025-04-07",
+          "distancePct": 72.126,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 3.0436,
+          "bottom": 3.0202,
+          "date": "2023-10-27",
+          "distancePct": 74.909,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 1.7756,
+          "bottom": 1.7626,
+          "date": "2022-12-29",
+          "distancePct": 85.362,
+          "insideZone": false
+        }
+      ],
+      "bearishOrderBlocks": []
+    },
+    {
+      "ticker": "HJPN.AX",
+      "ok": true,
+      "error": null,
+      "lastPrice": 30.29,
+      "lastBarDate": "2026-07-13",
+      "swingTrend": "BULLISH",
+      "internalTrend": "BULLISH",
+      "nearestBullishOrderBlock": {
+        "kind": "internal",
+        "top": 28.7316,
+        "bottom": 28.0324,
+        "date": "2026-06-11",
+        "distancePct": 5.145,
+        "insideZone": false
+      },
+      "bullishOrderBlocks": [
+        {
+          "kind": "internal",
+          "top": 28.7316,
+          "bottom": 28.0324,
+          "date": "2026-06-11",
+          "distancePct": 5.145,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 28.5331,
+          "bottom": 27.9663,
+          "date": "2026-05-20",
+          "distancePct": 5.8,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 27.5883,
+          "bottom": 27.0309,
+          "date": "2026-04-23",
+          "distancePct": 8.919,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 25.3586,
+          "bottom": 24.7539,
+          "date": "2026-03-23",
+          "distancePct": 16.281,
+          "insideZone": false
+        },
+        {
+          "kind": "internal",
+          "top": 23.6287,
+          "bottom": 23.4315,
+          "date": "2025-12-18",
+          "distancePct": 21.992,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 15.7306,
+          "bottom": 14.6506,
+          "date": "2025-04-07",
+          "distancePct": 48.067,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 14.078,
+          "bottom": 13.8671,
+          "date": "2023-10-31",
+          "distancePct": 53.523,
+          "insideZone": false
+        },
+        {
+          "kind": "swing",
+          "top": 11.1081,
+          "bottom": 10.9036,
+          "date": "2023-01-03",
+          "distancePct": 63.328,
+          "insideZone": false
+        }
+      ],
+      "bearishOrderBlocks": []
+    }
+  ]
 }
