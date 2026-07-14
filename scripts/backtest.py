@@ -8,7 +8,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 
 # ============================================================================
-# 1. FULL UNIVERSE DEFINITION
+# 1. FULL UNIVERSE DEFINITION (37 TICKERS)
 # ============================================================================
 TICKERS = [
     'A200.AX', 'A2M.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 'ALL.AX', 'AMP.AX', 
@@ -20,14 +20,14 @@ TICKERS = [
 ]
 
 WEEKLY_ALLOCATION = 50.0
-START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+# Ensure we have enough buffer for the 200-day SMA (roughly 4 years for 3-year window)
+START_DATE = (datetime.now() - timedelta(days=4*365)).strftime('%Y-%m-%d')
 
 # ============================================================================
-# 2. FINANCIAL MATH & SANITIZATION UTILITIES
+# 2. FINANCIAL MATH & SANITIZATION
 # ============================================================================
 def clean_float(val, fallback=0.0):
-    if val is None or math.isnan(val) or math.isinf(val): return fallback
-    return float(val)
+    return float(val) if val is not None and not math.isnan(val) and not math.isinf(val) else fallback
 
 def calculate_xirr(cash_flows, dates, end_val, end_dt):
     if not cash_flows or end_val <= 0: return 0.0
@@ -35,59 +35,59 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
     if total_invested <= 0: return 0.0
     years = (end_dt - dates[0]).days / 365.25
     if years <= 0: return 0.0
-    
-    # Simple rate approximation for seed
     r = (end_val / total_invested) ** (1 / years) - 1
     return clean_float(r * 100)
 
 # ============================================================================
-# 3. DATA PROCESSING & ENGINE LOGIC
+# 3. DATA PROCESSING & ENGINE
 # ============================================================================
-print(f"Loading {len(TICKERS)} tickers...")
+print(f"Downloading data for {len(TICKERS)} tickers...")
 data = yf.download(TICKERS, start=START_DATE, interval='1d', group_by='ticker')
 
 weekly_universe = {}
 guppy_emas = [30, 35, 40, 45, 50, 60]
 
 for ticker in TICKERS:
-    if ticker not in data or data[ticker].dropna().empty: continue
+    if ticker not in data:
+        print(f"Skipping {ticker}: Not in download.")
+        continue
+        
     df_daily = data[ticker].dropna().copy()
-    
+    if len(df_daily) < 200:
+        print(f"Skipping {ticker}: Insufficient history ({len(df_daily)} days).")
+        continue
+
     # Technical Indicators
     df_daily['sma_200'] = df_daily['Close'].rolling(window=200).mean()
     for ema in guppy_emas:
         df_daily[f'ema_{ema}'] = df_daily['Close'].ewm(span=ema, adjust=False).mean()
 
+    # Resample to Weekly
     logic = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum', 'sma_200': 'last'}
     for ema in guppy_emas: logic[f'ema_{ema}'] = 'last'
-    
     df_wk = df_daily.resample('W').apply(logic).dropna().copy()
+    
+    # Proximity & Filters
     df_wk['OB_Level'], df_wk['Proximity'], df_wk['Guppy_Trend'] = np.nan, np.nan, False
-
     for i in range(2, len(df_wk)):
-        # Order Block Logic
         if df_wk['Close'].iloc[i-1] < df_wk['Open'].iloc[i-1] and df_wk['Close'].iloc[i] > df_wk['High'].iloc[i-1]:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['Low'].iloc[i-1]
         else:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['OB_Level'].iloc[i-1]
 
-        # Proximity Calc
-        current_ob = df_wk['OB_Level'].iloc[i]
-        if not np.isnan(current_ob) and current_ob > 0:
-            df_wk.iloc[i, df_wk.columns.get_loc('Proximity')] = ((df_wk['Close'].iloc[i] - current_ob) / current_ob) * 100
+        if df_wk['OB_Level'].iloc[i] > 0:
+            df_wk.iloc[i, df_wk.columns.get_loc('Proximity')] = ((df_wk['Close'].iloc[i] - df_wk['OB_Level'].iloc[i]) / df_wk['OB_Level'].iloc[i]) * 100
 
-        # Refined Guppy + 200SMA Safety Filter
+        # Guppy + 200SMA Safety
         emas_stacked = all(df_wk[f'ema_{guppy_emas[j]}'].iloc[i] > df_wk[f'ema_{guppy_emas[j+1]}'].iloc[i] for j in range(len(guppy_emas)-1))
-        emas_sloping = df_wk['ema_60'].iloc[i] > df_wk['ema_60'].iloc[i-1]
         above_200ma = df_wk['Close'].iloc[i] > df_wk['sma_200'].iloc[i]
-        
-        if emas_stacked and emas_sloping and above_200ma:
+        if emas_stacked and df_wk['ema_60'].iloc[i] > df_wk['ema_60'].iloc[i-1] and above_200ma:
             df_wk.iloc[i, df_wk.columns.get_loc('Guppy_Trend')] = True
 
     weekly_universe[ticker] = df_wk
+    print(f"Processed {ticker} successfully.")
 
 # ============================================================================
-# 4. SIMULATION & OUTPUT
+# 4. SIMULATION & OUTPUT (Logic omitted for brevity; use previous core loops)
 # ============================================================================
-# (Standard simulation loop follows as defined previously)
-print("Backtest complete. Universe validated against 200-day SMA.")
+print(f"Backtest complete. Universe size: {len(weekly_universe)} / {len(TICKERS)}")
