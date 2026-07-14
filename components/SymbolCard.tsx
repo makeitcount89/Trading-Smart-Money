@@ -1,6 +1,11 @@
 import { AlertTriangle } from "lucide-react";
-import type { OrderBlockZone, SymbolResult } from "@/lib/types";
+import type { OrderBlockZone, SymbolResult, TimeframeKey, TimeframeResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const TIMEFRAME_LABELS: Record<TimeframeKey, string> = {
+  "1d": "Daily",
+  "1wk": "Weekly",
+};
 
 function ZoneRow({ zone, bullish }: { zone: OrderBlockZone; bullish: boolean }) {
   return (
@@ -25,6 +30,46 @@ function ZoneRow({ zone, bullish }: { zone: OrderBlockZone; bullish: boolean }) 
   );
 }
 
+function TimeframeSection({ tfKey, tf }: { tfKey: TimeframeKey; tf: TimeframeResult | null | undefined }) {
+  if (!tf) {
+    return (
+      <div>
+        <div className="mb-2 text-xs font-medium text-[var(--text-muted)]">{TIMEFRAME_LABELS[tfKey]}</div>
+        <div className="text-xs text-[var(--text-muted)]">No data.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-xs font-medium text-[var(--text-primary)]">{TIMEFRAME_LABELS[tfKey]}</div>
+        <div className="tabular text-xs text-[var(--text-muted)]">
+          {tf.lastPrice.toFixed(3)} · {tf.lastBarDate}
+        </div>
+      </div>
+
+      {tf.bullishOrderBlocks.length === 0 ? (
+        <div className="text-xs text-[var(--text-muted)]">No active blue order block.</div>
+      ) : (
+        <div className="space-y-2">
+          {tf.bullishOrderBlocks.map((z, i) => (
+            <ZoneRow key={i} zone={z} bullish />
+          ))}
+        </div>
+      )}
+
+      {tf.bearishOrderBlocks.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {tf.bearishOrderBlocks.map((z, i) => (
+            <ZoneRow key={i} zone={z} bullish={false} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SymbolCard({ symbol }: { symbol: SymbolResult }) {
   if (!symbol.ok) {
     return (
@@ -40,38 +85,12 @@ export default function SymbolCard({ symbol }: { symbol: SymbolResult }) {
 
   return (
     <div className="rounded-xl border border-base-700 bg-base-850 p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">{symbol.ticker}</h3>
-        <span className="tabular text-sm text-[var(--text-secondary)]">
-          {symbol.lastPrice != null ? symbol.lastPrice.toFixed(3) : "—"}
-        </span>
-      </div>
-      <div className="mt-1 text-xs text-[var(--text-muted)]">Last bar {symbol.lastBarDate ?? "—"}</div>
+      <h3 className="text-sm font-semibold text-[var(--text-primary)]">{symbol.ticker}</h3>
+      {symbol.error && <div className="mt-1 text-[11px] text-[var(--text-muted)]">{symbol.error}</div>}
 
-      <div className="mt-4">
-        <div className="mb-2 text-xs font-medium text-[var(--text-muted)]">Blue (bullish) order blocks</div>
-        {symbol.bullishOrderBlocks.length === 0 ? (
-          <div className="text-xs text-[var(--text-muted)]">No active bullish order block.</div>
-        ) : (
-          <div className="space-y-2">
-            {symbol.bullishOrderBlocks.map((z, i) => (
-              <ZoneRow key={i} zone={z} bullish />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4">
-        <div className="mb-2 text-xs font-medium text-[var(--text-muted)]">Red (bearish) order blocks</div>
-        {symbol.bearishOrderBlocks.length === 0 ? (
-          <div className="text-xs text-[var(--text-muted)]">No active bearish order block.</div>
-        ) : (
-          <div className="space-y-2">
-            {symbol.bearishOrderBlocks.map((z, i) => (
-              <ZoneRow key={i} zone={z} bullish={false} />
-            ))}
-          </div>
-        )}
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <TimeframeSection tfKey="1d" tf={symbol.timeframes["1d"]} />
+        <TimeframeSection tfKey="1wk" tf={symbol.timeframes["1wk"]} />
       </div>
     </div>
   );
