@@ -66,35 +66,24 @@ export interface WorkflowStatus {
   error?: string;
 }
 
-// --- Retrace-to-weekly-OB backtest ---------------------------------------
-
-export type BacktestStrategyKey =
-  | "retrace"
-  | "retraceSwing"
-  | "retraceInternal"
-  | "fixedWeeklyDca"
-  | "randomWeeklyDca"
-  | "lumpSum";
+// --- Proximity-Ranked Weekly OB DCA Backtest -----------------------------
 
 export interface BacktestStrategySummary {
   events: number;
   totalInvested: number;
   endingValue: number;
-  simpleReturnPct: number | null;
+  simpleReturnPct: number;
   xirrPct: number | null;
 }
 
-export interface BacktestRetraceEvent {
+export interface ProximityDcaEvent {
   date: string;
   price: number;
-  obTop: number;
-  obBottom: number;
-  obFormedDate: string;
-  kind: "internal" | "swing";
+  proximityPct: number;
 }
 
-export interface BacktestRetraceStrategy extends BacktestStrategySummary {
-  eventDetail?: BacktestRetraceEvent[];
+export interface ProximityDcaStrategy extends BacktestStrategySummary {
+  eventDetail: ProximityDcaEvent[];
 }
 
 export interface BacktestTickerResult {
@@ -103,26 +92,16 @@ export interface BacktestTickerResult {
   error: string | null;
   asOfDate: string | null;
   asOfPrice: number | null;
-  windowStart: string | null;
-  strategies: Partial<{
-    retrace: BacktestRetraceStrategy;
-    retraceSwing: BacktestRetraceStrategy;
-    retraceInternal: BacktestRetraceStrategy;
-    fixedWeeklyDca: BacktestStrategySummary;
-    randomWeeklyDca: BacktestStrategySummary;
-    lumpSum: BacktestStrategySummary;
-  }>;
+  strategies: {
+    proximityDCA: ProximityDcaStrategy;
+  };
 }
 
 export interface BacktestMeta {
   universe: string[];
   windowYears: number;
-  amountPerEvent: number;
-  orderBlockKind: string;
-  retraceDefinition: string;
-  fixedWeekday: string;
-  randomSeed: number;
-  xirrMethod: string;
+  amountPerWeek: number;
+  strategyName: string;
   note: string;
 }
 
@@ -130,6 +109,8 @@ export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
   meta: BacktestMeta;
-  pooled: Partial<Record<BacktestStrategyKey, BacktestStrategySummary>>;
+  pooled: {
+    proximityDCA: BacktestStrategySummary;
+  };
   tickers: BacktestTickerResult[];
 }
