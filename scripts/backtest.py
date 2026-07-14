@@ -46,7 +46,7 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
     total_invested = sum(cash_flows)
     simple_return = (end_val - total_invested) / total_invested
     
-    # Intuitively frame numerical guess ranges
+    # Intuitively frame numerical guess ranges close to simple return trajectory
     r0 = max(simple_return * 0.5, -0.2)
     r1 = max(simple_return * 1.2, 0.1)
     
@@ -68,7 +68,7 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
         if abs(f1) < 1e-6: 
             return clean_float(r1 * 100)
             
-    # Fallback routine to protect dashboards from breaking on failure to converge
+    # Fallback routine: If secant method fails to converge, return annualized proxy
     years = (end_dt - dates[0]).days / 365.25
     if years > 0:
         return clean_float(((end_val / total_invested) ** (1 / years) - 1) * 100)
@@ -125,7 +125,7 @@ g1_portfolio, g2_portfolio = {}, {}
 g1_flows, g2_flows = [], []
 g1_dates, g2_dates = [], []
 
-# Dynamic tracking maps to calculate real, time-weighted per-ticker XIRR metrics
+# Dynamic flow logs to maintain true historical routing matrices per ticker
 g1_ticker_flows = {t: [] for t in TICKERS}
 g1_ticker_dates = {t: [] for t in TICKERS}
 g2_ticker_flows = {t: [] for t in TICKERS}
