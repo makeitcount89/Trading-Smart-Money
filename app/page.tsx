@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertTriangle, Crosshair, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, Crosshair, FlaskConical, RefreshCw } from "lucide-react";
 import type { SmcData, TimeframeKey } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 import StatTile from "@/components/StatTile";
@@ -59,14 +60,23 @@ export default function Home() {
           {data?.generatedAt && (
             <div className="text-xs text-[var(--text-muted)]">Data generated {formatDateTime(data.generatedAt)}</div>
           )}
-          <button
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-1.5 rounded-md border border-base-600 bg-base-800 px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition hover:bg-base-700 disabled:opacity-50"
-          >
-            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/backtest"
+              className="flex items-center gap-1.5 rounded-md border border-base-600 bg-base-800 px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition hover:bg-base-700"
+            >
+              <FlaskConical size={13} />
+              Backtest
+            </Link>
+            <button
+              onClick={load}
+              disabled={loading}
+              className="flex items-center gap-1.5 rounded-md border border-base-600 bg-base-800 px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition hover:bg-base-700 disabled:opacity-50"
+            >
+              <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </button>
+          </div>
         </div>
       </header>
 

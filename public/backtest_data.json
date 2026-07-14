@@ -1,0 +1,29 @@
+{
+  "generatedAt": null,
+  "status": "awaiting_first_run",
+  "meta": {
+    "universe": [
+      "ASIA.AX",
+      "LNAS.AX",
+      "HJPN.AX",
+      "BNKS.AX",
+      "MNRS.AX",
+      "FUEL.AX",
+      "NDQ.AX",
+      "HACK.AX",
+      "QAU.AX",
+      "OOO.AX",
+      "GGUS.AX"
+    ],
+    "windowYears": 2,
+    "amountPerEvent": 100,
+    "orderBlockKind": "swing (weekly, 50-bar structure)",
+    "retraceDefinition": "first bar after formation whose low wicks back into the order block (first touch only, one event per order block)",
+    "fixedWeekday": "Monday",
+    "randomSeed": 42,
+    "xirrMethod": "money-weighted annualized return, bisection solve, actual/365 day count",
+    "note": "All strategies buy and hold -- no stop-loss or exit rule. Pooled figures combine cash flows across the whole universe into one XIRR per strategy."
+  },
+  "pooled": {},
+  "tickers": []
+}
