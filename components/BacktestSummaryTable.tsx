@@ -1,35 +1,15 @@
-import type { BacktestStrategyKey, BacktestStrategySummary } from "@/lib/types";
+// components/BacktestSummaryTable.tsx
+import type { BacktestData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-const STRATEGY_LABELS: Record<BacktestStrategyKey, string> = {
-  retrace: "Retrace to weekly blue OB (internal + swing)",
-  retraceSwing: "Retrace to swing OB only (~1yr structure)",
-  retraceInternal: "Retrace to internal OB only (~5wk structure)",
-  fixedWeeklyDca: "Fixed-day weekly DCA (Monday)",
-  randomWeeklyDca: "Random-day weekly DCA",
-  lumpSum: "Lump sum (buy & hold)",
-};
-
-const STRATEGY_ORDER: BacktestStrategyKey[] = [
-  "retrace",
-  "retraceSwing",
-  "retraceInternal",
-  "fixedWeeklyDca",
-  "randomWeeklyDca",
-  "lumpSum",
-];
 
 export default function BacktestSummaryTable({
   pooled,
   title,
 }: {
-  pooled: Partial<Record<BacktestStrategyKey, BacktestStrategySummary>>;
+  pooled: BacktestData["pooled"];
   title: string;
 }) {
-  const ranked = STRATEGY_ORDER.filter((k) => pooled[k]?.xirrPct != null).sort(
-    (a, b) => (pooled[b]!.xirrPct ?? -Infinity) - (pooled[a]!.xirrPct ?? -Infinity)
-  );
-  const best = ranked[0];
+  const s = pooled.proximityDCA;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-base-700 bg-base-850">
@@ -46,23 +26,20 @@ export default function BacktestSummaryTable({
           </tr>
         </thead>
         <tbody>
-          {STRATEGY_ORDER.map((key) => {
-            const s = pooled[key];
-            if (!s) return null;
-            const isBest = key === best;
-            return (
-              <tr key={key} className="border-b border-base-800 last:border-0">
-                <td className={cn("px-4 py-3 font-medium", isBest && "text-smcBlue")}>{STRATEGY_LABELS[key]}</td>
-                <td className="px-4 py-3 tabular">{s.events}</td>
-                <td className="px-4 py-3 tabular">${s.totalInvested.toLocaleString()}</td>
-                <td className="px-4 py-3 tabular">${s.endingValue.toLocaleString()}</td>
-                <td className="px-4 py-3 tabular">{s.simpleReturnPct != null ? `${s.simpleReturnPct.toFixed(2)}%` : "—"}</td>
-                <td className={cn("px-4 py-3 tabular font-semibold", isBest && "text-smcBlue")}>
-                  {s.xirrPct != null ? `${s.xirrPct.toFixed(2)}%` : "—"}
-                </td>
-              </tr>
-            );
-          })}
+          <tr className="border-b border-base-800 last:border-0">
+            <td className="px-4 py-3 font-medium text-smcBlue">
+              Proximity-Ranked Weekly OB DCA Router
+            </td>
+            <td className="px-4 py-3 tabular">{s.events}</td>
+            <td className="px-4 py-3 tabular">${s.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td className="px-4 py-3 tabular">${s.endingValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td className={cn("px-4 py-3 tabular", s.simpleReturnPct >= 0 ? "text-long" : "text-short")}>
+              {s.simpleReturnPct != null ? `${s.simpleReturnPct > 0 ? "+" : ""}${s.simpleReturnPct.toFixed(2)}%` : "—"}
+            </td>
+            <td className="px-4 py-3 tabular font-semibold text-smcBlue">
+              {s.xirrPct != null ? `${s.xirrPct > 0 ? "+" : ""}${s.xirrPct.toFixed(2)}%` : "—"}
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
