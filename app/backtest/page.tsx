@@ -44,14 +44,11 @@ export default function BacktestPage() {
           </Link>
           <div className="flex items-center gap-2">
             <FlaskConical size={22} className="text-smcBlue" />
-            <h1 className="text-xl font-bold tracking-tight">Retrace-to-Weekly-OB Backtest</h1>
+            <h1 className="text-xl font-bold tracking-tight">Weekly OB Proximity Backtest</h1>
           </div>
           <p className="mt-1 max-w-3xl text-sm text-[var(--text-secondary)]">
-            Hypothesis: buying $100 every time price first retraces into an unmitigated weekly swing bullish order
-            block beats regular dollar-cost averaging (fixed-day and random-day weekly) and a lump-sum buy-and-hold,
-            over the trailing {data?.meta?.windowYears ?? 2} years. All strategies buy and hold &mdash; no
-            stop-loss, no selling.
-            {data?.meta && <> &middot; universe: {data.meta.universe.join(", ")}</>}
+            {data?.meta?.note ?? "Routing fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block."}
+            {data?.meta && <> &middot; Universe: {data.meta.universe.join(", ")}</>}
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 sm:items-end">
@@ -87,10 +84,10 @@ export default function BacktestPage() {
       {data && data.tickers.length > 0 && (
         <>
           <div className="mb-2 text-xs text-[var(--text-muted)]">
-            Retrace definition: {data.meta.retraceDefinition}. Random weekday seed: {data.meta.randomSeed}. Order
-            block type: {data.meta.orderBlockKind}.
+            Strategy: {data.meta.strategyName} &middot; Window: {data.meta.windowYears} Years &middot; Allocation: ${data.meta.amountPerWeek}/week
           </div>
-          <BacktestSummaryTable pooled={data.pooled} title={`Pooled across all ${data.tickers.length} tickers`} />
+          
+          <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
 
           <div className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
             Per-ticker detail
@@ -104,8 +101,6 @@ export default function BacktestPage() {
       )}
 
       <footer className="mt-8 text-center text-xs text-[var(--text-muted)]">
-        {data?.meta?.note}
-        <br />
         For research purposes only. Not financial advice.
       </footer>
     </main>
