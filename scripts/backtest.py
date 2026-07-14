@@ -1,15 +1,20 @@
 """Retrace-to-weekly-order-block backtest.
 
-Tests whether buying $100 every time price first retraces into a *weekly
-swing* bullish order block beats two dollar-cost-averaging baselines
-(fixed weekday, random weekday) and a lump-sum buy-and-hold, over the
-trailing WINDOW_YEARS. All strategies are pure accumulate-and-hold: no
-stop-loss, no selling -- every $100 buy is held to the last available
-close.
+Tests whether buying $100 every time price first retraces into a weekly
+bullish order block beats two dollar-cost-averaging baselines (fixed
+weekday, random weekday) and a lump-sum buy-and-hold, over the trailing
+WINDOW_YEARS. All strategies are pure accumulate-and-hold: no stop-loss,
+no selling -- every $100 buy is held to the last available close.
+
+Both weekly structure types are tracked: *internal* (5-bar, ~5 weeks,
+frequent) and *swing* (50-bar, ~1 year, rare). Three retrace strategies
+are reported: "retrace" (either kind -- the primary, highest-power
+signal), "retraceSwing", and "retraceInternal", so the swing-only result
+stays directly comparable to earlier runs.
 
 Reuses engine.py's fetch_history/compute_legs/wilder_atr/pick_order_block
 (the exact anchor-selection and pivot-detection logic already fixed and
-verified there) rather than re-deriving swing structure independently.
+verified there) rather than re-deriving structure logic independently.
 """
 from __future__ import annotations
 
@@ -37,6 +42,7 @@ OUTPUT_PATH = Path(__file__).resolve().parent.parent / "public" / "backtest_data
 
 @dataclass
 class Formation:
+    kind: str  # "internal" or "swing"
     formed_index: int
     formed_date: str
     top: float
@@ -53,13 +59,16 @@ def strip_tz(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def compute_swing_bullish_formations(weekly_df: pd.DataFrame) -> list[Formation]:
-    """Every weekly swing bullish order block ever formed, with its first retrace.
+def compute_bullish_formations(weekly_df: pd.DataFrame) -> list[Formation]:
+    """Every weekly bullish order block ever formed (internal and swing), with its first retrace.
 
-    Mirrors the swing-only half of engine.process_timeframe's structure loop
+    Mirrors engine.process_timeframe's dual internal/swing structure loop
     (see engine.py) -- pivot detection and order-block anchor selection are
     reused directly via engine.compute_legs / engine.pick_order_block so
     that logic can't drift between the live dashboard and this backtest.
+    Internal breaks that coincide with the current swing level are skipped,
+    matching the source indicator's own extraCondition (avoids double
+    counting the same structural point as both internal and swing).
     """
     high = weekly_df["High"].to_numpy()
     low = weekly_df["Low"].to_numpy()
@@ -76,23 +85,32 @@ def compute_swing_bullish_formations(weekly_df: pd.DataFrame) -> list[Formation]
     parsed_low = np.where(high_vol, high, low)
 
     swing_legs = engine.compute_legs(high, low, engine.SWING_LENGTH)
+    internal_legs = engine.compute_legs(high, low, engine.INTERNAL_LENGTH)
+
     swing_high, swing_low = engine.Pivot(), engine.Pivot()
+    internal_high, internal_low = engine.Pivot(), engine.Pivot()
+
+    def update_pivot(i: int, size: int, legs: np.ndarray, high_pivot: engine.Pivot, low_pivot: engine.Pivot) -> None:
+        if i < size or legs[i] == legs[i - 1]:
+            return
+        src_idx = i - size
+        if legs[i] == engine.LEG_BULLISH:
+            low_pivot.level = float(low[src_idx])
+            low_pivot.bar_index = src_idx
+            low_pivot.crossed = False
+        else:
+            high_pivot.level = float(high[src_idx])
+            high_pivot.bar_index = src_idx
+            high_pivot.crossed = False
 
     formations: list[Formation] = []
 
     for i in range(1, n):
         swing_high_prev, swing_low_prev = swing_high.level, swing_low.level
+        internal_high_prev, internal_low_prev = internal_high.level, internal_low.level
 
-        if i >= engine.SWING_LENGTH and swing_legs[i] != swing_legs[i - 1]:
-            src_idx = i - engine.SWING_LENGTH
-            if swing_legs[i] == engine.LEG_BULLISH:
-                swing_low.level = float(low[src_idx])
-                swing_low.bar_index = src_idx
-                swing_low.crossed = False
-            else:
-                swing_high.level = float(high[src_idx])
-                swing_high.bar_index = src_idx
-                swing_high.crossed = False
+        update_pivot(i, engine.SWING_LENGTH, swing_legs, swing_high, swing_low)
+        update_pivot(i, engine.INTERNAL_LENGTH, internal_legs, internal_high, internal_low)
 
         if (
             swing_high.bar_index >= 0
@@ -102,9 +120,7 @@ def compute_swing_bullish_formations(weekly_df: pd.DataFrame) -> list[Formation]
         ):
             swing_high.crossed = True
             ob = engine.pick_order_block(high, low, parsed_high, parsed_low, times, swing_high.bar_index, i, engine.BIAS_BULLISH)
-            formations.append(
-                Formation(formed_index=i, formed_date=str(times[i].date()), top=ob.bar_high, bottom=ob.bar_low, ob_date=ob.bar_time)
-            )
+            formations.append(Formation(kind="swing", formed_index=i, formed_date=str(times[i].date()), top=ob.bar_high, bottom=ob.bar_low, ob_date=ob.bar_time))
 
         if (
             swing_low.bar_index >= 0
@@ -113,7 +129,26 @@ def compute_swing_bullish_formations(weekly_df: pd.DataFrame) -> list[Formation]
             and close[i] < swing_low.level
         ):
             swing_low.crossed = True
-            # Bearish swing order blocks aren't used by this backtest.
+            # Bearish order blocks aren't used by this backtest.
+
+        if (
+            internal_high.bar_index >= 0
+            and not internal_high.crossed
+            and internal_high.level != swing_high.level
+            and close[i - 1] <= internal_high_prev
+            and close[i] > internal_high.level
+        ):
+            internal_high.crossed = True
+            ob = engine.pick_order_block(high, low, parsed_high, parsed_low, times, internal_high.bar_index, i, engine.BIAS_BULLISH)
+            formations.append(Formation(kind="internal", formed_index=i, formed_date=str(times[i].date()), top=ob.bar_high, bottom=ob.bar_low, ob_date=ob.bar_time))
+
+        if (
+            internal_low.bar_index >= 0
+            and not internal_low.crossed
+            and close[i - 1] >= internal_low_prev
+            and close[i] < internal_low.level
+        ):
+            internal_low.crossed = True
 
     # First retrace: the first bar strictly after formation whose low wicks
     # back into the zone (low <= top). The zone isn't "live" to trade until
@@ -182,22 +217,27 @@ def summarize(events: list[dict], as_of_date: pd.Timestamp, as_of_price: float) 
     }
 
 
+RETRACE_STRATEGY_KEYS = ("retrace", "retraceSwing", "retraceInternal")
+
+
 def backtest_ticker(ticker: str, rng: random.Random) -> tuple[dict, dict[str, list[dict]]]:
     weekly_df = strip_tz(engine.fetch_history(ticker, "1wk"))
     daily_df = strip_tz(engine.fetch_history(ticker, "1d"))
 
-    formations = compute_swing_bullish_formations(weekly_df)
+    formations = compute_bullish_formations(weekly_df)
 
     as_of_date = daily_df.index[-1]
     as_of_price = float(daily_df["Close"].iloc[-1])
     window_start = as_of_date - pd.DateOffset(years=WINDOW_YEARS)
 
-    retrace_events = [
-        {"date": f.retrace_date, "price": f.retrace_price, "obTop": f.top, "obBottom": f.bottom, "obFormedDate": f.formed_date}
-        for f in formations
-        if f.retrace_date is not None and f.retrace_date >= window_start
-    ]
-    retrace_events.sort(key=lambda e: e["date"])
+    def retrace_events_for(kinds: set[str]) -> list[dict]:
+        events = [
+            {"date": f.retrace_date, "price": f.retrace_price, "obTop": f.top, "obBottom": f.bottom, "obFormedDate": f.formed_date, "kind": f.kind}
+            for f in formations
+            if f.kind in kinds and f.retrace_date is not None and f.retrace_date >= window_start
+        ]
+        events.sort(key=lambda e: e["date"])
+        return events
 
     first_monday = window_start - pd.Timedelta(days=int(window_start.weekday()))
     week_starts = pd.date_range(first_monday, as_of_date, freq="7D")
@@ -219,7 +259,9 @@ def backtest_ticker(ticker: str, rng: random.Random) -> tuple[dict, dict[str, li
     lump_events = [{"date": lump_day, "price": float(daily_df.loc[lump_day, "Close"])}] if lump_day is not None else []
 
     strategy_events = {
-        "retrace": retrace_events,
+        "retrace": retrace_events_for({"internal", "swing"}),
+        "retraceSwing": retrace_events_for({"swing"}),
+        "retraceInternal": retrace_events_for({"internal"}),
         "fixedWeeklyDca": fixed_events,
         "randomWeeklyDca": random_events,
         "lumpSum": lump_events,
@@ -236,9 +278,9 @@ def backtest_ticker(ticker: str, rng: random.Random) -> tuple[dict, dict[str, li
             name: {
                 **summarize(events, as_of_date, as_of_price),
                 **({"eventDetail": [
-                    {"date": str(e["date"].date()), "price": round(e["price"], 4), "obTop": round(e["obTop"], 4), "obBottom": round(e["obBottom"], 4), "obFormedDate": e["obFormedDate"]}
+                    {"date": str(e["date"].date()), "price": round(e["price"], 4), "obTop": round(e["obTop"], 4), "obBottom": round(e["obBottom"], 4), "obFormedDate": e["obFormedDate"], "kind": e["kind"]}
                     for e in events
-                ]} if name == "retrace" else {}),
+                ]} if name in RETRACE_STRATEGY_KEYS else {}),
             }
             for name, events in strategy_events.items()
         },
@@ -261,7 +303,8 @@ def main() -> None:
     rng = random.Random(RANDOM_SEED)
     tickers_out = []
     pooled_cashflows: dict[str, list[tuple[pd.Timestamp, float]]] = {
-        "retrace": [], "fixedWeeklyDca": [], "randomWeeklyDca": [], "lumpSum": []
+        "retrace": [], "retraceSwing": [], "retraceInternal": [],
+        "fixedWeeklyDca": [], "randomWeeklyDca": [], "lumpSum": [],
     }
 
     for ticker in engine.UNIVERSE:
@@ -294,7 +337,7 @@ def main() -> None:
             "universe": engine.UNIVERSE,
             "windowYears": WINDOW_YEARS,
             "amountPerEvent": AMOUNT_PER_EVENT,
-            "orderBlockKind": "swing (weekly, 50-bar structure)",
+            "orderBlockKind": "weekly bullish order blocks -- 'retrace' combines internal (5-bar, ~5wk) and swing (50-bar, ~1yr) structure; 'retraceSwing'/'retraceInternal' isolate each",
             "retraceDefinition": "first bar after formation whose low wicks back into the order block (first touch only, one event per order block)",
             "fixedWeekday": FIXED_WEEKDAY_LABEL,
             "randomSeed": RANDOM_SEED,

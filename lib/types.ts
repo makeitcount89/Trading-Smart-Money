@@ -68,7 +68,13 @@ export interface WorkflowStatus {
 
 // --- Retrace-to-weekly-OB backtest ---------------------------------------
 
-export type BacktestStrategyKey = "retrace" | "fixedWeeklyDca" | "randomWeeklyDca" | "lumpSum";
+export type BacktestStrategyKey =
+  | "retrace"
+  | "retraceSwing"
+  | "retraceInternal"
+  | "fixedWeeklyDca"
+  | "randomWeeklyDca"
+  | "lumpSum";
 
 export interface BacktestStrategySummary {
   events: number;
@@ -84,6 +90,7 @@ export interface BacktestRetraceEvent {
   obTop: number;
   obBottom: number;
   obFormedDate: string;
+  kind: "internal" | "swing";
 }
 
 export interface BacktestRetraceStrategy extends BacktestStrategySummary {
@@ -99,6 +106,8 @@ export interface BacktestTickerResult {
   windowStart: string | null;
   strategies: Partial<{
     retrace: BacktestRetraceStrategy;
+    retraceSwing: BacktestRetraceStrategy;
+    retraceInternal: BacktestRetraceStrategy;
     fixedWeeklyDca: BacktestStrategySummary;
     randomWeeklyDca: BacktestStrategySummary;
     lumpSum: BacktestStrategySummary;
