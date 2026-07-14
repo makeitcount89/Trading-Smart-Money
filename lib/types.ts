@@ -52,8 +52,6 @@ export interface BacktestData {
 /**
  * State contract for the background Python backtest execution engine
  * handled by the /api/workflow-status routing layer.
- * 
- * Status allows null values to support fallback states when external workflow runs fail.
  */
 export interface WorkflowStatus {
   status: 'idle' | 'running' | 'completed' | 'failed' | null; 
@@ -61,4 +59,9 @@ export interface WorkflowStatus {
   currentTicker?: string | null;
   error?: string | null;
   updatedAt: string | null;
+  
+  // Extra tracking parameters returned by the API route fallback
+  conclusion?: string | null;
+  name?: string | null;
+  runStartedAt?: string | null;
 }
