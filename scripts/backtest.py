@@ -42,9 +42,8 @@ for ticker in TICKERS:
         
     df_daily = data[ticker].dropna().copy()
     
-    # Calculate SMA/EMA
-    df_daily['sma_200'] = df_daily['Close'].rolling(window=200).mean()
-    df_daily['sma_200'] = df_daily['sma_200'].ffill().bfill()
+    # Calculate SMA/EMA with backfill for new assets
+    df_daily['sma_200'] = df_daily['Close'].rolling(window=200).mean().ffill().bfill()
     
     for ema in guppy_emas:
         df_daily[f'ema_{ema}'] = df_daily['Close'].ewm(span=ema, adjust=False).mean()
@@ -55,13 +54,15 @@ for ticker in TICKERS:
     df_wk = df_daily.resample('W').apply(logic).dropna().copy()
     
     # Engine Logic
-    df_wk['OB_Level'], df_wk['Proximity'], df_wk['Guppy_Trend'] = np.nan, np.nan, False
+    df_wk['OB_Level'], df_wk['Guppy_Trend'] = np.nan, False
     for i in range(2, len(df_wk)):
+        # OB Level logic
         if df_wk['Close'].iloc[i-1] < df_wk['Open'].iloc[i-1] and df_wk['Close'].iloc[i] > df_wk['High'].iloc[i-1]:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['Low'].iloc[i-1]
         else:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['OB_Level'].iloc[i-1]
 
+        # Trend Logic
         emas_stacked = all(df_wk[f'ema_{guppy_emas[j]}'].iloc[i] > df_wk[f'ema_{guppy_emas[j+1]}'].iloc[i] for j in range(len(guppy_emas)-1))
         above_200ma = df_wk['Close'].iloc[i] > df_wk['sma_200'].iloc[i]
         if emas_stacked and df_wk['ema_60'].iloc[i] > df_wk['ema_60'].iloc[i-1] and above_200ma:
@@ -70,17 +71,20 @@ for ticker in TICKERS:
     weekly_universe[ticker] = df_wk
 
 # ============================================================================
-# 4. SERIALIZATION & FILE WRITE
+# 4. FORCED SERIALIZATION (Writes to backtest_data.json)
 # ============================================================================
 ticker_payloads = []
 for ticker in sorted(TICKERS):
     if ticker not in weekly_universe:
         ticker_payloads.append({"ticker": ticker, "ok": False, "error": "No data available"})
     else:
+        df_wk = weekly_universe[ticker]
         ticker_payloads.append({
             "ticker": ticker, 
             "ok": True, 
-            "last_price": clean_float(weekly_universe[ticker]['Close'].iloc[-1])
+            "asOfDate": df_wk.index[-1].strftime('%Y-%m-%d'),
+            "asOfPrice": clean_float(df_wk['Close'].iloc[-1]),
+            "guppyTrend": bool(df_wk['Guppy_Trend'].iloc[-1])
         })
 
 final_report = {
@@ -89,9 +93,7 @@ final_report = {
     "tickers": ticker_payloads
 }
 
-# PERSIST TO DISK
-output_file = "backtest_data.json"
-with open(output_file, "w") as f:
+with open("backtest_data.json", "w") as f:
     json.dump(final_report, f, indent=2)
 
-print(f"Successfully wrote {len(ticker_payloads)} tickers to {output_file}")
+print(f"Successfully wrote {len(ticker_payloads)} tickers to backtest_data.json")
