@@ -1,6 +1,5 @@
 {
-  "generatedAt": null,
-  "status": "awaiting_first_run",
+  "generatedAt": "2026-07-14T04:09:12.920968+00:00",
   "meta": {
     "universe": [
       "ASIA.AX",
@@ -16,7 +15,7 @@
       "GGUS.AX"
     ],
     "windowYears": 2,
-    "amountPerEvent": 100,
+    "amountPerEvent": 100.0,
     "orderBlockKind": "swing (weekly, 50-bar structure)",
     "retraceDefinition": "first bar after formation whose low wicks back into the order block (first touch only, one event per order block)",
     "fixedWeekday": "Monday",
@@ -24,6 +23,473 @@
     "xirrMethod": "money-weighted annualized return, bisection solve, actual/365 day count",
     "note": "All strategies buy and hold -- no stop-loss or exit rule. Pooled figures combine cash flows across the whole universe into one XIRR per strategy."
   },
-  "pooled": {},
-  "tickers": []
+  "pooled": {
+    "retrace": {
+      "events": 1,
+      "totalInvested": 100.0,
+      "endingValue": 147.14,
+      "simpleReturnPct": 47.14,
+      "xirrPct": 35.59
+    },
+    "fixedWeeklyDca": {
+      "events": 1155,
+      "totalInvested": 115500.0,
+      "endingValue": 148863.39,
+      "simpleReturnPct": 28.89,
+      "xirrPct": 27.61
+    },
+    "randomWeeklyDca": {
+      "events": 1150,
+      "totalInvested": 115000.0,
+      "endingValue": 147724.39,
+      "simpleReturnPct": 28.46,
+      "xirrPct": 27.25
+    },
+    "lumpSum": {
+      "events": 11,
+      "totalInvested": 1100.0,
+      "endingValue": 1668.12,
+      "simpleReturnPct": 51.65,
+      "xirrPct": 23.18
+    }
+  },
+  "tickers": [
+    {
+      "ticker": "ASIA.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 19.74,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 17061.9,
+          "simpleReturnPct": 62.49,
+          "xirrPct": 57.04
+        },
+        "randomWeeklyDca": {
+          "events": 104,
+          "totalInvested": 10400.0,
+          "endingValue": 16869.08,
+          "simpleReturnPct": 62.2,
+          "xirrPct": 56.6
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 211.35,
+          "simpleReturnPct": 111.35,
+          "xirrPct": 45.45
+        }
+      }
+    },
+    {
+      "ticker": "LNAS.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 11.88,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 11258.51,
+          "simpleReturnPct": 7.22,
+          "xirrPct": 7.14
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 11186.92,
+          "simpleReturnPct": 6.54,
+          "xirrPct": 6.51
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 109.39,
+          "simpleReturnPct": 9.39,
+          "xirrPct": 4.6
+        }
+      }
+    },
+    {
+      "ticker": "HJPN.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 30.15,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 14193.31,
+          "simpleReturnPct": 35.17,
+          "xirrPct": 33.31
+        },
+        "randomWeeklyDca": {
+          "events": 104,
+          "totalInvested": 10400.0,
+          "endingValue": 14058.94,
+          "simpleReturnPct": 35.18,
+          "xirrPct": 33.2
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 142.69,
+          "simpleReturnPct": 42.69,
+          "xirrPct": 19.48
+        }
+      }
+    },
+    {
+      "ticker": "BNKS.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 13.81,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 14655.11,
+          "simpleReturnPct": 39.57,
+          "xirrPct": 37.24
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 14591.54,
+          "simpleReturnPct": 38.97,
+          "xirrPct": 36.89
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 180.05,
+          "simpleReturnPct": 80.05,
+          "xirrPct": 34.24
+        }
+      }
+    },
+    {
+      "ticker": "MNRS.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 12.15,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 13390.51,
+          "simpleReturnPct": 27.53,
+          "xirrPct": 26.36
+        },
+        "randomWeeklyDca": {
+          "events": 104,
+          "totalInvested": 10400.0,
+          "endingValue": 13183.83,
+          "simpleReturnPct": 26.77,
+          "xirrPct": 25.58
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 187.21,
+          "simpleReturnPct": 87.21,
+          "xirrPct": 36.88
+        }
+      }
+    },
+    {
+      "ticker": "FUEL.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 8.24,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 147.14,
+          "simpleReturnPct": 47.14,
+          "xirrPct": 35.59,
+          "eventDetail": [
+            {
+              "date": "2025-04-07",
+              "price": 5.6,
+              "obTop": 5.52,
+              "obBottom": 5.23,
+              "obFormedDate": "2024-04-01"
+            }
+          ]
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 12757.85,
+          "simpleReturnPct": 21.5,
+          "xirrPct": 20.78
+        },
+        "randomWeeklyDca": {
+          "events": 104,
+          "totalInvested": 10400.0,
+          "endingValue": 12668.17,
+          "simpleReturnPct": 21.81,
+          "xirrPct": 21.0
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 126.57,
+          "simpleReturnPct": 26.57,
+          "xirrPct": 12.52
+        }
+      }
+    },
+    {
+      "ticker": "NDQ.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 61.21,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 12677.0,
+          "simpleReturnPct": 20.73,
+          "xirrPct": 20.06
+        },
+        "randomWeeklyDca": {
+          "events": 104,
+          "totalInvested": 10400.0,
+          "endingValue": 12559.1,
+          "simpleReturnPct": 20.76,
+          "xirrPct": 20.01
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 136.72,
+          "simpleReturnPct": 36.72,
+          "xirrPct": 16.95
+        }
+      }
+    },
+    {
+      "ticker": "HACK.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 16.87,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 12875.08,
+          "simpleReturnPct": 22.62,
+          "xirrPct": 21.82
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 12822.22,
+          "simpleReturnPct": 22.12,
+          "xirrPct": 21.47
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 144.56,
+          "simpleReturnPct": 44.56,
+          "xirrPct": 20.26
+        }
+      }
+    },
+    {
+      "ticker": "QAU.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 30.16,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 11557.49,
+          "simpleReturnPct": 10.07,
+          "xirrPct": 9.91
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 11510.04,
+          "simpleReturnPct": 9.62,
+          "xirrPct": 9.52
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 150.5,
+          "simpleReturnPct": 50.5,
+          "xirrPct": 22.71
+        }
+      }
+    },
+    {
+      "ticker": "OOO.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 8.04,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 14500.08,
+          "simpleReturnPct": 38.1,
+          "xirrPct": 35.93
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 14501.97,
+          "simpleReturnPct": 38.11,
+          "xirrPct": 36.17
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 135.13,
+          "simpleReturnPct": 35.13,
+          "xirrPct": 16.27
+        }
+      }
+    },
+    {
+      "ticker": "GGUS.AX",
+      "ok": true,
+      "error": null,
+      "asOfDate": "2026-07-14",
+      "asOfPrice": 59.84,
+      "windowStart": "2024-07-14",
+      "strategies": {
+        "retrace": {
+          "events": 0,
+          "totalInvested": 0.0,
+          "endingValue": 0.0,
+          "simpleReturnPct": null,
+          "xirrPct": null,
+          "eventDetail": []
+        },
+        "fixedWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 13936.55,
+          "simpleReturnPct": 32.73,
+          "xirrPct": 31.1
+        },
+        "randomWeeklyDca": {
+          "events": 105,
+          "totalInvested": 10500.0,
+          "endingValue": 13772.58,
+          "simpleReturnPct": 31.17,
+          "xirrPct": 29.85
+        },
+        "lumpSum": {
+          "events": 1,
+          "totalInvested": 100.0,
+          "endingValue": 143.95,
+          "simpleReturnPct": 43.95,
+          "xirrPct": 20.01
+        }
+      }
+    }
+  ]
 }
