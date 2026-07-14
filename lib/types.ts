@@ -64,4 +64,7 @@ export interface WorkflowStatus {
   conclusion?: string | null;
   name?: string | null;
   runStartedAt?: string | null;
+  htmlUrl?: string | null;
+  event?: string | null;
+  runNumber?: number | null;
 }
