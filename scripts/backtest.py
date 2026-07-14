@@ -169,6 +169,6 @@ results = {
     "group2": {"name": "Guppy Trend Filtered Router", "invested": len(g2_flows)*50, "value": g2_end_val, "xirr": g2_xirr}
 }
 
-with open('public/experiment_results.json', 'w') as f:
+with open('public/backtest_data.json', 'w') as f:
     json.dump(results, f, indent=2)
 print("Experiment successfully written to client static JSON layer.")
