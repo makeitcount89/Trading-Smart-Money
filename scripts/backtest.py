@@ -31,7 +31,7 @@ def clean_float(val, fallback=0.0):
     return float(val)
 
 def xirr_equation(cash_flows, dates, end_val, end_dt, r):
-    """Computes NPV. Outlays must be negative, ending value positive."""
+    """Computes Net Present Value. Outlays are negative, ending value is positive."""
     npv = 0.0
     for flow, dt in zip(cash_flows, dates):
         t = (end_dt - dt).days / 365.25
@@ -40,14 +40,27 @@ def xirr_equation(cash_flows, dates, end_val, end_dt, r):
     return npv
 
 def calculate_xirr(cash_flows, dates, end_val, end_dt):
-    if not cash_flows or end_val <= 0 or (end_dt - dates[0]).days == 0:
+    if not cash_flows or end_val <= 0:
         return 0.0
-    
+        
     total_invested = sum(cash_flows)
+    if total_invested <= 0:
+        return 0.0
+        
+    days_elapsed = (end_dt - dates[0]).days
+    if days_elapsed <= 0:
+        return 0.0
+        
+    years = days_elapsed / 365.25
     simple_return = (end_val - total_invested) / total_invested
-    
-    # Intuitively frame numerical guess ranges close to simple return trajectory
-    r0 = max(simple_return * 0.5, -0.2)
+
+    # Fallback early for 1-hit wonders or extremely short histories to prevent root divergence
+    if len(cash_flows) < 2:
+        cagr = ((end_val / total_invested) ** (1 / max(years, 0.001)) - 1) * 100
+        return clean_float(cagr)
+
+    # Establish tight, protective boundaries around the observed trajectory
+    r0 = max(simple_return * 0.5, -0.5)
     r1 = max(simple_return * 1.2, 0.1)
     
     f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
@@ -58,22 +71,26 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
             break
         r_next = r1 - f1 * (r1 - r0) / (f1 - f0)
         
-        if r_next < -0.99: 
-            r_next = -0.99
+        # Enforce hard boundaries so the root finder never wanders down to the -100% floor
+        if r_next < -0.95: 
+            r_next = -0.95
+        if r_next > 5.0:
+            r_next = 5.0
             
         r0, r1 = r1, r_next
         f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
         f1 = xirr_equation(cash_flows, dates, end_val, end_dt, r1)
         
-        if abs(f1) < 1e-6: 
+        if abs(f1) < 1e-6:
+            # Final sanity check: if simple return is positive, XIRR cannot be negative
+            if simple_return > 0 and r1 < 0:
+                break
+            if simple_return < 0 and r1 > 0:
+                break
             return clean_float(r1 * 100)
             
-    # Fallback routine: If secant method fails to converge, return annualized proxy
-    years = (end_dt - dates[0]).days / 365.25
-    if years > 0:
-        return clean_float(((end_val / total_invested) ** (1 / years) - 1) * 100)
-        
-    return clean_float(simple_return * 100)
+    # Deterministic Time-Weighted CAGR proxy fallback if root optimization wanders off
+    return clean_float(((end_val / total_invested) ** (1 / years) - 1) * 100)
 
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
@@ -125,7 +142,6 @@ g1_portfolio, g2_portfolio = {}, {}
 g1_flows, g2_flows = [], []
 g1_dates, g2_dates = [], []
 
-# Dynamic flow logs to maintain true historical routing matrices per ticker
 g1_ticker_flows = {t: [] for t in TICKERS}
 g1_ticker_dates = {t: [] for t in TICKERS}
 g2_ticker_flows = {t: [] for t in TICKERS}
@@ -183,7 +199,7 @@ for ticker in TICKERS:
     last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
 
-    # Strategy 1 (Pure Proximity) Metrics
+    # Pure Proximity Performance Metrics
     g1_units = g1_portfolio.get(ticker, 0.0)
     g1_events = len(g1_ticker_flows[ticker])
     g1_invested = sum(g1_ticker_flows[ticker])
@@ -191,7 +207,7 @@ for ticker in TICKERS:
     g1_return = ((g1_ending - g1_invested) / g1_invested * 100) if g1_invested > 0 else 0.0
     g1_tick_xirr = calculate_xirr(g1_ticker_flows[ticker], g1_ticker_dates[ticker], g1_ending, end_dt) if g1_invested > 0 else 0.0
 
-    # Strategy 2 (Guppy Filtered Proximity) Metrics
+    # Guppy Filtered Proximity Performance Metrics
     g2_units = g2_portfolio.get(ticker, 0.0)
     g2_events = len(g2_ticker_flows[ticker])
     g2_invested = sum(g2_ticker_flows[ticker])
