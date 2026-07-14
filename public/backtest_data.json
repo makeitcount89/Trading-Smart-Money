@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T04:09:12.920968+00:00",
+  "generatedAt": "2026-07-14T09:01:42.523476+00:00",
   "meta": {
     "universe": [
       "ASIA.AX",
@@ -27,30 +27,30 @@
     "retrace": {
       "events": 1,
       "totalInvested": 100.0,
-      "endingValue": 147.14,
-      "simpleReturnPct": 47.14,
-      "xirrPct": 35.59
+      "endingValue": 146.96,
+      "simpleReturnPct": 46.96,
+      "xirrPct": 35.46
     },
     "fixedWeeklyDca": {
       "events": 1155,
       "totalInvested": 115500.0,
-      "endingValue": 148863.39,
-      "simpleReturnPct": 28.89,
-      "xirrPct": 27.61
+      "endingValue": 150107.03,
+      "simpleReturnPct": 29.96,
+      "xirrPct": 28.59
     },
     "randomWeeklyDca": {
       "events": 1150,
       "totalInvested": 115000.0,
-      "endingValue": 147724.39,
-      "simpleReturnPct": 28.46,
-      "xirrPct": 27.25
+      "endingValue": 148953.51,
+      "simpleReturnPct": 29.52,
+      "xirrPct": 28.23
     },
     "lumpSum": {
       "events": 11,
       "totalInvested": 1100.0,
-      "endingValue": 1668.12,
-      "simpleReturnPct": 51.65,
-      "xirrPct": 23.18
+      "endingValue": 1682.59,
+      "simpleReturnPct": 52.96,
+      "xirrPct": 23.71
     }
   },
   "tickers": [
@@ -59,7 +59,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 19.74,
+      "asOfPrice": 20.33,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -73,23 +73,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 17061.9,
-          "simpleReturnPct": 62.49,
-          "xirrPct": 57.04
+          "endingValue": 17571.85,
+          "simpleReturnPct": 67.35,
+          "xirrPct": 61.1
         },
         "randomWeeklyDca": {
           "events": 104,
           "totalInvested": 10400.0,
-          "endingValue": 16869.08,
-          "simpleReturnPct": 62.2,
-          "xirrPct": 56.6
+          "endingValue": 17373.28,
+          "simpleReturnPct": 67.05,
+          "xirrPct": 60.65
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 211.35,
-          "simpleReturnPct": 111.35,
-          "xirrPct": 45.45
+          "endingValue": 217.67,
+          "simpleReturnPct": 117.67,
+          "xirrPct": 47.61
         }
       }
     },
@@ -98,7 +98,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 11.88,
+      "asOfPrice": 12.11,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -112,23 +112,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 11258.51,
-          "simpleReturnPct": 7.22,
-          "xirrPct": 7.14
+          "endingValue": 11476.47,
+          "simpleReturnPct": 9.3,
+          "xirrPct": 9.16
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 11186.92,
-          "simpleReturnPct": 6.54,
-          "xirrPct": 6.51
+          "endingValue": 11401.56,
+          "simpleReturnPct": 8.59,
+          "xirrPct": 8.51
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 109.39,
-          "simpleReturnPct": 9.39,
-          "xirrPct": 4.6
+          "endingValue": 111.51,
+          "simpleReturnPct": 11.51,
+          "xirrPct": 5.61
         }
       }
     },
@@ -137,7 +137,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 30.15,
+      "asOfPrice": 30.41,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -151,23 +151,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 14193.31,
-          "simpleReturnPct": 35.17,
-          "xirrPct": 33.31
+          "endingValue": 14315.7,
+          "simpleReturnPct": 36.34,
+          "xirrPct": 34.36
         },
         "randomWeeklyDca": {
           "events": 104,
           "totalInvested": 10400.0,
-          "endingValue": 14058.94,
-          "simpleReturnPct": 35.18,
-          "xirrPct": 33.2
+          "endingValue": 14180.17,
+          "simpleReturnPct": 36.35,
+          "xirrPct": 34.25
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 142.69,
-          "simpleReturnPct": 42.69,
-          "xirrPct": 19.48
+          "endingValue": 143.92,
+          "simpleReturnPct": 43.92,
+          "xirrPct": 20.0
         }
       }
     },
@@ -176,7 +176,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 13.81,
+      "asOfPrice": 13.89,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -190,23 +190,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 14655.11,
-          "simpleReturnPct": 39.57,
-          "xirrPct": 37.24
+          "endingValue": 14740.01,
+          "simpleReturnPct": 40.38,
+          "xirrPct": 37.96
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 14591.54,
-          "simpleReturnPct": 38.97,
-          "xirrPct": 36.89
+          "endingValue": 14676.07,
+          "simpleReturnPct": 39.77,
+          "xirrPct": 37.61
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 180.05,
-          "simpleReturnPct": 80.05,
-          "xirrPct": 34.24
+          "endingValue": 181.1,
+          "simpleReturnPct": 81.1,
+          "xirrPct": 34.63
         }
       }
     },
@@ -215,7 +215,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 12.15,
+      "asOfPrice": 12.25,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -229,23 +229,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 13390.51,
-          "simpleReturnPct": 27.53,
-          "xirrPct": 26.36
+          "endingValue": 13500.73,
+          "simpleReturnPct": 28.58,
+          "xirrPct": 27.32
         },
         "randomWeeklyDca": {
           "events": 104,
           "totalInvested": 10400.0,
-          "endingValue": 13183.83,
-          "simpleReturnPct": 26.77,
-          "xirrPct": 25.58
+          "endingValue": 13292.34,
+          "simpleReturnPct": 27.81,
+          "xirrPct": 26.54
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 187.21,
-          "simpleReturnPct": 87.21,
-          "xirrPct": 36.88
+          "endingValue": 188.75,
+          "simpleReturnPct": 88.75,
+          "xirrPct": 37.45
         }
       }
     },
@@ -254,15 +254,15 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 8.24,
+      "asOfPrice": 8.23,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 147.14,
-          "simpleReturnPct": 47.14,
-          "xirrPct": 35.59,
+          "endingValue": 146.96,
+          "simpleReturnPct": 46.96,
+          "xirrPct": 35.46,
           "eventDetail": [
             {
               "date": "2025-04-07",
@@ -276,23 +276,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 12757.85,
-          "simpleReturnPct": 21.5,
-          "xirrPct": 20.78
+          "endingValue": 12742.37,
+          "simpleReturnPct": 21.36,
+          "xirrPct": 20.64
         },
         "randomWeeklyDca": {
           "events": 104,
           "totalInvested": 10400.0,
-          "endingValue": 12668.17,
-          "simpleReturnPct": 21.81,
-          "xirrPct": 21.0
+          "endingValue": 12652.79,
+          "simpleReturnPct": 21.66,
+          "xirrPct": 20.87
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 126.57,
-          "simpleReturnPct": 26.57,
-          "xirrPct": 12.52
+          "endingValue": 126.42,
+          "simpleReturnPct": 26.42,
+          "xirrPct": 12.46
         }
       }
     },
@@ -301,7 +301,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 61.21,
+      "asOfPrice": 61.65,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -315,23 +315,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 12677.0,
-          "simpleReturnPct": 20.73,
-          "xirrPct": 20.06
+          "endingValue": 12768.13,
+          "simpleReturnPct": 21.6,
+          "xirrPct": 20.87
         },
         "randomWeeklyDca": {
           "events": 104,
           "totalInvested": 10400.0,
-          "endingValue": 12559.1,
-          "simpleReturnPct": 20.76,
-          "xirrPct": 20.01
+          "endingValue": 12649.38,
+          "simpleReturnPct": 21.63,
+          "xirrPct": 20.82
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 136.72,
-          "simpleReturnPct": 36.72,
-          "xirrPct": 16.95
+          "endingValue": 137.7,
+          "simpleReturnPct": 37.7,
+          "xirrPct": 17.37
         }
       }
     },
@@ -340,7 +340,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 16.87,
+      "asOfPrice": 16.81,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -354,23 +354,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 12875.08,
-          "simpleReturnPct": 22.62,
-          "xirrPct": 21.82
+          "endingValue": 12829.29,
+          "simpleReturnPct": 22.18,
+          "xirrPct": 21.41
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 12822.22,
-          "simpleReturnPct": 22.12,
-          "xirrPct": 21.47
+          "endingValue": 12776.62,
+          "simpleReturnPct": 21.68,
+          "xirrPct": 21.07
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 144.56,
-          "simpleReturnPct": 44.56,
-          "xirrPct": 20.26
+          "endingValue": 144.04,
+          "simpleReturnPct": 44.04,
+          "xirrPct": 20.05
         }
       }
     },
@@ -379,7 +379,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 30.16,
+      "asOfPrice": 30.3,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -393,23 +393,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 11557.49,
-          "simpleReturnPct": 10.07,
-          "xirrPct": 9.91
+          "endingValue": 11611.14,
+          "simpleReturnPct": 10.58,
+          "xirrPct": 10.4
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 11510.04,
-          "simpleReturnPct": 9.62,
-          "xirrPct": 9.52
+          "endingValue": 11563.47,
+          "simpleReturnPct": 10.13,
+          "xirrPct": 10.02
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 150.5,
-          "simpleReturnPct": 50.5,
-          "xirrPct": 22.71
+          "endingValue": 151.2,
+          "simpleReturnPct": 51.2,
+          "xirrPct": 23.0
         }
       }
     },
@@ -418,7 +418,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 8.04,
+      "asOfPrice": 8.03,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -432,23 +432,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 14500.08,
-          "simpleReturnPct": 38.1,
-          "xirrPct": 35.93
+          "endingValue": 14482.04,
+          "simpleReturnPct": 37.92,
+          "xirrPct": 35.77
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 14501.97,
-          "simpleReturnPct": 38.11,
-          "xirrPct": 36.17
+          "endingValue": 14484.06,
+          "simpleReturnPct": 37.94,
+          "xirrPct": 36.02
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 135.13,
-          "simpleReturnPct": 35.13,
-          "xirrPct": 16.27
+          "endingValue": 134.96,
+          "simpleReturnPct": 34.96,
+          "xirrPct": 16.2
         }
       }
     },
@@ -457,7 +457,7 @@
       "ok": true,
       "error": null,
       "asOfDate": "2026-07-14",
-      "asOfPrice": 59.84,
+      "asOfPrice": 60.41,
       "windowStart": "2024-07-14",
       "strategies": {
         "retrace": {
@@ -471,23 +471,23 @@
         "fixedWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 13936.55,
-          "simpleReturnPct": 32.73,
-          "xirrPct": 31.1
+          "endingValue": 14069.3,
+          "simpleReturnPct": 33.99,
+          "xirrPct": 32.25
         },
         "randomWeeklyDca": {
           "events": 105,
           "totalInvested": 10500.0,
-          "endingValue": 13772.58,
-          "simpleReturnPct": 31.17,
-          "xirrPct": 29.85
+          "endingValue": 13903.77,
+          "simpleReturnPct": 32.42,
+          "xirrPct": 30.99
         },
         "lumpSum": {
           "events": 1,
           "totalInvested": 100.0,
-          "endingValue": 143.95,
-          "simpleReturnPct": 43.95,
-          "xirrPct": 20.01
+          "endingValue": 145.32,
+          "simpleReturnPct": 45.32,
+          "xirrPct": 20.58
         }
       }
     }
