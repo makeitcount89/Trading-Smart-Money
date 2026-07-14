@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
 TICKERS = [
-    'A200.AX', 'A2M.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 
-    'ALL.AX', 'AMP.AX', 'ANZ.AX', 'APA.AX', 'APX.AX', 
+    'A200.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 
+    'ALL.AX', 'AMP.AX', 'ANZ.AX', 'APA.AX' 
     'ARB.AX', 'ASIA.AX', 'ASX.AX', 'ATEC.AX', 'AUB.AX', 
     'EVN.AX', 'GDX.AX'
 ]
