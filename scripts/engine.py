@@ -26,7 +26,19 @@ import yfinance as yf
 # (ASX listings use the ".AX" suffix). Push a change and the next scheduled
 # run (or a manual workflow_dispatch) picks it up automatically.
 # ---------------------------------------------------------------------------
-UNIVERSE = ["ASIA.AX", "LNAS.AX", "HJPN.AX"]
+UNIVERSE = [
+    "ASIA.AX",
+    "LNAS.AX",
+    "HJPN.AX",
+    "BNKS.AX",
+    "MNRS.AX",
+    "FUEL.AX",
+    "NDQ.AX",
+    "HACK.AX",
+    "QAU.AX",
+    "OOO.AX",
+    "GGUS.AX",
+]
 
 # The Pine indicator is timeframe-agnostic -- it just runs on whatever bars
 # are loaded on the chart. TradingView users routinely check both the Daily
@@ -143,6 +155,36 @@ def bias_str(bias: int) -> str | None:
     return None
 
 
+def pick_order_block(
+    high: np.ndarray,
+    low: np.ndarray,
+    parsed_high: np.ndarray,
+    parsed_low: np.ndarray,
+    times,
+    start: int,
+    end: int,
+    bias: int,
+) -> OrderBlock:
+    """Pick the order block anchor bar in [start, end).
+
+    `end` (the breakout bar) is excluded, matching Pine's
+    array.slice(id, from, to) semantics. Shared by process_timeframe and
+    scripts/backtest.py so the anchor-selection logic can't drift between
+    the two.
+    """
+    if bias == BIAS_BEARISH:
+        offset = int(np.argmax(parsed_high[start:end]))
+    else:
+        offset = int(np.argmin(parsed_low[start:end]))
+    idx = start + offset
+    return OrderBlock(
+        bar_high=float(high[idx]),
+        bar_low=float(low[idx]),
+        bar_time=str(times[idx].date()),
+        bias=bias,
+    )
+
+
 def zone_from_order_block(ob: OrderBlock, kind: str, price: float) -> dict:
     top, bottom = ob.bar_high, ob.bar_low
     if price < bottom:
@@ -209,24 +251,8 @@ def process_timeframe(ticker: str, interval: str) -> dict:
             high_pivot.crossed = False
 
     def store_order_block(pivot: Pivot, bias: int, obs: list[OrderBlock], i: int) -> None:
-        # Pine's array.slice(id, from, to) excludes `to`, so the breakout bar
-        # itself (index i) is NOT a candidate for the order block anchor --
-        # only bars strictly before it, back to the pivot bar, are searched.
-        start, end = pivot.bar_index, i
-        if bias == BIAS_BEARISH:
-            offset = int(np.argmax(parsed_high[start:end]))
-        else:
-            offset = int(np.argmin(parsed_low[start:end]))
-        idx = start + offset
-        obs.insert(
-            0,
-            OrderBlock(
-                bar_high=float(high[idx]),
-                bar_low=float(low[idx]),
-                bar_time=str(times[idx].date()),
-                bias=bias,
-            ),
-        )
+        ob = pick_order_block(high, low, parsed_high, parsed_low, times, pivot.bar_index, i, bias)
+        obs.insert(0, ob)
         del obs[100:]
 
     def mitigate(obs: list[OrderBlock], i: int) -> list[OrderBlock]:

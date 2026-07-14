@@ -1,0 +1,50 @@
+name: Run Retrace-to-OB Backtest
+
+on:
+  workflow_dispatch: {}
+  # Weekly structure only updates once a week, so a weekly cadence (after
+  # Friday's close settles) is enough to keep this fresh.
+  schedule:
+    - cron: "0 7 * * 6"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: run-backtest
+  cancel-in-progress: false
+
+jobs:
+  run-backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run backtest
+        run: python scripts/backtest.py
+
+      - name: Commit and push updated backtest data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- public/backtest_data.json; then
+            echo "No change in backtest_data.json, skipping commit."
+            exit 0
+          fi
+          git add public/backtest_data.json
+          git commit -m "chore: update backtest data [skip ci]"
+          git push

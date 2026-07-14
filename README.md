@@ -5,10 +5,12 @@ market structure, BOS/CHoCH, and order blocks) from Pine Script to Python, runs 
 daily across a configurable universe of stocks on **both the Daily and Weekly
 timeframes**, and ranks the universe by how close each stock's current price sits to
 its nearest **active bullish ("blue") order block** — a classic Smart Money Concepts
-pullback/entry zone.
+pullback/entry zone. It also includes a **backtest** that tests whether buying on
+retraces to those zones actually beats simple dollar-cost averaging.
 
-Default universe: `ASIA.AX`, `LNAS.AX`, `HJPN.AX` (all ASX-listed). Add or remove
-tickers by editing `UNIVERSE` in `scripts/engine.py`.
+Universe: `ASIA.AX`, `LNAS.AX`, `HJPN.AX`, `BNKS.AX`, `MNRS.AX`, `FUEL.AX`, `NDQ.AX`,
+`HACK.AX`, `QAU.AX`, `OOO.AX`, `GGUS.AX` (all ASX-listed). Add or remove tickers by
+editing `UNIVERSE` in `scripts/engine.py`.
 
 This is a companion project to `LNAS-SNAS` (a different, k-NN-based bi-weekly
 allocator) — the two are intentionally independent; nothing here changes LNAS-SNAS.
@@ -17,9 +19,13 @@ allocator) — the two are intentionally independent; nothing here changes LNAS-
 
 ```
 scripts/engine.py                   Python port of the SMC indicator -> JSON
+scripts/backtest.py                 Retrace-to-weekly-OB vs. DCA backtest -> JSON
 .github/workflows/run_smc.yml       Daily cron trigger that runs the engine and commits the output
-public/smc_data.json                Flat JSON data bundle consumed directly by the frontend
+.github/workflows/run_backtest.yml  Weekly cron trigger that runs the backtest and commits the output
+public/smc_data.json                Live dashboard data bundle
+public/backtest_data.json           Backtest results bundle
 app/page.tsx                        Client dashboard (Tailwind + lucide-react)
+app/backtest/page.tsx               Backtest results page
 app/api/workflow-status/route.ts    Serverless proxy to the GitHub Actions REST API
 ```
 
@@ -50,14 +56,15 @@ chart, and both are computed and shown independently here):
 4. **Structure breaks (BOS/CHoCH)** — a close crossing above the last confirmed
    swing/internal high is a bullish break; crossing below the last confirmed
    swing/internal low is a bearish break.
-5. **Order blocks** — on every bullish break, the engine scans back from the broken
-   pivot bar up to (but **excluding**) the breakout bar itself — matching Pine's
-   `array.slice(id, from, to)`, whose `to` bound is exclusive — and picks the bar
-   with the lowest (volatility-adjusted) low in that range as the **bullish order
-   block**: the last down candle before the rally, i.e. the "blue" zone in the source
-   indicator's default color scheme (`internalBullishOrderBlockColor` /
-   `swingBullishOrderBlockColor`, both blue). Bearish breaks do the mirror image
-   (highest high) and produce a red/bearish order block, kept for context.
+5. **Order blocks** — `pick_order_block` (shared with `scripts/backtest.py`) scans
+   back from the broken pivot bar up to (but **excluding**) the breakout bar itself —
+   matching Pine's `array.slice(id, from, to)`, whose `to` bound is exclusive — and
+   picks the bar with the lowest (volatility-adjusted) low in that range as the
+   **bullish order block**: the last down candle before the rally, i.e. the "blue"
+   zone in the source indicator's default color scheme
+   (`internalBullishOrderBlockColor` / `swingBullishOrderBlockColor`, both blue).
+   Bearish breaks do the mirror image (highest high) and produce a red/bearish order
+   block, kept for context.
 6. **Mitigation** — a bullish order block is dropped the moment a bar's low closes
    below the block's own low (the "High/Low" mitigation source, matching the
    indicator's default); a bearish block is dropped once a high closes above its
@@ -74,12 +81,52 @@ chart, and both are computed and shown independently here):
    blocks, plus a `ranking` and `closestSymbol` object keyed by timeframe (`1d`,
    `1wk`).
 
-### Pipeline: `.github/workflows/run_smc.yml`
+### Backtest: `scripts/backtest.py`
 
-Runs on a weekday cron roughly 40 minutes after the ASX close (two cron lines cover
-both AEST/AEDT, the same approach LNAS-SNAS uses), installs
-`scripts/requirements.txt`, runs the engine, and commits `public/smc_data.json` back
-to the repo with `[skip ci]`. `workflow_dispatch` is enabled for manual runs.
+Tests a specific hypothesis: **buying $100 every time price first retraces into an
+unmitigated *weekly swing* bullish order block beats regular dollar-cost averaging**,
+over the trailing 2 years. All strategies are pure accumulate-and-hold — no
+stop-loss, no selling; every $100 buy is held to the last available close.
+
+1. **Order block formation history** — reuses `engine.compute_legs`,
+   `engine.wilder_atr`, and `engine.pick_order_block` directly (not a reimplementation)
+   to replay every weekly *swing* bullish order block ever formed for a ticker, not
+   just the currently-active ones the live dashboard shows.
+2. **Retrace definition** — for each formed order block, the first bar *after*
+   formation whose low wicks back into the zone (`low <= top`) counts as one retrace
+   event — first touch only, so an order block that stays retested for weeks still
+   only counts once. Only retrace events falling in the trailing 2 years are used,
+   even if the order block itself formed earlier.
+3. **Three comparison strategies**, using daily closes over the same 2-year window:
+   - **Fixed-day weekly DCA** — $100 every Monday (or the next trading day if Monday
+     is a holiday).
+   - **Random-day weekly DCA** — $100 once a week, but on a day picked uniformly at
+     random (Mon–Fri, seeded, `RANDOM_SEED = 42` for reproducibility) — a cleaner
+     statistical control than a fixed weekday, since it removes any chance
+     correlation between a specific weekday and market patterns.
+   - **Lump sum** — a single $100 buy on the first trading day of the window, the
+     classic buy-and-hold reference point.
+4. **Comparison metric** — because the retrace strategy and the weekly DCA strategies
+   invest very different total dollar amounts (order blocks are rare; ~104 weekly
+   buys happen regardless), raw ending value isn't comparable. Every strategy is
+   scored on **XIRR** (money-weighted annualized return, solved via bisection on the
+   actual buy dates and amounts) alongside simple return, which normalizes away the
+   difference in dollars deployed and timing.
+5. **Pooling** — because swing-level weekly order blocks are infrequent (this is a
+   real statistical-power limitation, not a bug — expect single digits of retrace
+   events per ticker over 2 years), cash flows from all 11 tickers are also pooled
+   into one combined XIRR per strategy, reported alongside each ticker's own numbers.
+6. **Output** — `public/backtest_data.json`: pooled comparison across the whole
+   universe, plus per-ticker strategy breakdowns and the full list of retrace events
+   (date, fill price, order block range) for audit.
+
+### Pipelines: `.github/workflows/`
+
+`run_smc.yml` runs on a weekday cron roughly 40 minutes after the ASX close (two cron
+lines cover both AEST/AEDT, the same approach LNAS-SNAS uses). `run_backtest.yml`
+runs weekly (Saturday) since weekly structure only changes once a week. Both install
+`scripts/requirements.txt`, run their script, and commit the resulting JSON back to
+the repo with `[skip ci]`. Both support `workflow_dispatch` for manual runs.
 
 ### Frontend: `app/page.tsx`
 
@@ -95,16 +142,23 @@ Each symbol also gets a card listing every currently active bullish (blue) and
 bearish (red) order block **for both timeframes side by side**: price range, which
 structure type produced it (internal/swing), when it formed, and its distance.
 
+A "Backtest" link in the header opens `app/backtest/page.tsx`, which fetches
+`/backtest_data.json` and shows the pooled strategy-comparison table plus a
+per-ticker breakdown, including the individual retrace events behind each ticker's
+numbers.
+
 ## Adding tickers to the universe
 
-Edit the `UNIVERSE` list near the top of `scripts/engine.py`:
+Edit the `UNIVERSE` list near the top of `scripts/engine.py` (shared by both
+`engine.py` and `backtest.py`):
 
 ```python
-UNIVERSE = ["ASIA.AX", "LNAS.AX", "HJPN.AX"]
+UNIVERSE = ["ASIA.AX", "LNAS.AX", "HJPN.AX", "BNKS.AX", "MNRS.AX", "FUEL.AX", "NDQ.AX", "HACK.AX", "QAU.AX", "OOO.AX", "GGUS.AX"]
 ```
 
 Add any Yahoo Finance symbol (ASX listings use the `.AX` suffix). Push the change —
-the next cron run (or a manual `workflow_dispatch`) picks it up automatically.
+the next cron run (or a manual `workflow_dispatch`) picks it up automatically for
+both the dashboard and the backtest.
 
 ## Local development
 
@@ -114,34 +168,39 @@ npm run dev            # http://localhost:3000
 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r scripts/requirements.txt
-python scripts/engine.py    # writes public/smc_data.json
+python scripts/engine.py      # writes public/smc_data.json
+python scripts/backtest.py    # writes public/backtest_data.json
 ```
 
 ## Deployment
 
 - **Frontend**: deploy to Vercel (zero config — standard Next.js App Router build).
-- **Backend**: the GitHub Actions workflow needs `contents: write` permission
-  (already set) to commit the refreshed data file. No secrets are required for the
-  engine itself; `app/api/workflow-status` works unauthenticated against the public
+- **Backend**: the GitHub Actions workflows need `contents: write` permission
+  (already set) to commit the refreshed data files. No secrets are required for
+  either script; `app/api/workflow-status` works unauthenticated against the public
   GitHub API at a lower rate limit, or set a `GITHUB_TOKEN` env var on Vercel for
   higher limits.
 
 ## Known limitations
 
-- Price levels are raw/unadjusted (see point 1 above) but still reflect Yahoo's own
-  split-adjustment, which occasionally lags a *very recent* real-world split by a few
-  days until Yahoo's data catches up — the same caveat LNAS-SNAS documents for
-  LNAS.AX. If an order block's price range looks implausible right after a known
-  split, this is the likely cause.
+- Price levels are raw/unadjusted but still reflect Yahoo's own split-adjustment,
+  which occasionally lags a *very recent* real-world split by a few days until
+  Yahoo's data catches up — the same caveat LNAS-SNAS documents for LNAS.AX. If an
+  order block's price range looks implausible right after a known split, this is the
+  likely cause.
 - Weekly bar boundaries from `yfinance` may not land on exactly the same week-start
   convention TradingView uses in every timezone; this is a minor, rare source of
   divergence at week edges only.
+- The backtest's retrace strategy will have very few events per ticker (swing-level
+  weekly order blocks are inherently rare) — treat single-ticker results as
+  illustrative, and lean on the pooled, universe-wide numbers for anything closer to
+  a statistically meaningful comparison.
 
 ## Attribution & license
 
 The swing/internal structure, BOS/CHoCH, and order-block detection logic in
-`scripts/engine.py` is a Python port of LuxAlgo's **Smart Money Concepts** Pine
-Script indicator, which is licensed
+`scripts/engine.py` and `scripts/backtest.py` is a Python port of LuxAlgo's **Smart
+Money Concepts** Pine Script indicator, which is licensed
 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) —
 **non-commercial use with attribution, share-alike**. Keep any use of this
 repository (and any derivative of it) non-commercial and carry the same
