@@ -1,70 +1,132 @@
 // lib/types.ts
 
-/**
- * Represents an individual execution hit inside a strategy lifecycle
- */
-export interface StrategyDetail {
+// ============================================================================
+// --- Smart Money Concepts (SMC) Core Types ----------------------------------
+// ============================================================================
+
+export type Bias = "BULLISH" | "BEARISH";
+export type TimeframeKey = "1d" | "1wk";
+
+export interface OrderBlockZone {
+  kind: "internal" | "swing";
+  top: number;
+  bottom: number;
   date: string;
-  price: number;
-  proximityPct: number;
+  distancePct: number;
+  insideZone: boolean;
 }
 
-/**
- * Metric tracking structure for a specific algorithmic routing configuration
- */
-export interface ProximityDcaStrategy {
+export interface TimeframeResult {
+  lastPrice: number;
+  lastBarDate: string;
+  swingTrend: Bias | null;
+  internalTrend: Bias | null;
+  nearestBullishOrderBlock: OrderBlockZone | null;
+  bullishOrderBlocks: OrderBlockZone[];
+  bearishOrderBlocks: OrderBlockZone[];
+}
+
+export interface SymbolResult {
+  ticker: string;
+  ok: boolean;
+  error: string | null;
+  timeframes: Partial<Record<TimeframeKey, TimeframeResult | null>>;
+}
+
+export interface TimeframeMeta {
+  key: TimeframeKey;
+  label: string;
+}
+
+export interface SmcMeta {
+  universe: string[];
+  source: string;
+  timeframes: TimeframeMeta[];
+  historyPeriod: string;
+  swingLength: number;
+  internalLength: number;
+  orderBlockCountPerType: number;
+  atrLength: number;
+  priceAdjustment: string;
+  timezone: string;
+}
+
+export interface SmcData {
+  generatedAt: string | null;
+  status?: "awaiting_first_run";
+  meta: SmcMeta;
+  ranking: Partial<Record<TimeframeKey, string[]>>;
+  closestSymbol: Partial<Record<TimeframeKey, string | null>>;
+  symbols: SymbolResult[];
+}
+
+// ============================================================================
+// --- Background Runner / GitHub Actions Workflow Status --------------------
+// ============================================================================
+
+export interface WorkflowStatus {
+  status: string | null;
+  conclusion: string | null;
+  name: string | null;
+  runStartedAt: string | null;
+  updatedAt: string | null;
+  htmlUrl: string | null;
+  event: string | null;
+  runNumber: number | null;
+  progress?: number | null;
+  currentTicker?: string | null;
+  error?: string;
+}
+
+// ============================================================================
+// --- Proximity-Ranked Weekly OB DCA Backtest (With Guppy Filter) -----------
+// ============================================================================
+
+export interface BacktestStrategySummary {
   events: number;
   totalInvested: number;
   endingValue: number;
   simpleReturnPct: number;
   xirrPct: number | null;
-  eventDetail: StrategyDetail[];
 }
 
-/**
- * Individual asset execution node containing evaluation metadata
- * and side-by-side backtest strategy outcomes.
- */
+export interface ProximityDcaEvent {
+  date: string;
+  price: number;
+  proximityPct: number;
+}
+
+export interface ProximityDcaStrategy extends BacktestStrategySummary {
+  eventDetail: ProximityDcaEvent[];
+}
+
 export interface BacktestTickerResult {
   ticker: string;
   ok: boolean;
-  error?: string;
-  asOfDate?: string;
-  asOfPrice?: number;
+  error: string | null;
+  asOfDate: string | null;
+  asOfPrice: number | null;
   strategies: {
     proximityDCA: ProximityDcaStrategy;
-    guppyProximityDCA?: ProximityDcaStrategy; // Optional to securely parse older payloads safely
+    guppyProximityDCA?: ProximityDcaStrategy; // Upgraded to support dual-execution tracking
   };
 }
 
-/**
- * Root structure for the application's global state context 
- * and JSON network payloads.
- */
+export interface BacktestMeta {
+  universe: string[];
+  windowYears: number;
+  amountPerWeek: number;
+  strategyName: string;
+  note: string;
+}
+
 export interface BacktestData {
+  generatedAt: string | null;
+  status?: "awaiting_first_run";
+  meta: BacktestMeta;
   pooled: {
-    proximityDCA: Omit<ProximityDcaStrategy, 'eventDetail'>;
-    guppyProximityDCA?: Omit<ProximityDcaStrategy, 'eventDetail'>;
+    proximityDCA: BacktestStrategySummary;
+    guppyProximityDCA?: BacktestStrategySummary; // Upgraded to support side-by-side totals
   };
   tickers: BacktestTickerResult[];
-}
-
-/**
- * State contract for the background Python backtest execution engine
- * handled by the /api/workflow-status routing layer.
- */
-export interface WorkflowStatus {
-  status: 'idle' | 'running' | 'completed' | 'failed' | null; 
-  progress?: number | null;
-  currentTicker?: string | null;
-  error?: string | null;
-  updatedAt: string | null;
-  
-  // Extra tracking parameters returned by the API route fallback
-  conclusion?: string | null;
-  name?: string | null;
-  runStartedAt?: string | null;
-  htmlUrl?: string | null;
-  event?: string | null;
-  runNumber?: number | null;
 }
