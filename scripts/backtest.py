@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 # ============================================================================
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
-
 TICKERS = [
     'A200.AX', 'A2M.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 
     'ALL.AX', 'AMP.AX', 'ANZ.AX', 'APA.AX', 'APX.AX', 
@@ -32,28 +31,49 @@ def clean_float(val, fallback=0.0):
     return float(val)
 
 def xirr_equation(cash_flows, dates, end_val, end_dt, r):
+    """Computes NPV. Outlays must be negative, ending value positive."""
     npv = 0.0
     for flow, dt in zip(cash_flows, dates):
         t = (end_dt - dt).days / 365.25
-        npv -= flow / ((1 + r) ** t)
-    npv += end_val
+        npv -= abs(flow) / ((1 + r) ** t)
+    npv += abs(end_val)
     return npv
 
 def calculate_xirr(cash_flows, dates, end_val, end_dt):
     if not cash_flows or end_val <= 0 or (end_dt - dates[0]).days == 0:
         return 0.0
-    r0, r1 = 0.1, 0.2
+    
+    total_invested = sum(cash_flows)
+    simple_return = (end_val - total_invested) / total_invested
+    
+    # Intuitively frame numerical guess ranges
+    r0 = max(simple_return * 0.5, -0.2)
+    r1 = max(simple_return * 1.2, 0.1)
+    
     f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
     f1 = xirr_equation(cash_flows, dates, end_val, end_dt, r1)
+    
     for _ in range(100):
-        if abs(f1 - f0) < 1e-12: break
+        if abs(f1 - f0) < 1e-12: 
+            break
         r_next = r1 - f1 * (r1 - r0) / (f1 - f0)
-        if r_next < -0.999: r_next = -0.999
+        
+        if r_next < -0.99: 
+            r_next = -0.99
+            
         r0, r1 = r1, r_next
         f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
         f1 = xirr_equation(cash_flows, dates, end_val, end_dt, r1)
-        if abs(f1) < 1e-6: return clean_float(r1 * 100)
-    return clean_float(r1 * 100)
+        
+        if abs(f1) < 1e-6: 
+            return clean_float(r1 * 100)
+            
+    # Fallback routine to protect dashboards from breaking on failure to converge
+    years = (end_dt - dates[0]).days / 365.25
+    if years > 0:
+        return clean_float(((end_val / total_invested) ** (1 / years) - 1) * 100)
+        
+    return clean_float(simple_return * 100)
 
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
@@ -105,10 +125,11 @@ g1_portfolio, g2_portfolio = {}, {}
 g1_flows, g2_flows = [], []
 g1_dates, g2_dates = [], []
 
-# Auxiliary maps to easily sum per-ticker investment counts without storing arrays
-g1_ticker_counts = {t: 0 for t in TICKERS}
-g2_ticker_counts = {t: 0 for t in TICKERS}
-first_purchase_price = {t: None for t in TICKERS}
+# Dynamic tracking maps to calculate real, time-weighted per-ticker XIRR metrics
+g1_ticker_flows = {t: [] for t in TICKERS}
+g1_ticker_dates = {t: [] for t in TICKERS}
+g2_ticker_flows = {t: [] for t in TICKERS}
+g2_ticker_dates = {t: [] for t in TICKERS}
 
 for current_week in dates_range:
     g1_candidates = []
@@ -128,9 +149,8 @@ for current_week in dates_range:
         best_g1 = min(g1_candidates, key=lambda x: x['prox'])
         t1 = best_g1['ticker']
         g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
-        g1_ticker_counts[t1] += 1
-        if first_purchase_price[t1] is None:
-            first_purchase_price[t1] = best_g1['price']
+        g1_ticker_flows[t1].append(WEEKLY_ALLOCATION)
+        g1_ticker_dates[t1].append(current_week)
         g1_flows.append(WEEKLY_ALLOCATION)
         g1_dates.append(current_week)
 
@@ -138,9 +158,8 @@ for current_week in dates_range:
         best_g2 = min(g2_candidates, key=lambda x: x['prox'])
         t2 = best_g2['ticker']
         g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
-        g2_ticker_counts[t2] += 1
-        if first_purchase_price[t2] is None:
-            first_purchase_price[t2] = best_g2['price']
+        g2_ticker_flows[t2].append(WEEKLY_ALLOCATION)
+        g2_ticker_dates[t2].append(current_week)
         g2_flows.append(WEEKLY_ALLOCATION)
         g2_dates.append(current_week)
 
@@ -160,21 +179,25 @@ for ticker in TICKERS:
     if ticker not in weekly_universe: continue
     df_wk = weekly_universe[ticker]
     if df_wk.empty: continue
-        
+
     last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
-    
-    c1 = g1_ticker_counts[ticker]
-    c2 = g2_ticker_counts[ticker]
-    p_base = first_purchase_price[ticker] if first_purchase_price[ticker] else last_price
 
-    g1_invested = c1 * int(WEEKLY_ALLOCATION)
-    g1_ending = c1 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c1 > 0 else 0.0
-    g1_return = ((last_price - p_base) / p_base * 100) if c1 > 0 else 0.0
+    # Strategy 1 (Pure Proximity) Metrics
+    g1_units = g1_portfolio.get(ticker, 0.0)
+    g1_events = len(g1_ticker_flows[ticker])
+    g1_invested = sum(g1_ticker_flows[ticker])
+    g1_ending = g1_units * last_price
+    g1_return = ((g1_ending - g1_invested) / g1_invested * 100) if g1_invested > 0 else 0.0
+    g1_tick_xirr = calculate_xirr(g1_ticker_flows[ticker], g1_ticker_dates[ticker], g1_ending, end_dt) if g1_invested > 0 else 0.0
 
-    g2_invested = c2 * int(WEEKLY_ALLOCATION)
-    g2_ending = c2 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c2 > 0 else 0.0
-    g2_return = ((last_price - p_base) / p_base * 100) if c2 > 0 else 0.0
+    # Strategy 2 (Guppy Filtered Proximity) Metrics
+    g2_units = g2_portfolio.get(ticker, 0.0)
+    g2_events = len(g2_ticker_flows[ticker])
+    g2_invested = sum(g2_ticker_flows[ticker])
+    g2_ending = g2_units * last_price
+    g2_return = ((g2_ending - g2_invested) / g2_invested * 100) if g2_invested > 0 else 0.0
+    g2_tick_xirr = calculate_xirr(g2_ticker_flows[ticker], g2_ticker_dates[ticker], g2_ending, end_dt) if g2_invested > 0 else 0.0
 
     ticker_payload = {
         "ticker": ticker,
@@ -184,18 +207,18 @@ for ticker in TICKERS:
         "asOfPrice": clean_float(last_price),
         "strategies": {
             "proximityDCA": {
-                "events": c1,
+                "events": g1_events,
                 "totalInvested": clean_float(g1_invested),
                 "endingValue": clean_float(g1_ending),
                 "simpleReturnPct": clean_float(g1_return),
-                "xirrPct": 0.0
+                "xirrPct": clean_float(g1_tick_xirr)
             },
             "guppyProximityDCA": {
-                "events": c2,
+                "events": g2_events,
                 "totalInvested": clean_float(g2_invested),
                 "endingValue": clean_float(g2_ending),
                 "simpleReturnPct": clean_float(g2_return),
-                "xirrPct": 0.0
+                "xirrPct": clean_float(g2_tick_xirr)
             }
         }
     }
@@ -234,6 +257,6 @@ final_json_payload = {
 output_path = 'public/backtest_data.json'
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 with open(output_path, 'w') as f:
-    json.dump(final_json_payload, f, separators=(',', ':')) # Strips structural whitespaces to drop bytes
+    json.dump(final_json_payload, f, separators=(',', ':'))
 
 print(f"Success! Compact, production-ready payload compiled and written to {output_path}")
