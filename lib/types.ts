@@ -1,11 +1,17 @@
-// Look for this section in your types file (e.g., @/lib/types.ts)
+// lib/types.ts
 
+/**
+ * Represents an individual execution hit inside a strategy lifecycle
+ */
 export interface StrategyDetail {
   date: string;
   price: number;
   proximityPct: number;
 }
 
+/**
+ * Metric tracking structure for a specific algorithmic routing configuration
+ */
 export interface ProximityDcaStrategy {
   events: number;
   totalInvested: number;
@@ -15,7 +21,10 @@ export interface ProximityDcaStrategy {
   eventDetail: StrategyDetail[];
 }
 
-// Update this interface to include the new Guppy key
+/**
+ * Individual asset execution node containing evaluation metadata
+ * and side-by-side backtest strategy outcomes.
+ */
 export interface BacktestTickerResult {
   ticker: string;
   ok: boolean;
@@ -24,15 +33,30 @@ export interface BacktestTickerResult {
   asOfPrice?: number;
   strategies: {
     proximityDCA: ProximityDcaStrategy;
-    guppyProximityDCA?: ProximityDcaStrategy; // ◄ Add this line right here as optional
+    guppyProximityDCA?: ProximityDcaStrategy; // Optional to securely parse older payloads safely
   };
 }
 
-// Also ensure your global pooled object matches if it threw errors earlier
+/**
+ * Root structure for the application's global state context 
+ * and JSON network payloads.
+ */
 export interface BacktestData {
   pooled: {
     proximityDCA: Omit<ProximityDcaStrategy, 'eventDetail'>;
-    guppyProximityDCA?: Omit<ProximityDcaStrategy, 'eventDetail'>; // ◄ Ensure this matches too
+    guppyProximityDCA?: Omit<ProximityDcaStrategy, 'eventDetail'>;
   };
   tickers: BacktestTickerResult[];
+}
+
+/**
+ * State contract for the background Python backtest execution engine
+ * handled by the /api/workflow-status routing layer.
+ */
+export interface WorkflowStatus {
+  status: 'idle' | 'running' | 'completed' | 'failed';
+  progress?: number;       // Execution matrix range (0 to 100)
+  currentTicker?: string;   // Active target entity during calculation runtime
+  error?: string;
+  updatedAt: string;
 }
