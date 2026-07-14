@@ -44,7 +44,6 @@ for ticker in TICKERS:
     
     # Calculate SMA/EMA
     df_daily['sma_200'] = df_daily['Close'].rolling(window=200).mean()
-    # OPTION 1: Fill missing SMA values for assets with <200 days history
     df_daily['sma_200'] = df_daily['sma_200'].ffill().bfill()
     
     for ema in guppy_emas:
@@ -58,13 +57,11 @@ for ticker in TICKERS:
     # Engine Logic
     df_wk['OB_Level'], df_wk['Proximity'], df_wk['Guppy_Trend'] = np.nan, np.nan, False
     for i in range(2, len(df_wk)):
-        # Proximity Logic
         if df_wk['Close'].iloc[i-1] < df_wk['Open'].iloc[i-1] and df_wk['Close'].iloc[i] > df_wk['High'].iloc[i-1]:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['Low'].iloc[i-1]
         else:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['OB_Level'].iloc[i-1]
 
-        # Guppy Logic
         emas_stacked = all(df_wk[f'ema_{guppy_emas[j]}'].iloc[i] > df_wk[f'ema_{guppy_emas[j+1]}'].iloc[i] for j in range(len(guppy_emas)-1))
         above_200ma = df_wk['Close'].iloc[i] > df_wk['sma_200'].iloc[i]
         if emas_stacked and df_wk['ema_60'].iloc[i] > df_wk['ema_60'].iloc[i-1] and above_200ma:
@@ -73,14 +70,13 @@ for ticker in TICKERS:
     weekly_universe[ticker] = df_wk
 
 # ============================================================================
-# 4. FORCED SERIALIZATION (Ensures all 37 show in JSON)
+# 4. SERIALIZATION & FILE WRITE
 # ============================================================================
 ticker_payloads = []
 for ticker in sorted(TICKERS):
     if ticker not in weekly_universe:
         ticker_payloads.append({"ticker": ticker, "ok": False, "error": "No data available"})
     else:
-        # Construct summary (add your XIRR/metrics logic here)
         ticker_payloads.append({
             "ticker": ticker, 
             "ok": True, 
@@ -93,4 +89,9 @@ final_report = {
     "tickers": ticker_payloads
 }
 
-print(json.dumps(final_report, indent=2))
+# PERSIST TO DISK
+output_file = "backtest_data.json"
+with open(output_file, "w") as f:
+    json.dump(final_report, f, indent=2)
+
+print(f"Successfully wrote {len(ticker_payloads)} tickers to {output_file}")
