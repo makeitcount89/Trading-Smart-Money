@@ -84,14 +84,21 @@ chart, and both are computed and shown independently here):
 ### Backtest: `scripts/backtest.py`
 
 Tests a specific hypothesis: **buying $100 every time price first retraces into an
-unmitigated *weekly swing* bullish order block beats regular dollar-cost averaging**,
-over the trailing 2 years. All strategies are pure accumulate-and-hold — no
-stop-loss, no selling; every $100 buy is held to the last available close.
+unmitigated weekly bullish order block beats regular dollar-cost averaging**, over
+the trailing 2 years. All strategies are pure accumulate-and-hold — no stop-loss, no
+selling; every $100 buy is held to the last available close.
 
 1. **Order block formation history** — reuses `engine.compute_legs`,
    `engine.wilder_atr`, and `engine.pick_order_block` directly (not a reimplementation)
-   to replay every weekly *swing* bullish order block ever formed for a ticker, not
-   just the currently-active ones the live dashboard shows.
+   to replay every weekly bullish order block ever formed for a ticker, not just the
+   currently-active ones the live dashboard shows. Both structure types are tracked:
+   **internal** (5-bar, ~5 weeks, frequent) and **swing** (50-bar, ~1 year, rare) —
+   an internal break is skipped when it coincides with the current swing level, same
+   as the source indicator's own logic (`internalHigh.currentLevel !=
+   swingHigh.currentLevel`), so a single structural point isn't double-counted.
+   `retrace` combines both kinds (the primary, highest-power signal); `retraceSwing`
+   and `retraceInternal` isolate each so the (much rarer) swing-only result stays
+   directly comparable on its own.
 2. **Retrace definition** — for each formed order block, the first bar *after*
    formation whose low wicks back into the zone (`low <= top`) counts as one retrace
    event — first touch only, so an order block that stays retested for weeks still
@@ -191,10 +198,12 @@ python scripts/backtest.py    # writes public/backtest_data.json
 - Weekly bar boundaries from `yfinance` may not land on exactly the same week-start
   convention TradingView uses in every timezone; this is a minor, rare source of
   divergence at week edges only.
-- The backtest's retrace strategy will have very few events per ticker (swing-level
-  weekly order blocks are inherently rare) — treat single-ticker results as
-  illustrative, and lean on the pooled, universe-wide numbers for anything closer to
-  a statistically meaningful comparison.
+- `retraceSwing` will have very few events per ticker even pooled across the whole
+  universe (swing-level weekly order blocks are inherently rare — a real run showed
+  1 pooled event across 11 tickers over 2 years); treat it as illustrative, not a
+  statistically meaningful comparison on its own. `retrace` (internal + swing
+  combined) has real, if still modest, sample size — lean on that and the pooled,
+  universe-wide numbers rather than any single ticker's result.
 
 ## Attribution & license
 

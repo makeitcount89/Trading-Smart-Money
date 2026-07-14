@@ -1,13 +1,23 @@
 import { AlertTriangle } from "lucide-react";
 import type { BacktestStrategyKey, BacktestTickerResult } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const STRATEGY_LABELS: Record<BacktestStrategyKey, string> = {
-  retrace: "Retrace",
+  retrace: "Retrace (any)",
+  retraceSwing: "Retrace (swing)",
+  retraceInternal: "Retrace (internal)",
   fixedWeeklyDca: "Fixed DCA",
   randomWeeklyDca: "Random DCA",
   lumpSum: "Lump sum",
 };
-const STRATEGY_ORDER: BacktestStrategyKey[] = ["retrace", "fixedWeeklyDca", "randomWeeklyDca", "lumpSum"];
+const STRATEGY_ORDER: BacktestStrategyKey[] = [
+  "retrace",
+  "retraceSwing",
+  "retraceInternal",
+  "fixedWeeklyDca",
+  "randomWeeklyDca",
+  "lumpSum",
+];
 
 export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerResult }) {
   if (!ticker.ok) {
@@ -31,7 +41,7 @@ export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerR
         <span className="tabular text-xs text-[var(--text-muted)]">as of {ticker.asOfDate}</span>
       </div>
 
-      <div className="mt-3 grid grid-cols-4 gap-2 text-xs">
+      <div className="mt-3 grid grid-cols-3 gap-2 text-xs sm:grid-cols-6">
         {STRATEGY_ORDER.map((key) => {
           const s = ticker.strategies[key];
           return (
@@ -53,7 +63,15 @@ export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerR
                 key={i}
                 className="flex flex-wrap items-center justify-between gap-1 rounded-md border border-smcBlue-muted bg-smcBlue-muted/20 px-2 py-1 text-[11px]"
               >
-                <span>
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "rounded px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide",
+                      e.kind === "swing" ? "bg-base-700 text-[var(--text-secondary)]" : "bg-smcBlue-muted text-smcBlue"
+                    )}
+                  >
+                    {e.kind}
+                  </span>
                   {e.date} @ {e.price.toFixed(3)}
                 </span>
                 <span className="text-[var(--text-muted)]">

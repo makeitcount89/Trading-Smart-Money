@@ -2,13 +2,22 @@ import type { BacktestStrategyKey, BacktestStrategySummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const STRATEGY_LABELS: Record<BacktestStrategyKey, string> = {
-  retrace: "Retrace to weekly blue OB",
+  retrace: "Retrace to weekly blue OB (internal + swing)",
+  retraceSwing: "Retrace to swing OB only (~1yr structure)",
+  retraceInternal: "Retrace to internal OB only (~5wk structure)",
   fixedWeeklyDca: "Fixed-day weekly DCA (Monday)",
   randomWeeklyDca: "Random-day weekly DCA",
   lumpSum: "Lump sum (buy & hold)",
 };
 
-const STRATEGY_ORDER: BacktestStrategyKey[] = ["retrace", "fixedWeeklyDca", "randomWeeklyDca", "lumpSum"];
+const STRATEGY_ORDER: BacktestStrategyKey[] = [
+  "retrace",
+  "retraceSwing",
+  "retraceInternal",
+  "fixedWeeklyDca",
+  "randomWeeklyDca",
+  "lumpSum",
+];
 
 export default function BacktestSummaryTable({
   pooled,
