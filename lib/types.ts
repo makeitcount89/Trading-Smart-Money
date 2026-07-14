@@ -52,11 +52,13 @@ export interface BacktestData {
 /**
  * State contract for the background Python backtest execution engine
  * handled by the /api/workflow-status routing layer.
+ * 
+ * Status allows null values to support fallback states when external workflow runs fail.
  */
 export interface WorkflowStatus {
-  status: 'idle' | 'running' | 'completed' | 'failed';
-  progress?: number;       // Execution matrix range (0 to 100)
-  currentTicker?: string;   // Active target entity during calculation runtime
-  error?: string;
-  updatedAt: string;
+  status: 'idle' | 'running' | 'completed' | 'failed' | null; 
+  progress?: number | null;
+  currentTicker?: string | null;
+  error?: string | null;
+  updatedAt: string | null;
 }
