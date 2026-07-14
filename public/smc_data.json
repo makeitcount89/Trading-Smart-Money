@@ -4,15 +4,19 @@
   "meta": {
     "universe": ["ASIA.AX", "LNAS.AX", "HJPN.AX"],
     "source": "LuxAlgo Smart Money Concepts (Pine Script v5) ported to Python",
-    "timeframe": "1d",
-    "historyPeriod": "5y",
+    "timeframes": [
+      { "key": "1d", "label": "Daily" },
+      { "key": "1wk", "label": "Weekly" }
+    ],
+    "historyPeriod": "max",
     "swingLength": 50,
     "internalLength": 5,
     "orderBlockCountPerType": 5,
     "atrLength": 200,
+    "priceAdjustment": "raw (Yahoo split-adjusted, not dividend-adjusted) -- matches a default/unadjusted TradingView chart",
     "timezone": "Australia/Adelaide"
   },
-  "ranking": [],
-  "closestSymbol": null,
+  "ranking": { "1d": [], "1wk": [] },
+  "closestSymbol": { "1d": null, "1wk": null },
   "symbols": []
 }

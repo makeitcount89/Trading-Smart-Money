@@ -1,4 +1,5 @@
 export type Bias = "BULLISH" | "BEARISH";
+export type TimeframeKey = "1d" | "1wk";
 
 export interface OrderBlockZone {
   kind: "internal" | "swing";
@@ -9,12 +10,9 @@ export interface OrderBlockZone {
   insideZone: boolean;
 }
 
-export interface SymbolResult {
-  ticker: string;
-  ok: boolean;
-  error: string | null;
-  lastPrice: number | null;
-  lastBarDate: string | null;
+export interface TimeframeResult {
+  lastPrice: number;
+  lastBarDate: string;
   swingTrend: Bias | null;
   internalTrend: Bias | null;
   nearestBullishOrderBlock: OrderBlockZone | null;
@@ -22,15 +20,28 @@ export interface SymbolResult {
   bearishOrderBlocks: OrderBlockZone[];
 }
 
+export interface SymbolResult {
+  ticker: string;
+  ok: boolean;
+  error: string | null;
+  timeframes: Partial<Record<TimeframeKey, TimeframeResult | null>>;
+}
+
+export interface TimeframeMeta {
+  key: TimeframeKey;
+  label: string;
+}
+
 export interface SmcMeta {
   universe: string[];
   source: string;
-  timeframe: string;
+  timeframes: TimeframeMeta[];
   historyPeriod: string;
   swingLength: number;
   internalLength: number;
   orderBlockCountPerType: number;
   atrLength: number;
+  priceAdjustment: string;
   timezone: string;
 }
 
@@ -38,8 +49,8 @@ export interface SmcData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
   meta: SmcMeta;
-  ranking: string[];
-  closestSymbol: string | null;
+  ranking: Partial<Record<TimeframeKey, string[]>>;
+  closestSymbol: Partial<Record<TimeframeKey, string | null>>;
   symbols: SymbolResult[];
 }
 

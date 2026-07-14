@@ -2,9 +2,10 @@
 
 A dashboard that ports LuxAlgo's **Smart Money Concepts** indicator (swing/internal
 market structure, BOS/CHoCH, and order blocks) from Pine Script to Python, runs it
-daily across a configurable universe of stocks, and ranks the universe by how close
-each stock's current price sits to its nearest **active bullish ("blue") order
-block** — a classic Smart Money Concepts pullback/entry zone.
+daily across a configurable universe of stocks on **both the Daily and Weekly
+timeframes**, and ranks the universe by how close each stock's current price sits to
+its nearest **active bullish ("blue") order block** — a classic Smart Money Concepts
+pullback/entry zone.
 
 Default universe: `ASIA.AX`, `LNAS.AX`, `HJPN.AX` (all ASX-listed). Add or remove
 tickers by editing `UNIVERSE` in `scripts/engine.py`.
@@ -24,46 +25,54 @@ app/api/workflow-status/route.ts    Serverless proxy to the GitHub Actions REST 
 
 ### Backend: `scripts/engine.py`
 
-For every ticker in `UNIVERSE`:
+For every ticker in `UNIVERSE`, on **each** timeframe in `TIMEFRAMES` (Daily `1d` and
+Weekly `1wk` by default — the Pine indicator is timeframe-agnostic, so running it on
+a weekly chart in TradingView produces genuinely different order blocks than a daily
+chart, and both are computed and shown independently here):
 
-1. **Data** — pulls ~5 years of daily OHLC via `yfinance` (`auto_adjust=True`, so
-   Yahoo's own split/dividend adjustment is used; this is a simpler assumption than
-   LNAS-SNAS's manual split-desplitting and can be revisited if a ticker's history
-   looks discontinuous around a known corporate action).
-2. **Volatility filter** — a 200-period Wilder ATR flags high-volatility bars
-   (range ≥ 2× ATR) and swaps their high/low before they're eligible to anchor an
-   order block, exactly as the source indicator does, so a single outsized wick
-   doesn't get selected as the order block's edge.
+1. **Data** — pulls the full available OHLC history via `yfinance` at that
+   timeframe's interval, with `auto_adjust=False` (raw prices). Yahoo's raw feed is
+   already split-adjusted but **not** dividend-adjusted, which matches a default
+   TradingView chart (dividend adjustment is opt-in there); using `auto_adjust=True`
+   was tried initially but back-adjusts for dividends too, shifting every historical
+   price level — and therefore every order block boundary — away from what
+   TradingView displays.
+2. **Volatility filter** — True Range is smoothed with an exact port of Pine's
+   `ta.rma` (SMA-seeded Wilder smoothing, not a plain EWM approximation) over 200
+   bars. Bars whose range is ≥ 2× that ATR have their high/low swapped before being
+   eligible to anchor an order block, exactly as the source indicator does, so a
+   single outsized wick doesn't get selected as the order block's edge.
 3. **Leg / pivot detection** — `compute_legs` reproduces the indicator's `leg()`
    function: a bar `N` back is confirmed as a swing point once nothing in the most
-   recent `N`-bar window has exceeded it. Two lengths are run in parallel: **swing**
-   (`N=50`) and **internal** (`N=5`, the fixed length the source script itself uses
-   for internal structure).
+   recent `N`-bar window has exceeded it. Two lengths are run in parallel on each
+   timeframe's own bars: **swing** (`N=50`) and **internal** (`N=5`, the fixed length
+   the source script itself uses for internal structure).
 4. **Structure breaks (BOS/CHoCH)** — a close crossing above the last confirmed
    swing/internal high is a bullish break; crossing below the last confirmed
    swing/internal low is a bearish break.
 5. **Order blocks** — on every bullish break, the engine scans back from the broken
-   pivot to the breakout bar and picks the bar with the lowest (volatility-adjusted)
-   low as the **bullish order block** — the last down candle before the rally, i.e.
-   the "blue" zone in the source indicator's default color scheme
-   (`internalBullishOrderBlockColor` / `swingBullishOrderBlockColor`, both blue).
-   Bearish breaks do the mirror image (highest high) and produce a red/bearish
-   order block, kept for context.
+   pivot bar up to (but **excluding**) the breakout bar itself — matching Pine's
+   `array.slice(id, from, to)`, whose `to` bound is exclusive — and picks the bar
+   with the lowest (volatility-adjusted) low in that range as the **bullish order
+   block**: the last down candle before the rally, i.e. the "blue" zone in the source
+   indicator's default color scheme (`internalBullishOrderBlockColor` /
+   `swingBullishOrderBlockColor`, both blue). Bearish breaks do the mirror image
+   (highest high) and produce a red/bearish order block, kept for context.
 6. **Mitigation** — a bullish order block is dropped the moment a bar's low closes
    below the block's own low (the "High/Low" mitigation source, matching the
    indicator's default); a bearish block is dropped once a high closes above its
    high. Only unmitigated blocks survive to the final output, and only the 5 most
    recent per structure type (internal/swing) are kept, matching the indicator's own
    default box count.
-7. **Ranking** — for each ticker, the distance from the latest close to every
-   remaining bullish order block is computed as a percentage (0% if price is already
-   inside the zone); the closest one becomes that ticker's `nearestBullishOrderBlock`.
-   The universe is then ranked ascending by that distance — the top of the ranking is
-   whichever stock is closest to (or already sitting inside) one of its blue order
-   blocks.
-8. **Output** — `public/smc_data.json`: per-symbol trend, nearest bullish order
-   block, and the full list of currently active bullish/bearish order blocks, plus
-   a `ranking` array and `closestSymbol`.
+7. **Ranking** — for each ticker and each timeframe, the distance from the latest
+   close to every remaining bullish order block is computed as a percentage (0% if
+   price is already inside the zone); the closest one becomes that ticker's
+   `nearestBullishOrderBlock` for that timeframe. The universe is then ranked
+   ascending by that distance, separately per timeframe.
+8. **Output** — `public/smc_data.json`: per-symbol, per-timeframe trend, nearest
+   bullish order block, and the full list of currently active bullish/bearish order
+   blocks, plus a `ranking` and `closestSymbol` object keyed by timeframe (`1d`,
+   `1wk`).
 
 ### Pipeline: `.github/workflows/run_smc.yml`
 
@@ -75,15 +84,16 @@ to the repo with `[skip ci]`. `workflow_dispatch` is enabled for manual runs.
 ### Frontend: `app/page.tsx`
 
 Fetches `/smc_data.json` (same-origin static file, cache-busted on manual refresh)
-and shows:
+and shows, for **each** timeframe (Daily and Weekly, stacked):
 
-- Stat tiles for the closest symbol, its distance to that zone, and how many
-  universe symbols currently have an active blue order block at all.
-- A ranking table across the whole universe, sorted by distance to the nearest
-  blue order block, with swing/internal trend badges.
-- A per-symbol card listing every currently active bullish (blue) and bearish (red)
-  order block: price range, which structure type produced it (internal/swing), when
-  it formed, and its distance.
+- Stat tiles for that timeframe's closest symbol, its distance to that zone, and how
+  many universe symbols currently have an active blue order block at all.
+- A ranking table across the whole universe for that timeframe, sorted by distance to
+  the nearest blue order block, with swing/internal trend badges.
+
+Each symbol also gets a card listing every currently active bullish (blue) and
+bearish (red) order block **for both timeframes side by side**: price range, which
+structure type produced it (internal/swing), when it formed, and its distance.
 
 ## Adding tickers to the universe
 
@@ -115,6 +125,17 @@ python scripts/engine.py    # writes public/smc_data.json
   engine itself; `app/api/workflow-status` works unauthenticated against the public
   GitHub API at a lower rate limit, or set a `GITHUB_TOKEN` env var on Vercel for
   higher limits.
+
+## Known limitations
+
+- Price levels are raw/unadjusted (see point 1 above) but still reflect Yahoo's own
+  split-adjustment, which occasionally lags a *very recent* real-world split by a few
+  days until Yahoo's data catches up — the same caveat LNAS-SNAS documents for
+  LNAS.AX. If an order block's price range looks implausible right after a known
+  split, this is the likely cause.
+- Weekly bar boundaries from `yfinance` may not land on exactly the same week-start
+  convention TradingView uses in every timezone; this is a minor, rare source of
+  divergence at week edges only.
 
 ## Attribution & license
 

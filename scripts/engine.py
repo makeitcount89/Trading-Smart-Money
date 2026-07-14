@@ -2,9 +2,9 @@
 
 Ports the swing/internal market-structure, BOS/CHoCH, and order-block
 detection logic from LuxAlgo's "Smart Money Concepts" Pine Script v5
-indicator to Python, runs it over a configurable universe of tickers, and
-ranks the universe by how close current price sits to its nearest active
-bullish ("blue") order block.
+indicator to Python, runs it over a configurable universe of tickers on
+both the Daily and Weekly timeframes, and ranks the universe by how close
+current price sits to its nearest active bullish ("blue") order block.
 
 Source indicator: LuxAlgo Smart Money Concepts, CC BY-NC-SA 4.0
 (https://creativecommons.org/licenses/by-nc-sa/4.0/). This port carries the
@@ -28,8 +28,16 @@ import yfinance as yf
 # ---------------------------------------------------------------------------
 UNIVERSE = ["ASIA.AX", "LNAS.AX", "HJPN.AX"]
 
-HISTORY_PERIOD = "5y"
-INTERVAL = "1d"
+# The Pine indicator is timeframe-agnostic -- it just runs on whatever bars
+# are loaded on the chart. TradingView users routinely check both the Daily
+# and Weekly chart for order blocks, and the two produce genuinely different
+# zones (same 50/5-bar lengths, but 50 *weekly* bars is ~1 year vs. 50
+# *daily* bars is ~2.5 months), so both are computed and reported here.
+TIMEFRAMES = [
+    {"key": "1d", "label": "Daily", "interval": "1d"},
+    {"key": "1wk", "label": "Weekly", "interval": "1wk"},
+]
+HISTORY_PERIOD = "max"  # yfinance returns whatever's actually available for a ticker
 
 SWING_LENGTH = 50       # swingsLengthInput default in the source indicator
 INTERNAL_LENGTH = 5     # fixed internal-structure length in the source indicator
@@ -45,6 +53,13 @@ BIAS_BEARISH = -1
 
 OUTPUT_PATH = Path(__file__).resolve().parent.parent / "public" / "smc_data.json"
 TIMEZONE = "Australia/Adelaide"
+
+# yfinance's auto_adjust=True back-adjusts OHLC for dividends (on top of the
+# split-adjustment Yahoo's raw feed already bakes in), which shifts every
+# historical price level away from what TradingView shows by default
+# (unadjusted). Using raw OHLC here keeps order-block price levels aligned
+# with a plain TradingView chart.
+AUTO_ADJUST = False
 
 
 @dataclass
@@ -63,28 +78,42 @@ class OrderBlock:
     bias: int  # BIAS_BULLISH or BIAS_BEARISH
 
 
-def fetch_history(ticker: str) -> pd.DataFrame:
-    df = yf.Ticker(ticker).history(period=HISTORY_PERIOD, interval=INTERVAL, auto_adjust=True)
+def fetch_history(ticker: str, interval: str) -> pd.DataFrame:
+    df = yf.Ticker(ticker).history(period=HISTORY_PERIOD, interval=interval, auto_adjust=AUTO_ADJUST)
     if df.empty:
-        raise ValueError(f"No price history returned for {ticker}")
+        raise ValueError(f"No {interval} price history returned for {ticker}")
     df = df.dropna(subset=["Open", "High", "Low", "Close"])
     df.index = pd.to_datetime(df.index)
     return df
 
 
-def wilder_atr(high: pd.Series, low: pd.Series, close: pd.Series, length: int) -> pd.Series:
-    prev_close = close.shift(1)
-    true_range = pd.concat(
-        [high - low, (high - prev_close).abs(), (low - prev_close).abs()], axis=1
-    ).max(axis=1)
-    return true_range.ewm(alpha=1 / length, adjust=False, min_periods=length).mean()
+def wilder_rma(values: np.ndarray, length: int) -> np.ndarray:
+    """Exact port of Pine's ta.rma: SMA-seeded, then recursive Wilder smoothing."""
+    n = len(values)
+    out = np.full(n, np.nan)
+    if n < length:
+        return out
+    out[length - 1] = np.nanmean(values[:length])
+    for i in range(length, n):
+        out[i] = (out[i - 1] * (length - 1) + values[i]) / length
+    return out
+
+
+def wilder_atr(high: np.ndarray, low: np.ndarray, close: np.ndarray, length: int) -> np.ndarray:
+    prev_close = np.roll(close, 1)
+    prev_close[0] = np.nan
+    true_range = np.nanmax(
+        np.vstack([high - low, np.abs(high - prev_close), np.abs(low - prev_close)]), axis=0
+    )
+    return wilder_rma(true_range, length)
 
 
 def compute_legs(high: np.ndarray, low: np.ndarray, size: int) -> np.ndarray:
     """Port of the indicator's leg(size) function.
 
     A bar `size` steps back is confirmed as a swing high once nothing in the
-    most recent `size`-bar window has exceeded it (and mirrored for lows).
+    most recent `size`-bar window (current bar included) has exceeded it
+    (and mirrored for lows).
     """
     n = len(high)
     legs = np.zeros(n, dtype=int)
@@ -135,17 +164,17 @@ def zone_from_order_block(ob: OrderBlock, kind: str, price: float) -> dict:
     }
 
 
-def process_symbol(ticker: str) -> dict:
-    df = fetch_history(ticker)
+def process_timeframe(ticker: str, interval: str) -> dict:
+    df = fetch_history(ticker, interval)
     high = df["High"].to_numpy()
     low = df["Low"].to_numpy()
     close = df["Close"].to_numpy()
     times = df.index
     n = len(df)
     if n < SWING_LENGTH + 5:
-        raise ValueError(f"Not enough history for {ticker} ({n} bars)")
+        raise ValueError(f"Not enough {interval} history for {ticker} ({n} bars)")
 
-    atr = wilder_atr(df["High"], df["Low"], df["Close"], ATR_LENGTH).to_numpy()
+    atr = wilder_atr(high, low, close, ATR_LENGTH)
     bar_range = high - low
     high_vol = np.where(np.isnan(atr), False, bar_range >= 2 * np.nan_to_num(atr))
     # High-volatility bars have their high/low swapped before being eligible to
@@ -180,11 +209,14 @@ def process_symbol(ticker: str) -> dict:
             high_pivot.crossed = False
 
     def store_order_block(pivot: Pivot, bias: int, obs: list[OrderBlock], i: int) -> None:
+        # Pine's array.slice(id, from, to) excludes `to`, so the breakout bar
+        # itself (index i) is NOT a candidate for the order block anchor --
+        # only bars strictly before it, back to the pivot bar, are searched.
         start, end = pivot.bar_index, i
         if bias == BIAS_BEARISH:
-            offset = int(np.argmax(parsed_high[start : end + 1]))
+            offset = int(np.argmax(parsed_high[start:end]))
         else:
-            offset = int(np.argmin(parsed_low[start : end + 1]))
+            offset = int(np.argmin(parsed_low[start:end]))
         idx = start + offset
         obs.insert(
             0,
@@ -275,9 +307,6 @@ def process_symbol(ticker: str) -> dict:
     bearish_zones.sort(key=lambda z: z["distancePct"])
 
     return {
-        "ticker": ticker,
-        "ok": True,
-        "error": None,
         "lastPrice": round(price, 4),
         "lastBarDate": str(times[-1].date()),
         "swingTrend": bias_str(swing_trend),
@@ -288,18 +317,31 @@ def process_symbol(ticker: str) -> dict:
     }
 
 
+def process_symbol(ticker: str) -> dict:
+    timeframes: dict[str, dict | None] = {}
+    errors: list[str] = []
+    for tf in TIMEFRAMES:
+        try:
+            timeframes[tf["key"]] = process_timeframe(ticker, tf["interval"])
+        except Exception as exc:  # noqa: BLE001 - one bad timeframe shouldn't sink the ticker
+            timeframes[tf["key"]] = None
+            errors.append(f"{tf['label']}: {exc}")
+
+    ok = any(v is not None for v in timeframes.values())
+    return {
+        "ticker": ticker,
+        "ok": ok,
+        "error": "; ".join(errors) if errors else None,
+        "timeframes": timeframes,
+    }
+
+
 def failed_symbol(ticker: str, error: Exception) -> dict:
     return {
         "ticker": ticker,
         "ok": False,
         "error": str(error),
-        "lastPrice": None,
-        "lastBarDate": None,
-        "swingTrend": None,
-        "internalTrend": None,
-        "nearestBullishOrderBlock": None,
-        "bullishOrderBlocks": [],
-        "bearishOrderBlocks": [],
+        "timeframes": {tf["key"]: None for tf in TIMEFRAMES},
     }
 
 
@@ -311,33 +353,43 @@ def main() -> None:
         except Exception as exc:  # noqa: BLE001 - one bad ticker shouldn't sink the run
             symbols.append(failed_symbol(ticker, exc))
 
-    ranked = sorted(
-        (s for s in symbols if s["ok"] and s["nearestBullishOrderBlock"]),
-        key=lambda s: s["nearestBullishOrderBlock"]["distancePct"],
-    )
-    ranking = [s["ticker"] for s in ranked]
+    ranking: dict[str, list[str]] = {}
+    closest_symbol: dict[str, str | None] = {}
+    for tf in TIMEFRAMES:
+        key = tf["key"]
+        ranked = sorted(
+            (
+                s
+                for s in symbols
+                if s["ok"] and s["timeframes"].get(key) and s["timeframes"][key]["nearestBullishOrderBlock"]
+            ),
+            key=lambda s: s["timeframes"][key]["nearestBullishOrderBlock"]["distancePct"],
+        )
+        ranking[key] = [s["ticker"] for s in ranked]
+        closest_symbol[key] = ranking[key][0] if ranking[key] else None
 
     output = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "meta": {
             "universe": UNIVERSE,
             "source": "LuxAlgo Smart Money Concepts (Pine Script v5) ported to Python",
-            "timeframe": INTERVAL,
+            "timeframes": [{"key": tf["key"], "label": tf["label"]} for tf in TIMEFRAMES],
             "historyPeriod": HISTORY_PERIOD,
             "swingLength": SWING_LENGTH,
             "internalLength": INTERNAL_LENGTH,
             "orderBlockCountPerType": INTERNAL_OB_COUNT,
             "atrLength": ATR_LENGTH,
+            "priceAdjustment": "raw (Yahoo split-adjusted, not dividend-adjusted) -- matches a default/unadjusted TradingView chart",
             "timezone": TIMEZONE,
         },
         "ranking": ranking,
-        "closestSymbol": ranking[0] if ranking else None,
+        "closestSymbol": closest_symbol,
         "symbols": symbols,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, indent=2))
-    print(f"Wrote {OUTPUT_PATH} for {len(UNIVERSE)} symbols; closest to a blue order block: {output['closestSymbol']}")
+    print(f"Wrote {OUTPUT_PATH} for {len(UNIVERSE)} symbols; closest (Daily): {closest_symbol.get('1d')}; closest (Weekly): {closest_symbol.get('1wk')}")
 
 
 if __name__ == "__main__":

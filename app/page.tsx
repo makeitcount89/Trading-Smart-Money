@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, Crosshair, RefreshCw } from "lucide-react";
-import type { SmcData } from "@/lib/types";
+import type { SmcData, TimeframeKey } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 import StatTile from "@/components/StatTile";
 import RankingTable from "@/components/RankingTable";
 import SymbolCard from "@/components/SymbolCard";
+
+const TIMEFRAME_ORDER: TimeframeKey[] = ["1d", "1wk"];
+const TIMEFRAME_LABELS: Record<TimeframeKey, string> = { "1d": "Daily", "1wk": "Weekly" };
 
 export default function Home() {
   const [data, setData] = useState<SmcData | null>(null);
@@ -35,8 +38,7 @@ export default function Home() {
     load();
   }, [load]);
 
-  const closest = data?.symbols.find((s) => s.ticker === data.closestSymbol) ?? null;
-  const withActiveOb = data?.symbols.filter((s) => s.nearestBullishOrderBlock).length ?? 0;
+  const timeframes = data?.meta?.timeframes?.map((t) => t.key) ?? TIMEFRAME_ORDER;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -48,8 +50,8 @@ export default function Home() {
           </div>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
             LuxAlgo Smart Money Concepts (swing/internal structure, BOS/CHoCH, order blocks) ported to Python and
-            run daily across a configurable stock universe, ranked by proximity to each stock&apos;s nearest active
-            bullish (blue) order block.
+            run daily on both Daily and Weekly bars across a configurable stock universe, ranked by proximity to
+            each stock&apos;s nearest active bullish (blue) order block.
             {data?.meta && <> · universe: {data.meta.universe.join(", ")}</>}
           </p>
         </div>
@@ -84,34 +86,46 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatTile
-          label="Closest to a blue order block"
-          value={closest ? closest.ticker : "—"}
-          icon={<Crosshair size={14} />}
-          tone="good"
-        />
-        <StatTile
-          label="Distance to nearest zone"
-          value={
-            closest?.nearestBullishOrderBlock
-              ? closest.nearestBullishOrderBlock.insideZone
-                ? "Inside zone"
-                : `${closest.nearestBullishOrderBlock.distancePct.toFixed(2)}%`
-              : "—"
-          }
-          icon={<Crosshair size={14} />}
-        />
-        <StatTile
-          label="Symbols with an active blue OB"
-          value={data ? `${withActiveOb} / ${data.symbols.length}` : "—"}
-          icon={<Crosshair size={14} />}
-        />
-      </div>
+      {timeframes.map((tfKey) => {
+        const label = data?.meta?.timeframes?.find((t) => t.key === tfKey)?.label ?? TIMEFRAME_LABELS[tfKey];
+        const closestTicker = data?.closestSymbol?.[tfKey] ?? null;
+        const closest = data?.symbols.find((s) => s.ticker === closestTicker) ?? null;
+        const closestTf = closest?.timeframes[tfKey] ?? null;
+        const withActiveOb = data?.symbols.filter((s) => s.timeframes[tfKey]?.nearestBullishOrderBlock).length ?? 0;
 
-      <div className="mt-4">
-        <RankingTable symbols={data?.symbols ?? []} />
-      </div>
+        return (
+          <section key={tfKey} className="mt-6 first:mt-0">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">{label}</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <StatTile
+                label={`${label}: closest to a blue order block`}
+                value={closest ? closest.ticker : "—"}
+                icon={<Crosshair size={14} />}
+                tone="good"
+              />
+              <StatTile
+                label={`${label}: distance to nearest zone`}
+                value={
+                  closestTf?.nearestBullishOrderBlock
+                    ? closestTf.nearestBullishOrderBlock.insideZone
+                      ? "Inside zone"
+                      : `${closestTf.nearestBullishOrderBlock.distancePct.toFixed(2)}%`
+                    : "—"
+                }
+                icon={<Crosshair size={14} />}
+              />
+              <StatTile
+                label={`${label}: symbols with an active blue OB`}
+                value={data ? `${withActiveOb} / ${data.symbols.length}` : "—"}
+                icon={<Crosshair size={14} />}
+              />
+            </div>
+            <div className="mt-4">
+              <RankingTable symbols={data?.symbols ?? []} timeframe={tfKey} label={label} />
+            </div>
+          </section>
+        );
+      })}
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {(data?.symbols ?? []).map((s) => (
@@ -121,7 +135,8 @@ export default function Home() {
 
       <footer className="mt-8 text-center text-xs text-[var(--text-muted)]">
         Structure/order-block detection derived from LuxAlgo&apos;s Smart Money Concepts indicator (CC BY-NC-SA 4.0).
-        For research purposes only. Not financial advice.
+        Prices are raw/unadjusted to match a default TradingView chart. For research purposes only. Not financial
+        advice.
       </footer>
     </main>
   );
