@@ -10,15 +10,15 @@ from datetime import datetime, timedelta
 # ============================================================================
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
-TICKERS = [
-    'A200.AX', 'A2M.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 'ALL.AX', 'AMP.AX',
-    'ANZ.AX', 'APA.AX', 'ARB.AX', 'ASIA.AX', 'ASX.AX', 'ATEC.AX', 'AUB.AX',
-    'BNKS.AX', 'CAR.AX', 'EVN.AX', 'FUEL.AX', 'GDX.AX', 'GGUS.AX', 'GMD.AX',
-    'GMG.AX', 'HACK.AX', 'HJPN.AX', 'IMD.AX', 'JHX.AX', 'LNAS.AX', 'MNRS.AX',
-    'NCK.AX', 'NDQ.AX', 'OOO.AX', 'QAN.AX', 'QAU.AX', 'SDR.AX', 'TPW.AX',
-    'WTC.AX', 'XRO.AX'
-]
-TICKERS = sorted(list(set(TICKERS)))
+# Modified sections only - Updated TICKERS list
+TICKERS = sorted([
+    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
+    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
+    'HJPN.AX','JHX.AX','LNAS.AX','MNRS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
+    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','DRIV.AX','EDOC.AX','ERTH.AX',
+    'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
+    'SNAS.AX'
+])
 
 WEEKLY_ALLOCATION = 50.0
 START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
@@ -62,7 +62,8 @@ print(f"Loading {len(TICKERS)} tickers across past 3 years to build weekly buffe
 data = yf.download(TICKERS, start=START_DATE, interval='1d', group_by='ticker')
 
 weekly_universe = {}
-guppy_emas = [30, 35, 40, 45, 50, 60]
+# Modified sections only - Updated guppy_emas to include 3
+guppy_emas=[3,30,35,40,45,50,60]
 
 for ticker in TICKERS:
     if ticker not in data or data[ticker].dropna().empty: continue
@@ -90,9 +91,18 @@ for ticker in TICKERS:
         if not np.isnan(current_ob) and current_ob > 0:
             df_wk.iloc[i, df_wk.columns.get_loc('Proximity')] = ((df_wk['Close'].iloc[i] - current_ob) / current_ob) * 100
 
-        emas_stacked = all(df_wk[f'ema_{guppy_emas[j]}'].iloc[i] > df_wk[f'ema_{guppy_emas[j+1]}'].iloc[i] for j in range(len(guppy_emas)-1))
+        # Modified sections only - Replaced Guppy_Trend block
+        ema3_above_30 = df_wk['ema_3'].iloc[i] > df_wk['ema_30'].iloc[i]
+
+        emas_stacked = all(
+            df_wk[f'ema_{guppy_emas[j]}'].iloc[i] >
+            df_wk[f'ema_{guppy_emas[j+1]}'].iloc[i]
+            for j in range(1, len(guppy_emas)-1)
+        )
+
         emas_sloping = df_wk['ema_60'].iloc[i] > df_wk['ema_60'].iloc[i-1]
-        if emas_stacked and emas_sloping:
+
+        if ema3_above_30 and emas_stacked and emas_sloping:
             df_wk.iloc[i, df_wk.columns.get_loc('Guppy_Trend')] = True
 
     weekly_universe[ticker] = df_wk
