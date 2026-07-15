@@ -11,39 +11,12 @@ from datetime import datetime, timedelta
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
 TICKERS = [
-    'BBOZ.AX', 'BEAR.AX', 'BBUS.AX', 'SNAS.AX', 'LNAS.AX', 'GEAR.AX', 'GGUS.AX',
-    'WBC.AX', 'XRO.AX', 'BNKS.AX', 'BNDS.AX', 'BUGG.AX', 'CCP.AX', 'FAIR.AX', 
-    'MTS.AX', 'IZZ.AX', 'TLC.AX', 'HJPN.AX', 'MQDB.AX', 'GOAT.AX', 'IAF.AX', 
-    'VEU.AX', 'SOL.AX', 'NWS.AX', 'VBND.AX', 'BANK.AX', 'ORI.AX', 'USIG.AX', 
-    'FPH.AX', 'BCOM.AX', 'NUGG.AX', 'CAR.AX', 'ETHI.AX', 'EVN.AX', 'RBTZ.AX', 
-    'QYLD.AX', 'AMP.AX', 'ZIP.AX', 'REA.AX', 'AGVT.AX', 'RWC.AX', 'E200.AX', 
-    'RIO.AX', 'US10.AX', 'IHWL.AX', 'OZF.AX', 'TPG.AX', 'TLS.AX', 'NXT.AX', 
-    'A2M.AX', 'HUB.AX', 'WHC.AX', 'CKF.AX', 'VCX.AX', 'FANG.AX', 'AUB.AX', 
-    'MOAT.AX', 'RGN.AX', 'STW.AX', 'QPON.AX', 'NSR.AX', 'BEN.AX', 'SCG.AX', 
-    'ASX.AX', 'EMKT.AX', 'CIP.AX', 'DGGF.AX', 'EDV.AX', 'GPT.AX', 'AGL.AX', 
-    'BPT.AX', 'SIG.AX', 'ESPO.AX', 'HBRD.AX', 'QFN.AX', 'EX20.AX', 'AAA.AX', 
-    'MND.AX', 'BGBL.AX', 'MVW.AX', 'ILB.AX', 'OOO.AX', 'GOZ.AX', 'BWP.AX', 
-    'PMGOLD.AX', 'GOLD.AX', 'GMG.AX', 'WEB.AX', 'SEMI.AX', 'VNT.AX', 'REIT.AX', 
-    'VDGR.AX', 'NEC.AX', 'GGUS.AX', 'JBH.AX', 'VAS.AX', 'IOO.AX', 'IVV.AX', 
-    'AZJ.AX', 'NAB.AX', 'QUS.AX', 'ALL.AX', 'VLUE.AX', 'BAP.AX', 'CRYP.AX', 
-    'SEK.AX', 'MQG.AX', 'ORA.AX', 'SGP.AX', 'CGF.AX', 'PPT.AX', 'GEAR.AX', 
-    'FOOD.AX', 'QBE.AX', 'LOV.AX', 'CLDD.AX', 'CSL.AX', 'MICH.AX', 'NDQ.AX', 
-    'VAE.AX', 'MNRS.AX', 'QUB.AX', 'CBA.AX', 'FLT.AX', 'SUN.AX', 'BXB.AX', 
-    'ORG.AX', 'BSL.AX', 'VEA.AX', 'IWLD.AX', 'FUEL.AX', 'GAME.AX', 'BOND.AX', 
-    'VHY.AX', 'USD.AX', 'YMAX.AX', 'AUST.AX', 'IHD.AX', 'LNAS.AX', 'IVE.AX', 
-    'ACDC.AX', 'APA.AX', 'MIN.AX', 'QAU.AX', 'DTL.AX', 'RFF.AX', 'IXI.AX', 
-    'IAG.AX', 'IGO.AX', 'QUAL.AX', 'PDN.AX', 'MSB.AX', 'PLS.AX', 'VGB.AX', 
-    'DHHF.AX', 'BOQ.AX', 'VGE.AX', 'QLTY.AX', 'WOR.AX', 'WOW.AX', 'ANZ.AX', 
-    'TCL.AX', 'ROBO.AX', 'ATEC.AX', 'GDX.AX', 'IOZ.AX', 'ASIA.AX', 'SGR.AX', 
-    'IEU.AX', 'SFY.AX', 'IJH.AX', 'STO.AX', 'CWY.AX', 'BBUS.AX', 'ILC.AX', 
-    'PME.AX', 'F100.AX', 'MGR.AX', 'NST.AX', 'BHP.AX', 'DRIV.AX', 'VGAD.AX', 
-    'WDS.AX', 'JEPI.AX', 'ARB.AX', 'SUL.AX', 'CHC.AX', 'LYC.AX', 'IJR.AX', 
-    'MPL.AX', 'NHC.AX', 'IPH.AX', 'RHC.AX', 'MOGL.AX', 'JHX.AX', 'RMD.AX', 
-    'VAP.AX', 'URNM.AX', 'WES.AX', 'VTS.AX', 'HVN.AX', 'SYI.AX', 'TECH.AX', 
-    'QAN.AX', 'VGS.AX', 'MFG.AX', 'CRED.AX', 'NUF.AX', 'S32.AX', 'WBT.AX', 
-    'COL.AX', 'BOT.AX', 'CQR.AX', 'URW.AX', 'HACK.AX', 'WTC.AX', 'SPY.AX', 
-    'A200.AX', 'BEAR.AX', 'CPU.AX', 'COH.AX', 'FMG.AX', 'DRO.AX', 'TWE.AX', 
-    'SLF.AX', 'SHL.AX', 'KGN.AX', 'BBOZ.AX', 'APX.AX', 'ELD.AX', 'DTEC.AX'
+    'A200.AX', 'A2M.AX', 'ACDC.AX', 'AGL.AX', 'AGVT.AX', 'ALL.AX', 'AMP.AX',
+    'ANZ.AX', 'APA.AX', 'ARB.AX', 'ASIA.AX', 'ASX.AX', 'ATEC.AX', 'AUB.AX',
+    'BNKS.AX', 'CAR.AX', 'EVN.AX', 'FUEL.AX', 'GDX.AX', 'GGUS.AX', 'GMD.AX',
+    'GMG.AX', 'HACK.AX', 'HJPN.AX', 'IMD.AX', 'JHX.AX', 'LNAS.AX', 'MNRS.AX',
+    'NCK.AX', 'NDQ.AX', 'OOO.AX', 'QAN.AX', 'QAU.AX', 'SDR.AX', 'TPW.AX',
+    'WTC.AX', 'XRO.AX'
 ]
 TICKERS = sorted(list(set(TICKERS)))
 
