@@ -23,6 +23,56 @@ TICKERS = sorted([
     'PPS.AX','WGX.AX','WAF.AX','OBM.AX','PNI.AX','RSG.AX','TEA.AX','JDO.AX','FCL.AX'
 ])
 
+# Snapshot of the universe before the above "top-value ASX stocks" expansion (which is
+# mostly gold miners) was added. Kept so the walk-forward sweep can be re-run against
+# just this original set, isolating how much of the recent-window outperformance is
+# the new tickers riding a gold rally vs. the base strategy itself.
+BASELINE_TICKERS = sorted([
+    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
+    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
+    'HJPN.AX','JHX.AX','LNAS.AX','MNRS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
+    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','DRIV.AX','EDOC.AX','ERTH.AX',
+    'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
+    'SNAS.AX'
+])
+NEW_TICKERS = sorted([t for t in TICKERS if t not in BASELINE_TICKERS])
+
+# Best-effort manual classification (not authoritative security/GICS data) so exposure
+# can be broken down by theme instead of only by individual ticker -- e.g. surfacing
+# that several tickers are all gold miners, which move together, rather than reading
+# as 6 unrelated small positions. Correlated ETF+equity exposure to the same
+# commodity/theme is grouped into one bucket (e.g. gold miner stocks and gold-miner
+# ETFs both land in "Gold & Precious Metals") since that's the risk that matters.
+TICKER_THEMES = {
+    # Gold & precious metals -- individual miners and gold/gold-miner funds alike
+    'EVN.AX': 'Gold & Precious Metals', 'GMD.AX': 'Gold & Precious Metals', 'OBM.AX': 'Gold & Precious Metals',
+    'RSG.AX': 'Gold & Precious Metals', 'WAF.AX': 'Gold & Precious Metals', 'WGX.AX': 'Gold & Precious Metals',
+    'GDX.AX': 'Gold & Precious Metals', 'MNRS.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
+    # Broad market index funds (AU/US/regional), geared or hedged variants included
+    'A200.AX': 'Broad Market Index', 'NDQ.AX': 'Broad Market Index', 'HNDQ.AX': 'Broad Market Index',
+    'LNAS.AX': 'Broad Market Index', 'GGUS.AX': 'Broad Market Index', 'SNAS.AX': 'Broad Market Index',
+    'HJPN.AX': 'Broad Market Index', 'CNEW.AX': 'Broad Market Index', 'ASIA.AX': 'Broad Market Index',
+    'WRLD.AX': 'Broad Market Index',
+    # Narrower sector/thematic funds (tech, banks, EVs, health, ESG, etc.)
+    'ATEC.AX': 'Sector & Thematic ETF', 'BNKS.AX': 'Sector & Thematic ETF', 'CLDD.AX': 'Sector & Thematic ETF',
+    'HACK.AX': 'Sector & Thematic ETF', 'ROBO.AX': 'Sector & Thematic ETF', 'DRIV.AX': 'Sector & Thematic ETF',
+    'ACDC.AX': 'Sector & Thematic ETF', 'EDOC.AX': 'Sector & Thematic ETF', 'ERTH.AX': 'Sector & Thematic ETF',
+    'ETHI.AX': 'Sector & Thematic ETF', 'FAIR.AX': 'Sector & Thematic ETF', 'QFN.AX': 'Sector & Thematic ETF',
+    'QRE.AX': 'Sector & Thematic ETF', 'FUEL.AX': 'Sector & Thematic ETF',
+    # Crypto
+    'CRYP.AX': 'Crypto', 'HETH.AX': 'Crypto',
+    # Fixed income
+    'AGVT.AX': 'Fixed Income',
+    # Commodities (non-gold)
+    'OOO.AX': 'Commodities',
+    # Individual stocks, grouped roughly by what they actually do
+    'ANZ.AX': 'Individual Stock - Financials', 'JDO.AX': 'Individual Stock - Financials',
+    'PNI.AX': 'Individual Stock - Financials', 'PPS.AX': 'Individual Stock - Financials',
+    'WTC.AX': 'Individual Stock - Tech', 'XRO.AX': 'Individual Stock - Tech', 'FCL.AX': 'Individual Stock - Tech',
+    'A2M.AX': 'Individual Stock - Other', 'AGL.AX': 'Individual Stock - Other', 'APA.AX': 'Individual Stock - Other',
+    'JHX.AX': 'Individual Stock - Other', 'QAN.AX': 'Individual Stock - Other', 'TEA.AX': 'Individual Stock - Other',
+}
+
 WEEKLY_ALLOCATION = 50.0
 BACKTEST_WINDOW_YEARS = 3  # Length of the production ("This Week" / "Backtest Results") window
 DATA_HISTORY_YEARS = 6  # Pull extra history beyond the backtest window so the walk-forward sweep has room for older rolling windows
@@ -280,6 +330,12 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
 def summarize_leg(leg, weekly_allocation):
     """Pooled-style strategy summary from a run_simulation() leg result."""
     total_cost = len(leg['flows']) * weekly_allocation
+    max_dd = leg['risk']['maxDrawdownPct']
+    # Calmar ratio: annualized return per unit of worst-case pain (peak-to-trough
+    # decline), as opposed to Sharpe's per-unit-of-volatility -- two drawdown-sized
+    # configs with identical Sharpe can have very different Calmar ratios if one's
+    # volatility is smooth chop and the other's is one big drawdown.
+    calmar_ratio = (leg['xirr'] / abs(max_dd)) if max_dd != 0 else 0.0
     return {
         "events": len(leg['flows']),
         "totalInvested": clean_float(total_cost),
@@ -290,8 +346,9 @@ def summarize_leg(leg, weekly_allocation):
         "profitProtectExits": sum(leg['trail_counts'].values()),
         "cashUninvested": clean_float(leg['cash']),
         "sharpeRatio": leg['risk']['sharpeRatio'],
-        "maxDrawdownPct": leg['risk']['maxDrawdownPct'],
-        "volatilityPct": leg['risk'].get('volatilityPct', 0.0)
+        "maxDrawdownPct": max_dd,
+        "volatilityPct": leg['risk'].get('volatilityPct', 0.0),
+        "calmarRatio": clean_float(calmar_ratio)
     }
 
 def generate_walk_forward_windows(end_dt, window_weeks, step_weeks, count):
@@ -317,6 +374,7 @@ def aggregate_window_results(window_results):
     returns = [w['simpleReturnPct'] for w in valid]
     xirrs = [w['xirrPct'] for w in valid]
     sharpes = [w['sharpeRatio'] for w in valid]
+    calmars = [w['calmarRatio'] for w in valid]
     mean_return = float(np.mean(returns))
     std_return = float(np.std(returns, ddof=1)) if len(returns) > 1 else 0.0
     win_rate = sum(1 for r in returns if r > 0) / len(returns) * 100
@@ -332,9 +390,50 @@ def aggregate_window_results(window_results):
         "maxReturnPct": clean_float(max(returns)),
         "meanXirrPct": clean_float(float(np.mean(xirrs))),
         "meanSharpeRatio": clean_float(float(np.mean(sharpes))),
+        "meanCalmarRatio": clean_float(float(np.mean(calmars))),
         "winRatePct": clean_float(win_rate),
         "consistencyScore": clean_float(consistency_score),
         "perWindow": valid
+    }
+
+def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_allocation, max_position_pct, risk_free_rate_pct):
+    """Every config in `configs` re-run over every window in `windows`, against
+    `weekly_universe`/`tickers` -- the same shape whether that's the full universe or
+    a restricted subset, so results from two different universes over the same windows
+    can be compared directly."""
+    wf_raw = {cfg['name']: {'proximityDCA': [], 'guppyProximityDCA': []} for cfg in configs}
+    for win in windows:
+        for cfg in configs:
+            win_sim = run_simulation(weekly_universe, win['dates_range'], tickers, weekly_allocation,
+                                      cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], max_position_pct, risk_free_rate_pct)
+            for key in ('proximityDCA', 'guppyProximityDCA'):
+                row = summarize_leg(win_sim['legs'][key], weekly_allocation)
+                row['windowNumber'] = win['windowNumber']
+                row['startDate'] = win['startDate'].strftime('%Y-%m-%d')
+                row['endDate'] = win['endDate'].strftime('%Y-%m-%d')
+                wf_raw[cfg['name']][key].append(row)
+
+    return {
+        "windowYears": BACKTEST_WINDOW_YEARS,
+        "windowCount": len(windows),
+        "stepWeeks": WALK_FORWARD_STEP_WEEKS,
+        "tickerCount": len(tickers),
+        "windows": [
+            {"windowNumber": w['windowNumber'], "startDate": w['startDate'].strftime('%Y-%m-%d'), "endDate": w['endDate'].strftime('%Y-%m-%d')}
+            for w in windows
+        ],
+        "configs": [
+            {
+                "name": cfg['name'],
+                "isCurrent": cfg.get('isCurrent', False),
+                "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
+                "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
+                "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
+                "proximityDCA": aggregate_window_results(wf_raw[cfg['name']]['proximityDCA']),
+                "guppyProximityDCA": aggregate_window_results(wf_raw[cfg['name']]['guppyProximityDCA'])
+            }
+            for cfg in configs
+        ]
     }
 
 # ============================================================================
@@ -417,40 +516,17 @@ for cfg in EXIT_RULE_SWEEP_CONFIGS:
 
 walk_forward_windows = generate_walk_forward_windows(datetime.now(), WALK_FORWARD_WINDOW_WEEKS, WALK_FORWARD_STEP_WEEKS, WALK_FORWARD_WINDOW_COUNT)
 print(f"Running walk-forward sweep ({len(walk_forward_windows)} windows x {len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
+walk_forward_payload = run_walk_forward_sweep(weekly_universe, TICKERS, walk_forward_windows, EXIT_RULE_SWEEP_CONFIGS,
+                                               WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
 
-wf_raw = {cfg['name']: {'proximityDCA': [], 'guppyProximityDCA': []} for cfg in EXIT_RULE_SWEEP_CONFIGS}
-for win in walk_forward_windows:
-    for cfg in EXIT_RULE_SWEEP_CONFIGS:
-        win_sim = run_simulation(weekly_universe, win['dates_range'], TICKERS, WEEKLY_ALLOCATION,
-                                  cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
-        for key in ('proximityDCA', 'guppyProximityDCA'):
-            row = summarize_leg(win_sim['legs'][key], WEEKLY_ALLOCATION)
-            row['windowNumber'] = win['windowNumber']
-            row['startDate'] = win['startDate'].strftime('%Y-%m-%d')
-            row['endDate'] = win['endDate'].strftime('%Y-%m-%d')
-            wf_raw[cfg['name']][key].append(row)
-
-walk_forward_payload = {
-    "windowYears": BACKTEST_WINDOW_YEARS,
-    "windowCount": len(walk_forward_windows),
-    "stepWeeks": WALK_FORWARD_STEP_WEEKS,
-    "windows": [
-        {"windowNumber": w['windowNumber'], "startDate": w['startDate'].strftime('%Y-%m-%d'), "endDate": w['endDate'].strftime('%Y-%m-%d')}
-        for w in walk_forward_windows
-    ],
-    "configs": [
-        {
-            "name": cfg['name'],
-            "isCurrent": cfg.get('isCurrent', False),
-            "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
-            "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
-            "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
-            "proximityDCA": aggregate_window_results(wf_raw[cfg['name']]['proximityDCA']),
-            "guppyProximityDCA": aggregate_window_results(wf_raw[cfg['name']]['guppyProximityDCA'])
-        }
-        for cfg in EXIT_RULE_SWEEP_CONFIGS
-    ]
-}
+# Same windows, same configs, but restricted to the universe as it stood before the
+# top-value-stocks (mostly gold miner) expansion -- isolates how much of the recent
+# windows' outperformance is those new tickers riding a sector rally vs. the base
+# strategy, by comparing this against walk_forward_payload above.
+baseline_weekly_universe = {t: df for t, df in weekly_universe.items() if t in BASELINE_TICKERS}
+print(f"Running walk-forward sweep on baseline universe ({len(baseline_weekly_universe)} tickers, pre-expansion)...")
+walk_forward_baseline_payload = run_walk_forward_sweep(baseline_weekly_universe, BASELINE_TICKERS, walk_forward_windows, EXIT_RULE_SWEEP_CONFIGS,
+                                                        WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
 
 # ============================================================================
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
@@ -537,10 +613,45 @@ for ticker in TICKERS:
     }
     ticker_results_payload.append(ticker_payload)
 
+def compute_theme_exposure(ticker_payloads, strategy_key):
+    """% of ending portfolio value grouped by TICKER_THEMES, for one strategy leg.
+    Ending values per ticker already account for both currently-held value and
+    realized stop-loss/trailing-stop proceeds, and sum exactly to that leg's total
+    ending value, so shares here add to 100%."""
+    totals = {}
+    for tp in ticker_payloads:
+        ending = tp['strategies'][strategy_key]['endingValue']
+        if ending <= 0:
+            continue
+        theme = TICKER_THEMES.get(tp['ticker'], 'Other')
+        totals.setdefault(theme, {'value': 0.0, 'tickers': []})
+        totals[theme]['value'] += ending
+        totals[theme]['tickers'].append(tp['ticker'])
+
+    grand_total = sum(t['value'] for t in totals.values())
+    rows = [
+        {
+            "theme": theme,
+            "endingValue": clean_float(t['value']),
+            "sharePct": clean_float(t['value'] / grand_total * 100) if grand_total else 0.0,
+            "tickers": sorted(t['tickers'])
+        }
+        for theme, t in totals.items()
+    ]
+    rows.sort(key=lambda r: r['sharePct'], reverse=True)
+    return rows
+
+theme_exposure_payload = {
+    "proximityDCA": compute_theme_exposure(ticker_results_payload, 'proximityDCA'),
+    "guppyProximityDCA": compute_theme_exposure(ticker_results_payload, 'guppyProximityDCA')
+}
+
 final_json_payload = {
     "generatedAt": end_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
     "meta": {
         "universe": TICKERS,
+        "newTickers": NEW_TICKERS,
+        "baselineUniverse": BASELINE_TICKERS,
         "windowYears": BACKTEST_WINDOW_YEARS,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
@@ -558,7 +669,9 @@ final_json_payload = {
     "tickers": ticker_results_payload,
     "weeklyRun": weekly_run_payload,
     "exitRuleSweep": exit_rule_sweep_payload,
-    "walkForward": walk_forward_payload
+    "walkForward": walk_forward_payload,
+    "walkForwardBaseline": walk_forward_baseline_payload,
+    "themeExposure": theme_exposure_payload
 }
 
 output_path = 'public/backtest_data.json'

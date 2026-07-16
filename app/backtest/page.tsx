@@ -10,6 +10,7 @@ import BacktestTickerCard from "@/components/BacktestTickerCard";
 import WeeklyRunPanel from "@/components/WeeklyRunPanel";
 import ExitRuleSweepTable from "@/components/ExitRuleSweepTable";
 import WalkForwardSweepTable from "@/components/WalkForwardSweepTable";
+import ThemeExposureTable from "@/components/ThemeExposureTable";
 
 type Tab = "weekly" | "backtest" | "sweep";
 type SweepView = "single" | "walkForward";
@@ -146,6 +147,12 @@ export default function BacktestPage() {
 
               <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
 
+              {data.themeExposure && (
+                <div className="mt-6">
+                  <ThemeExposureTable exposure={data.themeExposure} />
+                </div>
+              )}
+
               <div className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                 Per-ticker detail
               </div>
@@ -190,7 +197,7 @@ export default function BacktestPage() {
               )}
 
               {sweepView === "walkForward" && data.walkForward && data.walkForward.configs.length > 0 && (
-                <WalkForwardSweepTable data={data.walkForward} />
+                <WalkForwardSweepTable data={data.walkForward} baselineData={data.walkForwardBaseline} newTickers={data.meta.newTickers} />
               )}
               {sweepView === "walkForward" && (!data.walkForward || data.walkForward.configs.length === 0) && (
                 <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">

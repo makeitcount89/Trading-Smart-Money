@@ -94,6 +94,7 @@ export interface BacktestStrategySummary {
   sharpeRatio?: number; // Pooled only: annualized, net of weekly contributions, vs. meta.riskFreeRatePct
   maxDrawdownPct?: number; // Pooled only: worst peak-to-trough NAV decline over the window (<= 0)
   volatilityPct?: number; // Pooled only: annualized stdev of weekly returns net of contributions
+  calmarRatio?: number; // xirrPct / |maxDrawdownPct| -- return per unit of worst-case pain, vs. Sharpe's per-unit-of-volatility
 }
 
 export interface ProximityDcaEvent {
@@ -120,6 +121,8 @@ export interface BacktestTickerResult {
 
 export interface BacktestMeta {
   universe: string[];
+  newTickers?: string[]; // Tickers added on top of baselineUniverse (currently: top-value ASX stocks, mostly gold miners)
+  baselineUniverse?: string[]; // Universe as it stood before newTickers were added
   windowYears: number;
   amountPerWeek: number;
   strategyName: string;
@@ -210,6 +213,7 @@ export interface WalkForwardAggregate {
   maxReturnPct: number;
   meanXirrPct: number;
   meanSharpeRatio: number;
+  meanCalmarRatio: number; // Mean of each window's XIRR / |maxDrawdown|
   winRatePct: number; // % of tested windows with a positive simple return
   consistencyScore: number; // meanReturnPct / stdReturnPct (falls back to meanReturnPct when stdReturnPct is 0)
   perWindow: WalkForwardWindowResult[];
@@ -229,8 +233,27 @@ export interface WalkForwardData {
   windowYears: number; // Length of each individual window, same as meta.windowYears
   windowCount: number;
   stepWeeks: number; // How far back each successive window starts, relative to the previous one
+  tickerCount?: number; // Size of the universe this run used (differs between walkForward and walkForwardBaseline)
   windows: WalkForwardWindowMeta[];
   configs: WalkForwardConfig[];
+}
+
+// ============================================================================
+// --- Theme Exposure: ending portfolio value grouped by a best-effort sector/ ---
+// --- theme tag per ticker, so correlated positions (e.g. several gold miners) -
+// --- read as one exposure instead of unrelated-looking individual holdings ----
+// ============================================================================
+
+export interface ThemeExposureRow {
+  theme: string;
+  endingValue: number;
+  sharePct: number; // Shares across all rows for one strategy sum to 100%
+  tickers: string[];
+}
+
+export interface ThemeExposure {
+  proximityDCA: ThemeExposureRow[];
+  guppyProximityDCA: ThemeExposureRow[];
 }
 
 export interface BacktestData {
@@ -244,5 +267,7 @@ export interface BacktestData {
   tickers: BacktestTickerResult[];
   weeklyRun?: WeeklyRun;
   exitRuleSweep?: ExitRuleSweepConfig[];
-  walkForward?: WalkForwardData;
+  walkForward?: WalkForwardData; // Full universe (meta.universe)
+  walkForwardBaseline?: WalkForwardData; // Same windows/configs, restricted to meta.baselineUniverse -- isolates the effect of meta.newTickers
+  themeExposure?: ThemeExposure;
 }

@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Award } from "lucide-react";
 import type { BacktestStrategySummary, ExitRuleSweepConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type SortKey = "simpleReturnPct" | "xirrPct" | "sharpeRatio" | "maxDrawdownPct" | "endingValue";
+type SortKey = "simpleReturnPct" | "xirrPct" | "sharpeRatio" | "maxDrawdownPct" | "calmarRatio" | "endingValue";
 type StrategyKey = "proximityDCA" | "guppyProximityDCA";
 
 const SORT_COLUMNS: { key: SortKey; label: string }[] = [
@@ -15,6 +15,7 @@ const SORT_COLUMNS: { key: SortKey; label: string }[] = [
   { key: "xirrPct", label: "Annualized (XIRR)" },
   { key: "sharpeRatio", label: "Sharpe" },
   { key: "maxDrawdownPct", label: "Max Drawdown" },
+  { key: "calmarRatio", label: "Calmar" },
 ];
 
 function formatRules(cfg: ExitRuleSweepConfig): string {
@@ -89,7 +90,7 @@ export default function ExitRuleSweepTable({ configs, maxPositionPct }: { config
         </div>
       </div>
 
-      <table className="w-full min-w-[1080px] text-sm">
+      <table className="w-full min-w-[1180px] text-sm">
         <thead>
           <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
             <th className="px-4 py-3 font-medium">Configuration</th>
@@ -159,6 +160,9 @@ export default function ExitRuleSweepTable({ configs, maxPositionPct }: { config
                 {m.sharpeRatio != null ? m.sharpeRatio.toFixed(2) : "—"}
               </td>
               <td className="px-4 py-3 tabular text-short">{m.maxDrawdownPct != null ? `${m.maxDrawdownPct.toFixed(2)}%` : "—"}</td>
+              <td className={cn("px-4 py-3 tabular", (m.calmarRatio ?? 0) >= 0 ? "text-long" : "text-short")}>
+                {m.calmarRatio != null ? m.calmarRatio.toFixed(2) : "—"}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -166,7 +170,9 @@ export default function ExitRuleSweepTable({ configs, maxPositionPct }: { config
       <div className="border-t border-base-800 px-4 py-2.5 text-[11px] text-[var(--text-muted)]">
         &ldquo;Live&rdquo; is the configuration currently running in the This Week / Backtest Results tabs. The trophy marks
         the highest Sharpe ratio (best risk-adjusted return) among these configurations for the selected strategy &mdash;
-        not necessarily the highest raw return. All configurations share the same {maxPositionPct ?? 15}% max-position
+        not necessarily the highest raw return. Calmar = XIRR &divide; |max drawdown|, a return-per-unit-of-worst-case-pain
+        measure that can rank differently from Sharpe (which measures return per unit of overall volatility, smooth chop
+        included). All configurations share the same {maxPositionPct ?? 15}% max-position
         concentration cap and are backtested over the same historical window, so differences come only from the
         stop-loss / trailing-stop settings.
       </div>
