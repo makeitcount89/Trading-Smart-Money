@@ -95,6 +95,7 @@ export interface BacktestStrategySummary {
   maxDrawdownPct?: number; // Pooled only: worst peak-to-trough NAV decline over the window (<= 0)
   volatilityPct?: number; // Pooled only: annualized stdev of weekly returns net of contributions
   calmarRatio?: number; // xirrPct / |maxDrawdownPct| -- return per unit of worst-case pain, vs. Sharpe's per-unit-of-volatility
+  cgtDeferredCount?: number; // Pooled only: times a trailing-stop exit was held back to preserve the AU 12-month CGT discount
 }
 
 export interface ProximityDcaEvent {
@@ -132,6 +133,7 @@ export interface BacktestMeta {
   trailingStopArmPct?: number; // Gain from last buy price required before the trailing stop activates
   trailingStopPct?: number; // Pullback from post-purchase high that triggers the trailing stop, once armed
   maxPositionPct?: number; // Max share of strategy NAV a single ticker can reach before new buys are skipped
+  cgtDiscountHoldDays?: number; // A profit-take (trailing-stop) exit is deferred until a position has been held this long, to preserve the AU 12-month CGT discount. Does not gate the stop-loss.
 }
 
 // ============================================================================
@@ -159,6 +161,10 @@ export interface WeeklyRunPosition {
   trailingStopTriggerPrice: number | null; // Set only once armed
   distanceToTrailingStopPct: number | null; // % price would need to fall from here to hit the trailing stop, once armed
   distanceToArmPct: number | null; // % price would need to rise from here to arm the trailing stop, until armed
+  daysHeld?: number | null; // Days since this position's last buy
+  cgtEligibleDate?: string | null; // Date this position becomes eligible for the AU 12-month CGT discount
+  cgtDiscountEligible?: boolean | null; // Whether daysHeld has already cleared meta.cgtDiscountHoldDays
+  profitTakeHeldForCgt?: boolean; // True when the trailing-stop condition is currently met but the sale is being held back specifically to preserve CGT-discount eligibility -- a real tax-vs-downside-risk tradeoff, not a free lunch
 }
 
 export interface WeeklyRunStrategy {

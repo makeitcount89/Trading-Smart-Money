@@ -1,5 +1,5 @@
 // components/WeeklyRunPanel.tsx
-import { AlertTriangle, ShoppingCart, ShieldAlert, TrendingUp } from "lucide-react";
+import { AlertTriangle, Lock, ShoppingCart, ShieldAlert, TrendingUp } from "lucide-react";
 import type { BacktestMeta, WeeklyRun, WeeklyRunPosition, WeeklyRunStrategy } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -80,11 +80,33 @@ function PositionRow({ position }: { position: WeeklyRunPosition }) {
               {nearTrailingStop && <TrendingUp size={9} className="mr-0.5 inline" />}
               {p.distanceToTrailingStopPct?.toFixed(1)}% away
             </span>
+            {p.profitTakeHeldForCgt && (
+              <span
+                className="mt-0.5 flex items-center gap-0.5 text-[10px] font-semibold text-[var(--status-warning)]"
+                title="Trigger condition is met, but the sale is being held back to preserve the AU 12-month CGT discount"
+              >
+                <Lock size={9} /> held for CGT
+              </span>
+            )}
           </div>
         ) : (
           <span className="text-[10px] text-[var(--text-muted)]">
             armed at +{p.distanceToArmPct != null ? p.distanceToArmPct.toFixed(1) : "—"}%
           </span>
+        )}
+      </td>
+      <td className="px-3 py-2.5 tabular">
+        {p.daysHeld != null ? (
+          <div className="flex flex-col">
+            <span className={cn(p.cgtDiscountEligible ? "text-long" : "text-[var(--text-secondary)]")}>
+              {p.daysHeld}d
+            </span>
+            <span className="text-[10px] text-[var(--text-muted)]">
+              {p.cgtDiscountEligible ? "CGT-eligible" : `eligible ${p.cgtEligibleDate ?? "—"}`}
+            </span>
+          </div>
+        ) : (
+          "—"
         )}
       </td>
       <td className={cn("px-3 py-2.5 tabular", nearCap ? "text-[var(--status-warning)] font-semibold" : "text-[var(--text-muted)]")}>
@@ -111,7 +133,7 @@ function StrategyWatchList({
       {strategy.positions.length === 0 ? (
         <div className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">No open positions.</div>
       ) : (
-        <table className="w-full min-w-[720px] text-sm">
+        <table className="w-full min-w-[840px] text-sm">
           <thead>
             <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
               <th className="px-3 py-2.5 font-medium">Ticker</th>
@@ -120,6 +142,7 @@ function StrategyWatchList({
               <th className="px-3 py-2.5 font-medium">P&amp;L</th>
               <th className="px-3 py-2.5 font-medium">Stop-Loss</th>
               <th className="px-3 py-2.5 font-medium">Trailing Stop</th>
+              <th className="px-3 py-2.5 font-medium">Held / CGT</th>
               <th className="px-3 py-2.5 font-medium">Portfolio %</th>
             </tr>
           </thead>
@@ -147,8 +170,13 @@ export default function WeeklyRunPanel({ weeklyRun, meta }: { weeklyRun: WeeklyR
           This reflects the model&apos;s own simulated paper portfolio, built purely from this backtest since
           inception &mdash; not your real brokerage holdings. If you mirror these buys manually, your own fill
           prices/dates need to line up for the stop-loss and trailing-stop triggers shown here to stay accurate.
-          Checks only run weekly, so a real fill can land a little past the trigger price. Consider paper-trading
-          this first and confirming the logic independently before risking real capital.
+          Checks only run weekly, so a real fill can land a little past the trigger price. A profit-take that hits
+          its trailing-stop trigger before {meta.cgtDiscountHoldDays ?? 366} days of holding is deferred (&ldquo;held
+          for CGT&rdquo;) to preserve Australia&apos;s 12-month CGT discount &mdash; note this trades tax efficiency
+          for downside exposure: if price keeps falling while a sale is deferred, it can still hit the (non-deferred)
+          stop-loss and give back more than the discount is worth. This also tracks a single last-buy date per
+          ticker, not true per-parcel CGT lots. Consider paper-trading this first and confirming the logic
+          independently (including with your own tax adviser) before risking real capital.
         </div>
       </div>
 
@@ -156,7 +184,8 @@ export default function WeeklyRunPanel({ weeklyRun, meta }: { weeklyRun: WeeklyR
         <div className="mb-2 text-xs text-[var(--text-muted)]">
           Week of {weeklyRun.asOfDate} &middot; Stop-loss: -{meta.stopLossPct ?? 20}% &middot; Trailing stop: arms at +
           {meta.trailingStopArmPct ?? 10}%, triggers on a -{meta.trailingStopPct ?? 15}% pullback from peak &middot; Max
-          position: {meta.maxPositionPct ?? 15}% of portfolio
+          position: {meta.maxPositionPct ?? 15}% of portfolio &middot; Profit-takes held until {meta.cgtDiscountHoldDays ?? 366}{" "}
+          days held (CGT discount)
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <RecommendedBuyCard

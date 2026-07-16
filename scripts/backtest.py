@@ -101,6 +101,9 @@ TRAILING_STOP_ARM_PCT = 0.10  # A position must be up this much from its last bu
 TRAILING_STOP_PCT = 0.15  # Once armed, sell if price pulls back this much from its post-purchase high (protects profits)
 MAX_POSITION_PCT = 0.15  # Skip a candidate for this week's buy if it already exceeds this share of the strategy's NAV
 RISK_FREE_RATE_PCT = 4.0  # Annualized, used as the Sharpe ratio's baseline (approx. AU cash rate)
+CGT_DISCOUNT_HOLD_DAYS = 366  # Defer a profit-take (trailing-stop) exit until a position has been held this long, to
+# preserve eligibility for Australia's 50% CGT discount on assets held >12 months. Only gates the trailing stop --
+# there's no tax benefit to holding a loss longer, so the (unrelated) hard stop-loss still fires immediately.
 
 # Walk-forward: re-run the same exit-rule sweep over several overlapping historical
 # windows (same length as the production window, stepped back 6 months at a time) so
@@ -216,9 +219,11 @@ def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
         return None
     return min(eligible, key=lambda x: x['prox'])
 
-def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss_pct, trail_arm_pct, trail_pct):
+def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss_pct, trail_arm_pct, trail_pct,
+                             last_buy_date=None, as_of_date=None, cgt_hold_days=None):
     """Current status of one currently-held position for the 'this week' watch list:
-    how far it is from triggering the stop-loss, and its trailing-stop arm/trigger state."""
+    how far it is from triggering the stop-loss, its trailing-stop arm/trigger state, and
+    (if last_buy_date/as_of_date/cgt_hold_days are supplied) its CGT-discount holding status."""
     position_value = units * price
     unrealized_pnl_pct = ((price - last_buy) / last_buy * 100) if last_buy else None
 
@@ -231,6 +236,15 @@ def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss
     trail_trigger = peak_ref * (1 - trail_pct) if armed else None
     dist_to_trail_pct = ((price - trail_trigger) / price * 100) if trail_trigger and price else None
     dist_to_arm_pct = ((arm_price - price) / price * 100) if (arm_price and not armed and price) else None
+
+    days_held = (as_of_date - last_buy_date).days if (last_buy_date is not None and as_of_date is not None) else None
+    cgt_eligible_date = (last_buy_date + timedelta(days=cgt_hold_days)) if (last_buy_date is not None and cgt_hold_days is not None) else None
+    cgt_discount_eligible = (days_held is not None and cgt_hold_days is not None and days_held >= cgt_hold_days) if cgt_hold_days is not None else None
+    # True when the trailing-stop condition is currently met but held back specifically because
+    # selling now would forfeit the CGT discount -- a real tax-vs-downside-risk tradeoff, not a free lunch.
+    profit_take_held_for_cgt = bool(
+        armed and trail_trigger is not None and price <= trail_trigger and cgt_discount_eligible is False
+    )
 
     return {
         "ticker": ticker,
@@ -246,25 +260,34 @@ def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss
         "trailingStopArmed": armed,
         "trailingStopTriggerPrice": clean_float(trail_trigger) if trail_trigger is not None else None,
         "distanceToTrailingStopPct": clean_float(dist_to_trail_pct) if dist_to_trail_pct is not None else None,
-        "distanceToArmPct": clean_float(dist_to_arm_pct) if dist_to_arm_pct is not None else None
+        "distanceToArmPct": clean_float(dist_to_arm_pct) if dist_to_arm_pct is not None else None,
+        "daysHeld": days_held,
+        "cgtEligibleDate": cgt_eligible_date.strftime('%Y-%m-%d') if cgt_eligible_date is not None else None,
+        "cgtDiscountEligible": cgt_discount_eligible,
+        "profitTakeHeldForCgt": profit_take_held_for_cgt
     }
 
 def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
-                    stop_loss_pct, trail_arm_pct, trail_pct, max_position_pct, risk_free_rate_pct):
+                    stop_loss_pct, trail_arm_pct, trail_pct, max_position_pct, risk_free_rate_pct,
+                    cgt_hold_days=None):
     """Runs the full weekly router simulation -- both the unfiltered ('proximityDCA')
     and Guppy-trend-filtered ('guppyProximityDCA') legs side by side, sharing the same
     exit rules -- for one exit-rule configuration. Pass stop_loss_pct/trail_arm_pct/
     trail_pct as None to disable that rule entirely (e.g. for a buy-and-hold baseline).
-    Returns a dict with a full result per leg plus the shared last-known-price map."""
+    cgt_hold_days, if set, defers a trailing-stop (profit-take) exit until the position has
+    been held that long -- the hard stop-loss is never gated, since there's no CGT-discount
+    incentive to hold a loss longer. Returns a dict with a full result per leg plus the
+    shared last-known-price map."""
     legs = {}
     for key in ('proximityDCA', 'guppyProximityDCA'):
         legs[key] = {
             'portfolio': {}, 'flows': [], 'dates': [],
             'ticker_counts': {t: 0 for t in tickers},
-            'last_buy_price': {}, 'cash': 0.0,
+            'last_buy_price': {}, 'last_buy_date': {}, 'cash': 0.0,
             'realized': {t: 0.0 for t in tickers},
             'stop_counts': {t: 0 for t in tickers},
             'peak_price': {}, 'trail_counts': {t: 0 for t in tickers},
+            'cgt_deferred_counts': {t: 0 for t in tickers},
             'nav_series': [], 'last_recommendation': None
         }
     last_known_price = {}
@@ -296,18 +319,26 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
                     leg['portfolio'][ticker] = 0.0
                     leg['stop_counts'][ticker] += 1
                     del leg['last_buy_price'][ticker]
+                    leg['last_buy_date'].pop(ticker, None)
                     leg['peak_price'].pop(ticker, None)
                 elif last_buy and trail_arm_pct is not None and trail_pct is not None:
                     peak = max(leg['peak_price'].get(ticker, last_buy), price)
                     leg['peak_price'][ticker] = peak
                     if peak >= last_buy * (1 + trail_arm_pct) and price <= peak * (1 - trail_pct):
-                        proceeds = leg['portfolio'][ticker] * price
-                        leg['cash'] += proceeds
-                        leg['realized'][ticker] += proceeds
-                        leg['portfolio'][ticker] = 0.0
-                        leg['trail_counts'][ticker] += 1
-                        del leg['last_buy_price'][ticker]
-                        leg['peak_price'].pop(ticker, None)
+                        buy_date = leg['last_buy_date'].get(ticker)
+                        days_held = (current_week - buy_date).days if buy_date is not None else None
+                        cgt_cleared = cgt_hold_days is None or days_held is None or days_held >= cgt_hold_days
+                        if cgt_cleared:
+                            proceeds = leg['portfolio'][ticker] * price
+                            leg['cash'] += proceeds
+                            leg['realized'][ticker] += proceeds
+                            leg['portfolio'][ticker] = 0.0
+                            leg['trail_counts'][ticker] += 1
+                            del leg['last_buy_price'][ticker]
+                            leg['last_buy_date'].pop(ticker, None)
+                            leg['peak_price'].pop(ticker, None)
+                        else:
+                            leg['cgt_deferred_counts'][ticker] += 1
 
             if not np.isnan(row['Proximity']):
                 candidates['proximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
@@ -324,6 +355,7 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
                 leg['portfolio'][t] = leg['portfolio'].get(t, 0) + (weekly_allocation / best['price'])
                 leg['ticker_counts'][t] += 1
                 leg['last_buy_price'][t] = best['price']
+                leg['last_buy_date'][t] = current_week
                 leg['peak_price'][t] = best['price']
                 leg['flows'].append(weekly_allocation)
                 leg['dates'].append(current_week)
@@ -367,7 +399,8 @@ def summarize_leg(leg, weekly_allocation):
         "sharpeRatio": leg['risk']['sharpeRatio'],
         "maxDrawdownPct": max_dd,
         "volatilityPct": leg['risk'].get('volatilityPct', 0.0),
-        "calmarRatio": clean_float(calmar_ratio)
+        "calmarRatio": clean_float(calmar_ratio),
+        "cgtDeferredCount": sum(leg['cgt_deferred_counts'].values())
     }
 
 def generate_walk_forward_windows(end_dt, window_weeks, step_weeks, count):
@@ -415,7 +448,7 @@ def aggregate_window_results(window_results):
         "perWindow": valid
     }
 
-def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_allocation, max_position_pct, risk_free_rate_pct):
+def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_allocation, max_position_pct, risk_free_rate_pct, cgt_hold_days=None):
     """Every config in `configs` re-run over every window in `windows`, against
     `weekly_universe`/`tickers` -- the same shape whether that's the full universe or
     a restricted subset, so results from two different universes over the same windows
@@ -424,7 +457,8 @@ def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_al
     for win in windows:
         for cfg in configs:
             win_sim = run_simulation(weekly_universe, win['dates_range'], tickers, weekly_allocation,
-                                      cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], max_position_pct, risk_free_rate_pct)
+                                      cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], max_position_pct, risk_free_rate_pct,
+                                      cgt_hold_days)
             for key in ('proximityDCA', 'guppyProximityDCA'):
                 row = summarize_leg(win_sim['legs'][key], weekly_allocation)
                 row['windowNumber'] = win['windowNumber']
@@ -513,7 +547,8 @@ for ticker in TICKERS:
 dates_range = pd.date_range(end=datetime.now(), periods=BACKTEST_WINDOW_YEARS * 52, freq='W')
 
 sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
-                      STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+                      STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT, MAX_POSITION_PCT, RISK_FREE_RATE_PCT,
+                      CGT_DISCOUNT_HOLD_DAYS)
 g1 = sim['legs']['proximityDCA']
 g2 = sim['legs']['guppyProximityDCA']
 last_known_price = sim['last_known_price']
@@ -522,7 +557,8 @@ print(f"Running exit-rule sweep ({len(EXIT_RULE_SWEEP_CONFIGS)} configurations).
 exit_rule_sweep_payload = []
 for cfg in EXIT_RULE_SWEEP_CONFIGS:
     cfg_sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
-                              cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+                              cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT,
+                              CGT_DISCOUNT_HOLD_DAYS)
     exit_rule_sweep_payload.append({
         "name": cfg['name'],
         "isCurrent": cfg.get('isCurrent', False),
@@ -536,7 +572,7 @@ for cfg in EXIT_RULE_SWEEP_CONFIGS:
 walk_forward_windows = generate_walk_forward_windows(datetime.now(), WALK_FORWARD_WINDOW_WEEKS, WALK_FORWARD_STEP_WEEKS, WALK_FORWARD_WINDOW_COUNT)
 print(f"Running walk-forward sweep ({len(walk_forward_windows)} windows x {len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
 walk_forward_payload = run_walk_forward_sweep(weekly_universe, TICKERS, walk_forward_windows, EXIT_RULE_SWEEP_CONFIGS,
-                                               WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+                                               WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT, CGT_DISCOUNT_HOLD_DAYS)
 
 # Same windows, same configs, but restricted to the universe as it stood before the
 # top-value-stocks (mostly gold miner) expansion -- isolates how much of the recent
@@ -545,7 +581,7 @@ walk_forward_payload = run_walk_forward_sweep(weekly_universe, TICKERS, walk_for
 baseline_weekly_universe = {t: df for t, df in weekly_universe.items() if t in BASELINE_TICKERS}
 print(f"Running walk-forward sweep on baseline universe ({len(baseline_weekly_universe)} tickers, pre-expansion)...")
 walk_forward_baseline_payload = run_walk_forward_sweep(baseline_weekly_universe, BASELINE_TICKERS, walk_forward_windows, EXIT_RULE_SWEEP_CONFIGS,
-                                                        WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+                                                        WEEKLY_ALLOCATION, MAX_POSITION_PCT, RISK_FREE_RATE_PCT, CGT_DISCOUNT_HOLD_DAYS)
 
 # ============================================================================
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
@@ -559,12 +595,14 @@ def build_recommendation(rec):
 
 g1_positions = sorted([
     build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1['last_buy_price'].get(t), g1['peak_price'].get(t),
-                             g1['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT)
+                             g1['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT,
+                             g1['last_buy_date'].get(t), dates_range[-1], CGT_DISCOUNT_HOLD_DAYS)
     for t, units in g1['portfolio'].items() if units > 0
 ], key=lambda p: p['ticker'])
 g2_positions = sorted([
     build_position_snapshot(t, units, last_known_price.get(t, 0.0), g2['last_buy_price'].get(t), g2['peak_price'].get(t),
-                             g2['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT)
+                             g2['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT,
+                             g2['last_buy_date'].get(t), dates_range[-1], CGT_DISCOUNT_HOLD_DAYS)
     for t, units in g2['portfolio'].items() if units > 0
 ], key=lambda p: p['ticker'])
 
@@ -674,12 +712,13 @@ final_json_payload = {
         "windowYears": BACKTEST_WINDOW_YEARS,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
-        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
+        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits, deferred until it's been held over {CGT_DISCOUNT_HOLD_DAYS} days to preserve the AU 12-month CGT discount); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
         "riskFreeRatePct": RISK_FREE_RATE_PCT,
         "stopLossPct": STOP_LOSS_PCT * 100,
         "trailingStopArmPct": TRAILING_STOP_ARM_PCT * 100,
         "trailingStopPct": TRAILING_STOP_PCT * 100,
-        "maxPositionPct": MAX_POSITION_PCT * 100
+        "maxPositionPct": MAX_POSITION_PCT * 100,
+        "cgtDiscountHoldDays": CGT_DISCOUNT_HOLD_DAYS
     },
     "pooled": {
         "proximityDCA": summarize_leg(g1, WEEKLY_ALLOCATION),
