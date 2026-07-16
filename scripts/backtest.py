@@ -21,15 +21,42 @@ TICKERS = sorted([
 ])
 
 WEEKLY_ALLOCATION = 50.0
-START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+BACKTEST_WINDOW_YEARS = 3  # Length of the production ("This Week" / "Backtest Results") window
+DATA_HISTORY_YEARS = 6  # Pull extra history beyond the backtest window so the walk-forward sweep has room for older rolling windows
+START_DATE = (datetime.now() - timedelta(days=int(DATA_HISTORY_YEARS * 365.25))).strftime('%Y-%m-%d')
 STOP_LOSS_PCT = 0.20  # Sell a held position if it closes >= 20% below our last purchase price for it
 TRAILING_STOP_ARM_PCT = 0.10  # A position must be up this much from its last buy price before the trailing stop activates
 TRAILING_STOP_PCT = 0.15  # Once armed, sell if price pulls back this much from its post-purchase high (protects profits)
 MAX_POSITION_PCT = 0.15  # Skip a candidate for this week's buy if it already exceeds this share of the strategy's NAV
 RISK_FREE_RATE_PCT = 4.0  # Annualized, used as the Sharpe ratio's baseline (approx. AU cash rate)
 
+# Walk-forward: re-run the same exit-rule sweep over several overlapping historical
+# windows (same length as the production window, stepped back 6 months at a time) so
+# a config's ranking can be checked for consistency across different market regimes
+# instead of trusting a single 3-year backtest. Windows overlap heavily -- they are a
+# sensitivity check, not independent trials -- see the UI copy for that caveat.
+WALK_FORWARD_WINDOW_WEEKS = BACKTEST_WINDOW_YEARS * 52
+WALK_FORWARD_STEP_WEEKS = 26
+WALK_FORWARD_WINDOW_COUNT = 8
+
+# A curated set of alternative stop-loss / trailing-stop configurations, backtested
+# against the same historical data as the production run so they can be compared
+# side by side. Concentration cap is held fixed at MAX_POSITION_PCT throughout, to
+# isolate the effect of the exit rules specifically.
+EXIT_RULE_SWEEP_CONFIGS = [
+    {"name": "No Exit Rules (Buy & Hold)", "stopLossPct": None, "trailArmPct": None, "trailPct": None},
+    {"name": "Stop-Loss Only (-10%)", "stopLossPct": 0.10, "trailArmPct": None, "trailPct": None},
+    {"name": "Stop-Loss Only (-20%)", "stopLossPct": 0.20, "trailArmPct": None, "trailPct": None},
+    {"name": "Stop-Loss Only (-30%)", "stopLossPct": 0.30, "trailArmPct": None, "trailPct": None},
+    {"name": "Current (Production)", "stopLossPct": STOP_LOSS_PCT, "trailArmPct": TRAILING_STOP_ARM_PCT, "trailPct": TRAILING_STOP_PCT, "isCurrent": True},
+    {"name": "Tight Trail (-20% Stop, Trail +5%/-10%)", "stopLossPct": 0.20, "trailArmPct": 0.05, "trailPct": 0.10},
+    {"name": "Loose Trail (-20% Stop, Trail +15%/-25%)", "stopLossPct": 0.20, "trailArmPct": 0.15, "trailPct": 0.25},
+    {"name": "Tight Stop + Tight Trail (-10%, +5%/-10%)", "stopLossPct": 0.10, "trailArmPct": 0.05, "trailPct": 0.10},
+    {"name": "Loose Stop + Loose Trail (-30%, +15%/-25%)", "stopLossPct": 0.30, "trailArmPct": 0.15, "trailPct": 0.25},
+]
+
 # ============================================================================
-# 2. FINANCIAL MATH & SANITIZATION UTILITIES
+# 2. FINANCIAL MATH & SIMULATION UTILITIES
 # ============================================================================
 def clean_float(val, fallback=0.0):
     if val is None or math.isnan(val) or math.isinf(val):
@@ -90,7 +117,7 @@ def compute_risk_metrics(nav_series, flow_by_date, risk_free_annual_pct=RISK_FRE
         prev_nav = nav
 
     if len(weekly_returns) < 2:
-        return {"sharpeRatio": 0.0, "maxDrawdownPct": clean_float(max_dd * 100)}
+        return {"sharpeRatio": 0.0, "maxDrawdownPct": clean_float(max_dd * 100), "volatilityPct": 0.0}
 
     mean_r = float(np.mean(weekly_returns))
     std_r = float(np.std(weekly_returns, ddof=1))
@@ -117,19 +144,19 @@ def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
         return None
     return min(eligible, key=lambda x: x['prox'])
 
-def build_position_snapshot(ticker, units, price, last_buy, peak, nav):
+def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss_pct, trail_arm_pct, trail_pct):
     """Current status of one currently-held position for the 'this week' watch list:
     how far it is from triggering the stop-loss, and its trailing-stop arm/trigger state."""
     position_value = units * price
     unrealized_pnl_pct = ((price - last_buy) / last_buy * 100) if last_buy else None
 
-    stop_trigger = last_buy * (1 - STOP_LOSS_PCT) if last_buy else None
+    stop_trigger = last_buy * (1 - stop_loss_pct) if (last_buy and stop_loss_pct is not None) else None
     dist_to_stop_pct = ((price - stop_trigger) / price * 100) if stop_trigger and price else None
 
-    arm_price = last_buy * (1 + TRAILING_STOP_ARM_PCT) if last_buy else None
+    arm_price = last_buy * (1 + trail_arm_pct) if (last_buy and trail_arm_pct is not None) else None
     peak_ref = peak if peak is not None else last_buy
-    armed = bool(last_buy and peak_ref is not None and peak_ref >= arm_price)
-    trail_trigger = peak_ref * (1 - TRAILING_STOP_PCT) if armed else None
+    armed = bool(last_buy and arm_price is not None and trail_pct is not None and peak_ref is not None and peak_ref >= arm_price)
+    trail_trigger = peak_ref * (1 - trail_pct) if armed else None
     dist_to_trail_pct = ((price - trail_trigger) / price * 100) if trail_trigger and price else None
     dist_to_arm_pct = ((arm_price - price) / price * 100) if (arm_price and not armed and price) else None
 
@@ -150,10 +177,167 @@ def build_position_snapshot(ticker, units, price, last_buy, peak, nav):
         "distanceToArmPct": clean_float(dist_to_arm_pct) if dist_to_arm_pct is not None else None
     }
 
+def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
+                    stop_loss_pct, trail_arm_pct, trail_pct, max_position_pct, risk_free_rate_pct):
+    """Runs the full weekly router simulation -- both the unfiltered ('proximityDCA')
+    and Guppy-trend-filtered ('guppyProximityDCA') legs side by side, sharing the same
+    exit rules -- for one exit-rule configuration. Pass stop_loss_pct/trail_arm_pct/
+    trail_pct as None to disable that rule entirely (e.g. for a buy-and-hold baseline).
+    Returns a dict with a full result per leg plus the shared last-known-price map."""
+    legs = {}
+    for key in ('proximityDCA', 'guppyProximityDCA'):
+        legs[key] = {
+            'portfolio': {}, 'flows': [], 'dates': [],
+            'ticker_counts': {t: 0 for t in tickers},
+            'last_buy_price': {}, 'cash': 0.0,
+            'realized': {t: 0.0 for t in tickers},
+            'stop_counts': {t: 0 for t in tickers},
+            'peak_price': {}, 'trail_counts': {t: 0 for t in tickers},
+            'nav_series': [], 'last_recommendation': None
+        }
+    last_known_price = {}
+
+    for current_week in dates_range:
+        candidates = {'proximityDCA': [], 'guppyProximityDCA': []}
+
+        for ticker, df in weekly_universe.items():
+            wk_idx = df.index.asof(current_week)
+            if pd.isna(wk_idx): continue
+            row = df.loc[wk_idx]
+            price = row['Close']
+            last_known_price[ticker] = price
+
+            # --- Weekly exit check: sell out of a held position if it has dipped
+            # below the price we last bought it at by stop_loss_pct (hard stop-loss,
+            # skipped entirely if stop_loss_pct is None), otherwise track its
+            # post-purchase high and sell if it's given back trail_pct of a
+            # trail_arm_pct+ gain (trailing stop, protects profits) ---
+            for key in ('proximityDCA', 'guppyProximityDCA'):
+                leg = legs[key]
+                if leg['portfolio'].get(ticker, 0) <= 0:
+                    continue
+                last_buy = leg['last_buy_price'].get(ticker)
+                if stop_loss_pct is not None and last_buy and price <= last_buy * (1 - stop_loss_pct):
+                    proceeds = leg['portfolio'][ticker] * price
+                    leg['cash'] += proceeds
+                    leg['realized'][ticker] += proceeds
+                    leg['portfolio'][ticker] = 0.0
+                    leg['stop_counts'][ticker] += 1
+                    del leg['last_buy_price'][ticker]
+                    leg['peak_price'].pop(ticker, None)
+                elif last_buy and trail_arm_pct is not None and trail_pct is not None:
+                    peak = max(leg['peak_price'].get(ticker, last_buy), price)
+                    leg['peak_price'][ticker] = peak
+                    if peak >= last_buy * (1 + trail_arm_pct) and price <= peak * (1 - trail_pct):
+                        proceeds = leg['portfolio'][ticker] * price
+                        leg['cash'] += proceeds
+                        leg['realized'][ticker] += proceeds
+                        leg['portfolio'][ticker] = 0.0
+                        leg['trail_counts'][ticker] += 1
+                        del leg['last_buy_price'][ticker]
+                        leg['peak_price'].pop(ticker, None)
+
+            if not np.isnan(row['Proximity']):
+                candidates['proximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
+                if row['Guppy_Trend']:
+                    candidates['guppyProximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
+
+        for key in ('proximityDCA', 'guppyProximityDCA'):
+            leg = legs[key]
+            nav_pre_buy = leg['cash'] + sum(u * last_known_price.get(t, 0.0) for t, u in leg['portfolio'].items() if u > 0)
+            best = pick_best_candidate(candidates[key], leg['portfolio'], nav_pre_buy, max_position_pct)
+            leg['last_recommendation'] = best
+            if best:
+                t = best['ticker']
+                leg['portfolio'][t] = leg['portfolio'].get(t, 0) + (weekly_allocation / best['price'])
+                leg['ticker_counts'][t] += 1
+                leg['last_buy_price'][t] = best['price']
+                leg['peak_price'][t] = best['price']
+                leg['flows'].append(weekly_allocation)
+                leg['dates'].append(current_week)
+
+            nav = leg['cash'] + sum(u * last_known_price.get(t, 0.0) for t, u in leg['portfolio'].items() if u > 0)
+            leg['nav_series'].append((current_week, nav))
+
+    # Mark-to-market and discount as of the WINDOW's own last date, not "now" -- for the
+    # production window (ending today) these are the same thing, but a walk-forward
+    # window ending in the past must be valued using its own end-of-period prices, or
+    # every historical window would be silently marked to today's price instead.
+    end_dt = dates_range[-1]
+    for key in ('proximityDCA', 'guppyProximityDCA'):
+        leg = legs[key]
+        leg['end_val'] = leg['cash'] + sum(
+            units * last_known_price.get(t, 0.0) for t, units in leg['portfolio'].items() if units > 0
+        )
+        leg['xirr'] = calculate_xirr(leg['flows'], leg['dates'], leg['end_val'], end_dt)
+        leg['risk'] = compute_risk_metrics(leg['nav_series'], dict(zip(leg['dates'], leg['flows'])), risk_free_rate_pct)
+
+    return {'legs': legs, 'last_known_price': last_known_price}
+
+def summarize_leg(leg, weekly_allocation):
+    """Pooled-style strategy summary from a run_simulation() leg result."""
+    total_cost = len(leg['flows']) * weekly_allocation
+    return {
+        "events": len(leg['flows']),
+        "totalInvested": clean_float(total_cost),
+        "endingValue": clean_float(leg['end_val']),
+        "simpleReturnPct": clean_float(((leg['end_val'] - total_cost) / total_cost * 100) if total_cost else 0.0),
+        "xirrPct": clean_float(leg['xirr']),
+        "stopLossExits": sum(leg['stop_counts'].values()),
+        "profitProtectExits": sum(leg['trail_counts'].values()),
+        "cashUninvested": clean_float(leg['cash']),
+        "sharpeRatio": leg['risk']['sharpeRatio'],
+        "maxDrawdownPct": leg['risk']['maxDrawdownPct'],
+        "volatilityPct": leg['risk'].get('volatilityPct', 0.0)
+    }
+
+def generate_walk_forward_windows(end_dt, window_weeks, step_weeks, count):
+    """`count` windows of `window_weeks` length, each stepped back `step_weeks` from
+    the previous, returned oldest-first with a 1-indexed windowNumber for display."""
+    windows = []
+    for i in range(count):
+        window_end = end_dt - timedelta(weeks=step_weeks * i)
+        dr = pd.date_range(end=window_end, periods=window_weeks, freq='W')
+        windows.append({'startDate': dr[0], 'endDate': dr[-1], 'dates_range': dr})
+    windows.reverse()
+    for idx, w in enumerate(windows):
+        w['windowNumber'] = idx + 1
+    return windows
+
+def aggregate_window_results(window_results):
+    """Mean/spread/best/worst across a config's per-window summarize_leg() results,
+    skipping any window where nothing was ever bought (no signal existed that far
+    back for this universe -- not a 0% result, just no test)."""
+    valid = [w for w in window_results if w['totalInvested'] > 0]
+    if not valid:
+        return None
+    returns = [w['simpleReturnPct'] for w in valid]
+    xirrs = [w['xirrPct'] for w in valid]
+    sharpes = [w['sharpeRatio'] for w in valid]
+    mean_return = float(np.mean(returns))
+    std_return = float(np.std(returns, ddof=1)) if len(returns) > 1 else 0.0
+    win_rate = sum(1 for r in returns if r > 0) / len(returns) * 100
+    # "Consistency" reward: high average return penalized by how much it swings
+    # window to window -- a Sharpe-like ratio applied across regimes rather than
+    # within one time series. Falls back to the mean when there's no spread to divide by.
+    consistency_score = (mean_return / std_return) if std_return > 0 else mean_return
+    return {
+        "windowsTested": len(valid),
+        "meanReturnPct": clean_float(mean_return),
+        "stdReturnPct": clean_float(std_return),
+        "minReturnPct": clean_float(min(returns)),
+        "maxReturnPct": clean_float(max(returns)),
+        "meanXirrPct": clean_float(float(np.mean(xirrs))),
+        "meanSharpeRatio": clean_float(float(np.mean(sharpes))),
+        "winRatePct": clean_float(win_rate),
+        "consistencyScore": clean_float(consistency_score),
+        "perWindow": valid
+    }
+
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
 # ============================================================================
-print(f"Loading {len(TICKERS)} tickers across past 3 years to build weekly buffers...")
+print(f"Loading {len(TICKERS)} tickers across past {DATA_HISTORY_YEARS} years to build weekly buffers...")
 data = yf.download(TICKERS, start=START_DATE, interval='1d', group_by='ticker')
 
 weekly_universe = {}
@@ -203,155 +387,72 @@ for ticker in TICKERS:
     weekly_universe[ticker] = df_wk
 
 # ============================================================================
-# 4. CORE ENGINE SIMULATION LOOP
+# 4. PRODUCTION RUN (the live config) + EXIT-RULE SWEEP + WALK-FORWARD SWEEP
 # ============================================================================
-dates_range = pd.date_range(end=datetime.now(), periods=104, freq='W')
-g1_portfolio, g2_portfolio = {}, {}
-g1_flows, g2_flows = [], []
-g1_dates, g2_dates = [], []
+dates_range = pd.date_range(end=datetime.now(), periods=BACKTEST_WINDOW_YEARS * 52, freq='W')
 
-# Auxiliary maps to easily sum per-ticker investment counts without storing arrays
-g1_ticker_counts = {t: 0 for t in TICKERS}
-g2_ticker_counts = {t: 0 for t in TICKERS}
-first_purchase_price = {t: None for t in TICKERS}
+sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
+                      STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+g1 = sim['legs']['proximityDCA']
+g2 = sim['legs']['guppyProximityDCA']
+last_known_price = sim['last_known_price']
 
-# Exit-rule bookkeeping: last price we bought each ticker at, cash raised by stop-outs
-# (sits idle until the router picks that ticker again), and per-ticker exit counts.
-g1_last_buy_price, g2_last_buy_price = {}, {}
-g1_cash, g2_cash = 0.0, 0.0
-g1_realized = {t: 0.0 for t in TICKERS}
-g2_realized = {t: 0.0 for t in TICKERS}
-g1_stop_counts = {t: 0 for t in TICKERS}
-g2_stop_counts = {t: 0 for t in TICKERS}
+print(f"Running exit-rule sweep ({len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
+exit_rule_sweep_payload = []
+for cfg in EXIT_RULE_SWEEP_CONFIGS:
+    cfg_sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
+                              cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+    exit_rule_sweep_payload.append({
+        "name": cfg['name'],
+        "isCurrent": cfg.get('isCurrent', False),
+        "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
+        "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
+        "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
+        "proximityDCA": summarize_leg(cfg_sim['legs']['proximityDCA'], WEEKLY_ALLOCATION),
+        "guppyProximityDCA": summarize_leg(cfg_sim['legs']['guppyProximityDCA'], WEEKLY_ALLOCATION)
+    })
 
-# Trailing-stop bookkeeping: highest close seen since the last buy of each ticker,
-# and a separate exit counter so profit-protection exits are distinguishable from
-# hard stop-loss exits in the reported stats.
-g1_peak_price, g2_peak_price = {}, {}
-g1_trail_counts = {t: 0 for t in TICKERS}
-g2_trail_counts = {t: 0 for t in TICKERS}
+walk_forward_windows = generate_walk_forward_windows(datetime.now(), WALK_FORWARD_WINDOW_WEEKS, WALK_FORWARD_STEP_WEEKS, WALK_FORWARD_WINDOW_COUNT)
+print(f"Running walk-forward sweep ({len(walk_forward_windows)} windows x {len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
 
-# Weekly mark-to-market NAV snapshots (cash + held positions), used for Sharpe/drawdown
-g1_nav_series, g2_nav_series = [], []
-last_known_price = {}
+wf_raw = {cfg['name']: {'proximityDCA': [], 'guppyProximityDCA': []} for cfg in EXIT_RULE_SWEEP_CONFIGS}
+for win in walk_forward_windows:
+    for cfg in EXIT_RULE_SWEEP_CONFIGS:
+        win_sim = run_simulation(weekly_universe, win['dates_range'], TICKERS, WEEKLY_ALLOCATION,
+                                  cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+        for key in ('proximityDCA', 'guppyProximityDCA'):
+            row = summarize_leg(win_sim['legs'][key], WEEKLY_ALLOCATION)
+            row['windowNumber'] = win['windowNumber']
+            row['startDate'] = win['startDate'].strftime('%Y-%m-%d')
+            row['endDate'] = win['endDate'].strftime('%Y-%m-%d')
+            wf_raw[cfg['name']][key].append(row)
 
-# Recomputed every week and left holding the FINAL (most recent) week's decision once
-# the loop ends -- this is the actionable "what to buy this week" signal.
-g1_last_recommendation, g2_last_recommendation = None, None
-
-for current_week in dates_range:
-    g1_candidates = []
-    g2_candidates = []
-
-    for ticker, df in weekly_universe.items():
-        wk_idx = df.index.asof(current_week)
-        if pd.isna(wk_idx): continue
-        row = df.loc[wk_idx]
-        price = row['Close']
-        last_known_price[ticker] = price
-
-        # --- Weekly exit check: sell out of a held position if it has dipped 20%+
-        # below the price we last bought it at (hard stop-loss), otherwise track its
-        # post-purchase high and sell if it's given back 15%+ of a 10%+ gain (trailing
-        # stop, protects profits on a winner instead of riding it back down) ---
-        if g1_portfolio.get(ticker, 0) > 0:
-            last_buy = g1_last_buy_price.get(ticker)
-            if last_buy and price <= last_buy * (1 - STOP_LOSS_PCT):
-                proceeds = g1_portfolio[ticker] * price
-                g1_cash += proceeds
-                g1_realized[ticker] += proceeds
-                g1_portfolio[ticker] = 0.0
-                g1_stop_counts[ticker] += 1
-                del g1_last_buy_price[ticker]
-                g1_peak_price.pop(ticker, None)
-            elif last_buy:
-                peak = max(g1_peak_price.get(ticker, last_buy), price)
-                g1_peak_price[ticker] = peak
-                if peak >= last_buy * (1 + TRAILING_STOP_ARM_PCT) and price <= peak * (1 - TRAILING_STOP_PCT):
-                    proceeds = g1_portfolio[ticker] * price
-                    g1_cash += proceeds
-                    g1_realized[ticker] += proceeds
-                    g1_portfolio[ticker] = 0.0
-                    g1_trail_counts[ticker] += 1
-                    del g1_last_buy_price[ticker]
-                    g1_peak_price.pop(ticker, None)
-
-        if g2_portfolio.get(ticker, 0) > 0:
-            last_buy = g2_last_buy_price.get(ticker)
-            if last_buy and price <= last_buy * (1 - STOP_LOSS_PCT):
-                proceeds = g2_portfolio[ticker] * price
-                g2_cash += proceeds
-                g2_realized[ticker] += proceeds
-                g2_portfolio[ticker] = 0.0
-                g2_stop_counts[ticker] += 1
-                del g2_last_buy_price[ticker]
-                g2_peak_price.pop(ticker, None)
-            elif last_buy:
-                peak = max(g2_peak_price.get(ticker, last_buy), price)
-                g2_peak_price[ticker] = peak
-                if peak >= last_buy * (1 + TRAILING_STOP_ARM_PCT) and price <= peak * (1 - TRAILING_STOP_PCT):
-                    proceeds = g2_portfolio[ticker] * price
-                    g2_cash += proceeds
-                    g2_realized[ticker] += proceeds
-                    g2_portfolio[ticker] = 0.0
-                    g2_trail_counts[ticker] += 1
-                    del g2_last_buy_price[ticker]
-                    g2_peak_price.pop(ticker, None)
-
-        if not np.isnan(row['Proximity']):
-            g1_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
-            if row['Guppy_Trend']:
-                g2_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
-
-    # NAV going into this week's buy decision, used to cap concentration in a single ticker
-    g1_nav_pre_buy = g1_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g1_portfolio.items() if units > 0)
-    g2_nav_pre_buy = g2_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g2_portfolio.items() if units > 0)
-
-    best_g1 = pick_best_candidate(g1_candidates, g1_portfolio, g1_nav_pre_buy, MAX_POSITION_PCT)
-    g1_last_recommendation = best_g1
-    if best_g1:
-        t1 = best_g1['ticker']
-        g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
-        g1_ticker_counts[t1] += 1
-        g1_last_buy_price[t1] = best_g1['price']
-        g1_peak_price[t1] = best_g1['price']
-        if first_purchase_price[t1] is None:
-            first_purchase_price[t1] = best_g1['price']
-        g1_flows.append(WEEKLY_ALLOCATION)
-        g1_dates.append(current_week)
-
-    best_g2 = pick_best_candidate(g2_candidates, g2_portfolio, g2_nav_pre_buy, MAX_POSITION_PCT)
-    g2_last_recommendation = best_g2
-    if best_g2:
-        t2 = best_g2['ticker']
-        g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
-        g2_ticker_counts[t2] += 1
-        g2_last_buy_price[t2] = best_g2['price']
-        g2_peak_price[t2] = best_g2['price']
-        if first_purchase_price[t2] is None:
-            first_purchase_price[t2] = best_g2['price']
-        g2_flows.append(WEEKLY_ALLOCATION)
-        g2_dates.append(current_week)
-
-    g1_nav = g1_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g1_portfolio.items() if units > 0)
-    g2_nav = g2_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g2_portfolio.items() if units > 0)
-    g1_nav_series.append((current_week, g1_nav))
-    g2_nav_series.append((current_week, g2_nav))
+walk_forward_payload = {
+    "windowYears": BACKTEST_WINDOW_YEARS,
+    "windowCount": len(walk_forward_windows),
+    "stepWeeks": WALK_FORWARD_STEP_WEEKS,
+    "windows": [
+        {"windowNumber": w['windowNumber'], "startDate": w['startDate'].strftime('%Y-%m-%d'), "endDate": w['endDate'].strftime('%Y-%m-%d')}
+        for w in walk_forward_windows
+    ],
+    "configs": [
+        {
+            "name": cfg['name'],
+            "isCurrent": cfg.get('isCurrent', False),
+            "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
+            "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
+            "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
+            "proximityDCA": aggregate_window_results(wf_raw[cfg['name']]['proximityDCA']),
+            "guppyProximityDCA": aggregate_window_results(wf_raw[cfg['name']]['guppyProximityDCA'])
+        }
+        for cfg in EXIT_RULE_SWEEP_CONFIGS
+    ]
+}
 
 # ============================================================================
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
 # ============================================================================
 end_dt = datetime.now()
-g1_end_val = g1_cash + sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g1_portfolio.items() if t in weekly_universe)
-g2_end_val = g2_cash + sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g2_portfolio.items() if t in weekly_universe)
-
-g1_xirr = calculate_xirr(g1_flows, g1_dates, g1_end_val, end_dt)
-g2_xirr = calculate_xirr(g2_flows, g2_dates, g2_end_val, end_dt)
-
-g1_flow_by_date = dict(zip(g1_dates, g1_flows))
-g2_flow_by_date = dict(zip(g2_dates, g2_flows))
-g1_risk = compute_risk_metrics(g1_nav_series, g1_flow_by_date)
-g2_risk = compute_risk_metrics(g2_nav_series, g2_flow_by_date)
 
 def build_recommendation(rec):
     if not rec:
@@ -359,22 +460,24 @@ def build_recommendation(rec):
     return {"ticker": rec['ticker'], "price": clean_float(rec['price']), "proximityPct": clean_float(rec['prox'])}
 
 g1_positions = sorted([
-    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1_last_buy_price.get(t), g1_peak_price.get(t), g1_end_val)
-    for t, units in g1_portfolio.items() if units > 0
+    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1['last_buy_price'].get(t), g1['peak_price'].get(t),
+                             g1['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT)
+    for t, units in g1['portfolio'].items() if units > 0
 ], key=lambda p: p['ticker'])
 g2_positions = sorted([
-    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g2_last_buy_price.get(t), g2_peak_price.get(t), g2_end_val)
-    for t, units in g2_portfolio.items() if units > 0
+    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g2['last_buy_price'].get(t), g2['peak_price'].get(t),
+                             g2['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT)
+    for t, units in g2['portfolio'].items() if units > 0
 ], key=lambda p: p['ticker'])
 
 weekly_run_payload = {
     "asOfDate": dates_range[-1].strftime('%Y-%m-%d'),
     "proximityDCA": {
-        "recommendedBuy": build_recommendation(g1_last_recommendation),
+        "recommendedBuy": build_recommendation(g1['last_recommendation']),
         "positions": g1_positions
     },
     "guppyProximityDCA": {
-        "recommendedBuy": build_recommendation(g2_last_recommendation),
+        "recommendedBuy": build_recommendation(g2['last_recommendation']),
         "positions": g2_positions
     }
 }
@@ -385,21 +488,21 @@ for ticker in TICKERS:
     if ticker not in weekly_universe: continue
     df_wk = weekly_universe[ticker]
     if df_wk.empty: continue
-        
+
     last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
 
-    c1 = g1_ticker_counts[ticker]
-    c2 = g2_ticker_counts[ticker]
+    c1 = g1['ticker_counts'][ticker]
+    c2 = g2['ticker_counts'][ticker]
 
-    # Ending value = cash already realized from any stop-loss exits on this ticker,
-    # plus whatever units (if any) are still being held at the current close.
+    # Ending value = cash already realized from any stop-loss/trailing-stop exits on
+    # this ticker, plus whatever units (if any) are still being held at the current close.
     g1_invested = c1 * int(WEEKLY_ALLOCATION)
-    g1_ending = g1_realized[ticker] + g1_portfolio.get(ticker, 0.0) * last_price
+    g1_ending = g1['realized'][ticker] + g1['portfolio'].get(ticker, 0.0) * last_price
     g1_return = ((g1_ending - g1_invested) / g1_invested * 100) if g1_invested > 0 else 0.0
 
     g2_invested = c2 * int(WEEKLY_ALLOCATION)
-    g2_ending = g2_realized[ticker] + g2_portfolio.get(ticker, 0.0) * last_price
+    g2_ending = g2['realized'][ticker] + g2['portfolio'].get(ticker, 0.0) * last_price
     g2_return = ((g2_ending - g2_invested) / g2_invested * 100) if g2_invested > 0 else 0.0
 
     ticker_payload = {
@@ -415,8 +518,8 @@ for ticker in TICKERS:
                 "endingValue": clean_float(g1_ending),
                 "simpleReturnPct": clean_float(g1_return),
                 "xirrPct": 0.0,
-                "stopLossExits": g1_stop_counts[ticker],
-                "profitProtectExits": g1_trail_counts[ticker]
+                "stopLossExits": g1['stop_counts'][ticker],
+                "profitProtectExits": g1['trail_counts'][ticker]
             },
             "guppyProximityDCA": {
                 "events": c2,
@@ -424,21 +527,18 @@ for ticker in TICKERS:
                 "endingValue": clean_float(g2_ending),
                 "simpleReturnPct": clean_float(g2_return),
                 "xirrPct": 0.0,
-                "stopLossExits": g2_stop_counts[ticker],
-                "profitProtectExits": g2_trail_counts[ticker]
+                "stopLossExits": g2['stop_counts'][ticker],
+                "profitProtectExits": g2['trail_counts'][ticker]
             }
         }
     }
     ticker_results_payload.append(ticker_payload)
 
-g1_total_cost = len(g1_flows) * WEEKLY_ALLOCATION
-g2_total_cost = len(g2_flows) * WEEKLY_ALLOCATION
-
 final_json_payload = {
     "generatedAt": end_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
     "meta": {
         "universe": TICKERS,
-        "windowYears": 3,
+        "windowYears": BACKTEST_WINDOW_YEARS,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
         "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
@@ -449,35 +549,13 @@ final_json_payload = {
         "maxPositionPct": MAX_POSITION_PCT * 100
     },
     "pooled": {
-        "proximityDCA": {
-            "events": len(g1_flows),
-            "totalInvested": clean_float(g1_total_cost),
-            "endingValue": clean_float(g1_end_val),
-            "simpleReturnPct": clean_float(((g1_end_val - g1_total_cost) / g1_total_cost * 100) if g1_total_cost else 0.0),
-            "xirrPct": clean_float(g1_xirr),
-            "stopLossExits": sum(g1_stop_counts.values()),
-            "profitProtectExits": sum(g1_trail_counts.values()),
-            "cashUninvested": clean_float(g1_cash),
-            "sharpeRatio": g1_risk["sharpeRatio"],
-            "maxDrawdownPct": g1_risk["maxDrawdownPct"],
-            "volatilityPct": g1_risk.get("volatilityPct", 0.0)
-        },
-        "guppyProximityDCA": {
-            "events": len(g2_flows),
-            "totalInvested": clean_float(g2_total_cost),
-            "endingValue": clean_float(g2_end_val),
-            "simpleReturnPct": clean_float(((g2_end_val - g2_total_cost) / g2_total_cost * 100) if g2_total_cost else 0.0),
-            "xirrPct": clean_float(g2_xirr),
-            "stopLossExits": sum(g2_stop_counts.values()),
-            "profitProtectExits": sum(g2_trail_counts.values()),
-            "cashUninvested": clean_float(g2_cash),
-            "sharpeRatio": g2_risk["sharpeRatio"],
-            "maxDrawdownPct": g2_risk["maxDrawdownPct"],
-            "volatilityPct": g2_risk.get("volatilityPct", 0.0)
-        }
+        "proximityDCA": summarize_leg(g1, WEEKLY_ALLOCATION),
+        "guppyProximityDCA": summarize_leg(g2, WEEKLY_ALLOCATION)
     },
     "tickers": ticker_results_payload,
-    "weeklyRun": weekly_run_payload
+    "weeklyRun": weekly_run_payload,
+    "exitRuleSweep": exit_rule_sweep_payload,
+    "walkForward": walk_forward_payload
 }
 
 output_path = 'public/backtest_data.json'

@@ -169,6 +169,70 @@ export interface WeeklyRun {
   guppyProximityDCA?: WeeklyRunStrategy;
 }
 
+// ============================================================================
+// --- Exit-Rule Sweep: same historical data, alternative stop-loss / trailing- ---
+// --- stop configurations backtested side by side for comparison ---------------
+// ============================================================================
+
+export interface ExitRuleSweepConfig {
+  name: string;
+  isCurrent: boolean; // Marks the config matching meta.stopLossPct/trailingStop* (the live production settings)
+  stopLossPct: number | null; // null = stop-loss disabled for this config
+  trailingStopArmPct: number | null; // null = trailing stop disabled for this config
+  trailingStopPct: number | null;
+  proximityDCA: BacktestStrategySummary;
+  guppyProximityDCA: BacktestStrategySummary;
+}
+
+// ============================================================================
+// --- Walk-Forward Sweep: the same exit-rule sweep re-run over several ----------
+// --- overlapping historical windows, to check whether a config's ranking ------
+// --- holds up across different market regimes instead of one lucky window ----
+// ============================================================================
+
+export interface WalkForwardWindowMeta {
+  windowNumber: number; // 1 = oldest
+  startDate: string;
+  endDate: string;
+}
+
+export interface WalkForwardWindowResult extends BacktestStrategySummary {
+  windowNumber: number;
+  startDate: string;
+  endDate: string;
+}
+
+export interface WalkForwardAggregate {
+  windowsTested: number; // Windows with any activity -- windows with no signal that far back are excluded, not counted as 0%
+  meanReturnPct: number;
+  stdReturnPct: number; // Dispersion of simple return across windows -- the core "consistency" signal
+  minReturnPct: number;
+  maxReturnPct: number;
+  meanXirrPct: number;
+  meanSharpeRatio: number;
+  winRatePct: number; // % of tested windows with a positive simple return
+  consistencyScore: number; // meanReturnPct / stdReturnPct (falls back to meanReturnPct when stdReturnPct is 0)
+  perWindow: WalkForwardWindowResult[];
+}
+
+export interface WalkForwardConfig {
+  name: string;
+  isCurrent: boolean;
+  stopLossPct: number | null;
+  trailingStopArmPct: number | null;
+  trailingStopPct: number | null;
+  proximityDCA: WalkForwardAggregate | null; // null if no window had any activity for this config
+  guppyProximityDCA: WalkForwardAggregate | null;
+}
+
+export interface WalkForwardData {
+  windowYears: number; // Length of each individual window, same as meta.windowYears
+  windowCount: number;
+  stepWeeks: number; // How far back each successive window starts, relative to the previous one
+  windows: WalkForwardWindowMeta[];
+  configs: WalkForwardConfig[];
+}
+
 export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
@@ -179,4 +243,6 @@ export interface BacktestData {
   };
   tickers: BacktestTickerResult[];
   weeklyRun?: WeeklyRun;
+  exitRuleSweep?: ExitRuleSweepConfig[];
+  walkForward?: WalkForwardData;
 }

@@ -2,20 +2,24 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw, SlidersHorizontal } from "lucide-react";
 import type { BacktestData } from "@/lib/types";
 import { cn, formatDateTime } from "@/lib/utils";
 import BacktestSummaryTable from "@/components/BacktestSummaryTable";
 import BacktestTickerCard from "@/components/BacktestTickerCard";
 import WeeklyRunPanel from "@/components/WeeklyRunPanel";
+import ExitRuleSweepTable from "@/components/ExitRuleSweepTable";
+import WalkForwardSweepTable from "@/components/WalkForwardSweepTable";
 
-type Tab = "weekly" | "backtest";
+type Tab = "weekly" | "backtest" | "sweep";
+type SweepView = "single" | "walkForward";
 
 export default function BacktestPage() {
   const [data, setData] = useState<BacktestData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("weekly");
+  const [sweepView, setSweepView] = useState<SweepView>("single");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -112,6 +116,18 @@ export default function BacktestPage() {
               <FlaskConical size={14} />
               Backtest Results
             </button>
+            <button
+              onClick={() => setTab("sweep")}
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+                tab === "sweep"
+                  ? "border-smcBlue text-smcBlue"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              <SlidersHorizontal size={14} />
+              Exit Rule Sweep
+            </button>
           </div>
 
           {tab === "weekly" && data.weeklyRun && <WeeklyRunPanel weeklyRun={data.weeklyRun} meta={data.meta} />}
@@ -138,6 +154,49 @@ export default function BacktestPage() {
                   <BacktestTickerCard key={t.ticker} ticker={t} />
                 ))}
               </div>
+            </>
+          )}
+
+          {tab === "sweep" && (
+            <>
+              <div className="mb-4 flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs w-fit">
+                <button
+                  onClick={() => setSweepView("single")}
+                  className={cn(
+                    "rounded px-3 py-1.5 font-medium transition-colors",
+                    sweepView === "single" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  )}
+                >
+                  Single Window ({data.meta.windowYears}yr)
+                </button>
+                <button
+                  onClick={() => setSweepView("walkForward")}
+                  className={cn(
+                    "rounded px-3 py-1.5 font-medium transition-colors",
+                    sweepView === "walkForward" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  )}
+                >
+                  Walk-Forward{data.walkForward ? ` (${data.walkForward.windowCount}x)` : ""}
+                </button>
+              </div>
+
+              {sweepView === "single" && data.exitRuleSweep && data.exitRuleSweep.length > 0 && (
+                <ExitRuleSweepTable configs={data.exitRuleSweep} maxPositionPct={data.meta.maxPositionPct} />
+              )}
+              {sweepView === "single" && (!data.exitRuleSweep || data.exitRuleSweep.length === 0) && (
+                <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
+                  This data set was generated before the Exit Rule Sweep was added. Re-run the backtest to populate it.
+                </div>
+              )}
+
+              {sweepView === "walkForward" && data.walkForward && data.walkForward.configs.length > 0 && (
+                <WalkForwardSweepTable data={data.walkForward} />
+              )}
+              {sweepView === "walkForward" && (!data.walkForward || data.walkForward.configs.length === 0) && (
+                <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
+                  This data set was generated before the Walk-Forward Sweep was added. Re-run the backtest to populate it.
+                </div>
+              )}
             </>
           )}
         </>
