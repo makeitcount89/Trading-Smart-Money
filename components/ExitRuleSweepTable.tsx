@@ -173,7 +173,8 @@ export default function ExitRuleSweepTable({ configs, maxPositionPct }: { config
         not necessarily the highest raw return. Calmar = XIRR &divide; |max drawdown|, a return-per-unit-of-worst-case-pain
         measure that can rank differently from Sharpe (which measures return per unit of overall volatility, smooth chop
         included). All configurations share the same {maxPositionPct ?? 15}% max-position
-        concentration cap and are backtested over the same historical window, so differences come only from the
+        concentration cap and the same CGT-discount hold rule (a profit-take is deferred until a position has been
+        held over 12 months) and are backtested over the same historical window, so differences come only from the
         stop-loss / trailing-stop settings.
       </div>
     </div>
