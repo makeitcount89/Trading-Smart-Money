@@ -117,6 +117,39 @@ def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
         return None
     return min(eligible, key=lambda x: x['prox'])
 
+def build_position_snapshot(ticker, units, price, last_buy, peak, nav):
+    """Current status of one currently-held position for the 'this week' watch list:
+    how far it is from triggering the stop-loss, and its trailing-stop arm/trigger state."""
+    position_value = units * price
+    unrealized_pnl_pct = ((price - last_buy) / last_buy * 100) if last_buy else None
+
+    stop_trigger = last_buy * (1 - STOP_LOSS_PCT) if last_buy else None
+    dist_to_stop_pct = ((price - stop_trigger) / price * 100) if stop_trigger and price else None
+
+    arm_price = last_buy * (1 + TRAILING_STOP_ARM_PCT) if last_buy else None
+    peak_ref = peak if peak is not None else last_buy
+    armed = bool(last_buy and peak_ref is not None and peak_ref >= arm_price)
+    trail_trigger = peak_ref * (1 - TRAILING_STOP_PCT) if armed else None
+    dist_to_trail_pct = ((price - trail_trigger) / price * 100) if trail_trigger and price else None
+    dist_to_arm_pct = ((arm_price - price) / price * 100) if (arm_price and not armed and price) else None
+
+    return {
+        "ticker": ticker,
+        "unitsHeld": clean_float(units),
+        "lastBuyPrice": clean_float(last_buy) if last_buy else None,
+        "currentPrice": clean_float(price),
+        "peakPrice": clean_float(peak_ref) if peak_ref else None,
+        "positionValue": clean_float(position_value),
+        "positionSharePct": clean_float(position_value / nav * 100) if nav else None,
+        "unrealizedPnlPct": clean_float(unrealized_pnl_pct) if unrealized_pnl_pct is not None else None,
+        "stopLossTriggerPrice": clean_float(stop_trigger) if stop_trigger else None,
+        "distanceToStopLossPct": clean_float(dist_to_stop_pct) if dist_to_stop_pct is not None else None,
+        "trailingStopArmed": armed,
+        "trailingStopTriggerPrice": clean_float(trail_trigger) if trail_trigger is not None else None,
+        "distanceToTrailingStopPct": clean_float(dist_to_trail_pct) if dist_to_trail_pct is not None else None,
+        "distanceToArmPct": clean_float(dist_to_arm_pct) if dist_to_arm_pct is not None else None
+    }
+
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
 # ============================================================================
@@ -202,6 +235,10 @@ g2_trail_counts = {t: 0 for t in TICKERS}
 g1_nav_series, g2_nav_series = [], []
 last_known_price = {}
 
+# Recomputed every week and left holding the FINAL (most recent) week's decision once
+# the loop ends -- this is the actionable "what to buy this week" signal.
+g1_last_recommendation, g2_last_recommendation = None, None
+
 for current_week in dates_range:
     g1_candidates = []
     g2_candidates = []
@@ -271,6 +308,7 @@ for current_week in dates_range:
     g2_nav_pre_buy = g2_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g2_portfolio.items() if units > 0)
 
     best_g1 = pick_best_candidate(g1_candidates, g1_portfolio, g1_nav_pre_buy, MAX_POSITION_PCT)
+    g1_last_recommendation = best_g1
     if best_g1:
         t1 = best_g1['ticker']
         g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
@@ -283,6 +321,7 @@ for current_week in dates_range:
         g1_dates.append(current_week)
 
     best_g2 = pick_best_candidate(g2_candidates, g2_portfolio, g2_nav_pre_buy, MAX_POSITION_PCT)
+    g2_last_recommendation = best_g2
     if best_g2:
         t2 = best_g2['ticker']
         g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
@@ -313,6 +352,32 @@ g1_flow_by_date = dict(zip(g1_dates, g1_flows))
 g2_flow_by_date = dict(zip(g2_dates, g2_flows))
 g1_risk = compute_risk_metrics(g1_nav_series, g1_flow_by_date)
 g2_risk = compute_risk_metrics(g2_nav_series, g2_flow_by_date)
+
+def build_recommendation(rec):
+    if not rec:
+        return None
+    return {"ticker": rec['ticker'], "price": clean_float(rec['price']), "proximityPct": clean_float(rec['prox'])}
+
+g1_positions = sorted([
+    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1_last_buy_price.get(t), g1_peak_price.get(t), g1_end_val)
+    for t, units in g1_portfolio.items() if units > 0
+], key=lambda p: p['ticker'])
+g2_positions = sorted([
+    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g2_last_buy_price.get(t), g2_peak_price.get(t), g2_end_val)
+    for t, units in g2_portfolio.items() if units > 0
+], key=lambda p: p['ticker'])
+
+weekly_run_payload = {
+    "asOfDate": dates_range[-1].strftime('%Y-%m-%d'),
+    "proximityDCA": {
+        "recommendedBuy": build_recommendation(g1_last_recommendation),
+        "positions": g1_positions
+    },
+    "guppyProximityDCA": {
+        "recommendedBuy": build_recommendation(g2_last_recommendation),
+        "positions": g2_positions
+    }
+}
 
 ticker_results_payload = []
 
@@ -411,7 +476,8 @@ final_json_payload = {
             "volatilityPct": g2_risk.get("volatilityPct", 0.0)
         }
     },
-    "tickers": ticker_results_payload
+    "tickers": ticker_results_payload,
+    "weeklyRun": weekly_run_payload
 }
 
 output_path = 'public/backtest_data.json'
