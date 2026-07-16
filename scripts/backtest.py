@@ -21,12 +21,23 @@ TICKERS = sorted([
 ])
 
 WEEKLY_ALLOCATION = 50.0
-START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+BACKTEST_WINDOW_YEARS = 3  # Length of the production ("This Week" / "Backtest Results") window
+DATA_HISTORY_YEARS = 6  # Pull extra history beyond the backtest window so the walk-forward sweep has room for older rolling windows
+START_DATE = (datetime.now() - timedelta(days=int(DATA_HISTORY_YEARS * 365.25))).strftime('%Y-%m-%d')
 STOP_LOSS_PCT = 0.20  # Sell a held position if it closes >= 20% below our last purchase price for it
 TRAILING_STOP_ARM_PCT = 0.10  # A position must be up this much from its last buy price before the trailing stop activates
 TRAILING_STOP_PCT = 0.15  # Once armed, sell if price pulls back this much from its post-purchase high (protects profits)
 MAX_POSITION_PCT = 0.15  # Skip a candidate for this week's buy if it already exceeds this share of the strategy's NAV
 RISK_FREE_RATE_PCT = 4.0  # Annualized, used as the Sharpe ratio's baseline (approx. AU cash rate)
+
+# Walk-forward: re-run the same exit-rule sweep over several overlapping historical
+# windows (same length as the production window, stepped back 6 months at a time) so
+# a config's ranking can be checked for consistency across different market regimes
+# instead of trusting a single 3-year backtest. Windows overlap heavily -- they are a
+# sensitivity check, not independent trials -- see the UI copy for that caveat.
+WALK_FORWARD_WINDOW_WEEKS = BACKTEST_WINDOW_YEARS * 52
+WALK_FORWARD_STEP_WEEKS = 26
+WALK_FORWARD_WINDOW_COUNT = 8
 
 # A curated set of alternative stop-loss / trailing-stop configurations, backtested
 # against the same historical data as the production run so they can be compared
@@ -248,11 +259,15 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
             nav = leg['cash'] + sum(u * last_known_price.get(t, 0.0) for t, u in leg['portfolio'].items() if u > 0)
             leg['nav_series'].append((current_week, nav))
 
-    end_dt = datetime.now()
+    # Mark-to-market and discount as of the WINDOW's own last date, not "now" -- for the
+    # production window (ending today) these are the same thing, but a walk-forward
+    # window ending in the past must be valued using its own end-of-period prices, or
+    # every historical window would be silently marked to today's price instead.
+    end_dt = dates_range[-1]
     for key in ('proximityDCA', 'guppyProximityDCA'):
         leg = legs[key]
         leg['end_val'] = leg['cash'] + sum(
-            units * weekly_universe[t]['Close'].iloc[-1] for t, units in leg['portfolio'].items() if t in weekly_universe
+            units * last_known_price.get(t, 0.0) for t, units in leg['portfolio'].items() if units > 0
         )
         leg['xirr'] = calculate_xirr(leg['flows'], leg['dates'], leg['end_val'], end_dt)
         leg['risk'] = compute_risk_metrics(leg['nav_series'], dict(zip(leg['dates'], leg['flows'])), risk_free_rate_pct)
@@ -276,10 +291,53 @@ def summarize_leg(leg, weekly_allocation):
         "volatilityPct": leg['risk'].get('volatilityPct', 0.0)
     }
 
+def generate_walk_forward_windows(end_dt, window_weeks, step_weeks, count):
+    """`count` windows of `window_weeks` length, each stepped back `step_weeks` from
+    the previous, returned oldest-first with a 1-indexed windowNumber for display."""
+    windows = []
+    for i in range(count):
+        window_end = end_dt - timedelta(weeks=step_weeks * i)
+        dr = pd.date_range(end=window_end, periods=window_weeks, freq='W')
+        windows.append({'startDate': dr[0], 'endDate': dr[-1], 'dates_range': dr})
+    windows.reverse()
+    for idx, w in enumerate(windows):
+        w['windowNumber'] = idx + 1
+    return windows
+
+def aggregate_window_results(window_results):
+    """Mean/spread/best/worst across a config's per-window summarize_leg() results,
+    skipping any window where nothing was ever bought (no signal existed that far
+    back for this universe -- not a 0% result, just no test)."""
+    valid = [w for w in window_results if w['totalInvested'] > 0]
+    if not valid:
+        return None
+    returns = [w['simpleReturnPct'] for w in valid]
+    xirrs = [w['xirrPct'] for w in valid]
+    sharpes = [w['sharpeRatio'] for w in valid]
+    mean_return = float(np.mean(returns))
+    std_return = float(np.std(returns, ddof=1)) if len(returns) > 1 else 0.0
+    win_rate = sum(1 for r in returns if r > 0) / len(returns) * 100
+    # "Consistency" reward: high average return penalized by how much it swings
+    # window to window -- a Sharpe-like ratio applied across regimes rather than
+    # within one time series. Falls back to the mean when there's no spread to divide by.
+    consistency_score = (mean_return / std_return) if std_return > 0 else mean_return
+    return {
+        "windowsTested": len(valid),
+        "meanReturnPct": clean_float(mean_return),
+        "stdReturnPct": clean_float(std_return),
+        "minReturnPct": clean_float(min(returns)),
+        "maxReturnPct": clean_float(max(returns)),
+        "meanXirrPct": clean_float(float(np.mean(xirrs))),
+        "meanSharpeRatio": clean_float(float(np.mean(sharpes))),
+        "winRatePct": clean_float(win_rate),
+        "consistencyScore": clean_float(consistency_score),
+        "perWindow": valid
+    }
+
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
 # ============================================================================
-print(f"Loading {len(TICKERS)} tickers across past 3 years to build weekly buffers...")
+print(f"Loading {len(TICKERS)} tickers across past {DATA_HISTORY_YEARS} years to build weekly buffers...")
 data = yf.download(TICKERS, start=START_DATE, interval='1d', group_by='ticker')
 
 weekly_universe = {}
@@ -329,9 +387,9 @@ for ticker in TICKERS:
     weekly_universe[ticker] = df_wk
 
 # ============================================================================
-# 4. PRODUCTION RUN (the live config) + EXIT-RULE SWEEP
+# 4. PRODUCTION RUN (the live config) + EXIT-RULE SWEEP + WALK-FORWARD SWEEP
 # ============================================================================
-dates_range = pd.date_range(end=datetime.now(), periods=104, freq='W')
+dates_range = pd.date_range(end=datetime.now(), periods=BACKTEST_WINDOW_YEARS * 52, freq='W')
 
 sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
                       STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT, MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
@@ -353,6 +411,43 @@ for cfg in EXIT_RULE_SWEEP_CONFIGS:
         "proximityDCA": summarize_leg(cfg_sim['legs']['proximityDCA'], WEEKLY_ALLOCATION),
         "guppyProximityDCA": summarize_leg(cfg_sim['legs']['guppyProximityDCA'], WEEKLY_ALLOCATION)
     })
+
+walk_forward_windows = generate_walk_forward_windows(datetime.now(), WALK_FORWARD_WINDOW_WEEKS, WALK_FORWARD_STEP_WEEKS, WALK_FORWARD_WINDOW_COUNT)
+print(f"Running walk-forward sweep ({len(walk_forward_windows)} windows x {len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
+
+wf_raw = {cfg['name']: {'proximityDCA': [], 'guppyProximityDCA': []} for cfg in EXIT_RULE_SWEEP_CONFIGS}
+for win in walk_forward_windows:
+    for cfg in EXIT_RULE_SWEEP_CONFIGS:
+        win_sim = run_simulation(weekly_universe, win['dates_range'], TICKERS, WEEKLY_ALLOCATION,
+                                  cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], MAX_POSITION_PCT, RISK_FREE_RATE_PCT)
+        for key in ('proximityDCA', 'guppyProximityDCA'):
+            row = summarize_leg(win_sim['legs'][key], WEEKLY_ALLOCATION)
+            row['windowNumber'] = win['windowNumber']
+            row['startDate'] = win['startDate'].strftime('%Y-%m-%d')
+            row['endDate'] = win['endDate'].strftime('%Y-%m-%d')
+            wf_raw[cfg['name']][key].append(row)
+
+walk_forward_payload = {
+    "windowYears": BACKTEST_WINDOW_YEARS,
+    "windowCount": len(walk_forward_windows),
+    "stepWeeks": WALK_FORWARD_STEP_WEEKS,
+    "windows": [
+        {"windowNumber": w['windowNumber'], "startDate": w['startDate'].strftime('%Y-%m-%d'), "endDate": w['endDate'].strftime('%Y-%m-%d')}
+        for w in walk_forward_windows
+    ],
+    "configs": [
+        {
+            "name": cfg['name'],
+            "isCurrent": cfg.get('isCurrent', False),
+            "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
+            "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
+            "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
+            "proximityDCA": aggregate_window_results(wf_raw[cfg['name']]['proximityDCA']),
+            "guppyProximityDCA": aggregate_window_results(wf_raw[cfg['name']]['guppyProximityDCA'])
+        }
+        for cfg in EXIT_RULE_SWEEP_CONFIGS
+    ]
+}
 
 # ============================================================================
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
@@ -443,7 +538,7 @@ final_json_payload = {
     "generatedAt": end_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
     "meta": {
         "universe": TICKERS,
-        "windowYears": 3,
+        "windowYears": BACKTEST_WINDOW_YEARS,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
         "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
@@ -459,7 +554,8 @@ final_json_payload = {
     },
     "tickers": ticker_results_payload,
     "weeklyRun": weekly_run_payload,
-    "exitRuleSweep": exit_rule_sweep_payload
+    "exitRuleSweep": exit_rule_sweep_payload,
+    "walkForward": walk_forward_payload
 }
 
 output_path = 'public/backtest_data.json'
