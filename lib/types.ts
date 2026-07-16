@@ -88,6 +88,8 @@ export interface BacktestStrategySummary {
   endingValue: number;
   simpleReturnPct: number;
   xirrPct: number | null;
+  stopLossExits?: number; // Count of -20%-from-last-buy exits, checked weekly alongside the DCA buy
+  cashUninvested?: number; // Pooled only: cash raised by stop-loss exits still sitting idle
 }
 
 export interface ProximityDcaEvent {
