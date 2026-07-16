@@ -9,6 +9,8 @@ interface StrategyMetrics {
   simpleReturnPct: number;
   xirrPct: number | null;
   stopLossExits?: number;
+  sharpeRatio?: number;
+  maxDrawdownPct?: number;
 }
 
 export default function BacktestSummaryTable({
@@ -30,7 +32,7 @@ export default function BacktestSummaryTable({
       <div className="border-b border-base-700 px-4 py-3 text-sm font-medium text-[var(--text-primary)]">
         {title}
       </div>
-      <table className="w-full min-w-[720px] text-sm">
+      <table className="w-full min-w-[920px] text-sm">
         <thead>
           <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
             <th className="px-4 py-3 font-medium">Strategy Config</th>
@@ -40,6 +42,8 @@ export default function BacktestSummaryTable({
             <th className="px-4 py-3 font-medium">Ending Value</th>
             <th className="px-4 py-3 font-medium">Simple Return</th>
             <th className="px-4 py-3 font-medium">Annualized (XIRR)</th>
+            <th className="px-4 py-3 font-medium">Sharpe</th>
+            <th className="px-4 py-3 font-medium">Max Drawdown</th>
           </tr>
         </thead>
         <tbody>
@@ -63,6 +67,12 @@ export default function BacktestSummaryTable({
             <td className="px-4 py-3 tabular font-semibold text-smcBlue">
               {g1.xirrPct != null ? `${g1.xirrPct > 0 ? "+" : ""}${g1.xirrPct.toFixed(2)}%` : "—"}
             </td>
+            <td className={cn("px-4 py-3 tabular", (g1.sharpeRatio ?? 0) >= 0 ? "text-long" : "text-short")}>
+              {g1.sharpeRatio != null ? g1.sharpeRatio.toFixed(2) : "—"}
+            </td>
+            <td className="px-4 py-3 tabular text-short">
+              {g1.maxDrawdownPct != null ? `${g1.maxDrawdownPct.toFixed(2)}%` : "—"}
+            </td>
           </tr>
 
           {/* GROUP 2 ROW: GUPPY FILTERED */}
@@ -85,6 +95,12 @@ export default function BacktestSummaryTable({
               </td>
               <td className="px-4 py-3 tabular font-bold text-emerald-400">
                 {g2.xirrPct != null ? `${g2.xirrPct > 0 ? "+" : ""}${g2.xirrPct.toFixed(2)}%` : "—"}
+              </td>
+              <td className={cn("px-4 py-3 tabular", (g2.sharpeRatio ?? 0) >= 0 ? "text-long" : "text-short")}>
+                {g2.sharpeRatio != null ? g2.sharpeRatio.toFixed(2) : "—"}
+              </td>
+              <td className="px-4 py-3 tabular text-short">
+                {g2.maxDrawdownPct != null ? `${g2.maxDrawdownPct.toFixed(2)}%` : "—"}
               </td>
             </tr>
           )}

@@ -23,6 +23,7 @@ TICKERS = sorted([
 WEEKLY_ALLOCATION = 50.0
 START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
 STOP_LOSS_PCT = 0.20  # Sell a held position if it closes >= 20% below our last purchase price for it
+RISK_FREE_RATE_PCT = 4.0  # Annualized, used as the Sharpe ratio's baseline (approx. AU cash rate)
 
 # ============================================================================
 # 2. FINANCIAL MATH & SANITIZATION UTILITIES
@@ -33,10 +34,13 @@ def clean_float(val, fallback=0.0):
     return float(val)
 
 def xirr_equation(cash_flows, dates, end_val, end_dt, r):
+    # Each contribution is compounded FORWARD from its own date to end_dt at rate r
+    # (money invested t years ago is worth flow*(1+r)^t today) -- NOT discounted
+    # backward, which would solve for the negative of the true money-weighted rate.
     npv = 0.0
     for flow, dt in zip(cash_flows, dates):
         t = (end_dt - dt).days / 365.25
-        npv -= flow / ((1 + r) ** t)
+        npv -= flow * ((1 + r) ** t)
     npv += end_val
     return npv
 
@@ -49,12 +53,52 @@ def calculate_xirr(cash_flows, dates, end_val, end_dt):
     for _ in range(100):
         if abs(f1 - f0) < 1e-12: break
         r_next = r1 - f1 * (r1 - r0) / (f1 - f0)
+        # Clamp to a sane range so a wild secant step can't overflow (1+r)**t
         if r_next < -0.999: r_next = -0.999
+        if r_next > 50.0: r_next = 50.0
         r0, r1 = r1, r_next
         f0 = xirr_equation(cash_flows, dates, end_val, end_dt, r0)
         f1 = xirr_equation(cash_flows, dates, end_val, end_dt, r1)
         if abs(f1) < 1e-6: return clean_float(r1 * 100)
     return clean_float(r1 * 100)
+
+def compute_risk_metrics(nav_series, flow_by_date, risk_free_annual_pct=RISK_FREE_RATE_PCT):
+    """Weekly Sharpe ratio (annualized) and max drawdown from a NAV time series.
+
+    Returns are computed net of that week's new contribution (nav_t - nav_{t-1} - cf_t)
+    / nav_{t-1}) so a $50 deposit isn't mistaken for a $50 gain -- the standard
+    "returns excluding contributions" approach for a portfolio that's still being
+    funded, as opposed to a lump-sum-invested one.
+    """
+    if len(nav_series) < 3:
+        return {"sharpeRatio": 0.0, "maxDrawdownPct": 0.0, "volatilityPct": 0.0}
+
+    weekly_returns = []
+    prev_nav = nav_series[0][1]
+    peak = prev_nav
+    max_dd = 0.0
+    for date, nav in nav_series[1:]:
+        if prev_nav > 0:
+            cf = flow_by_date.get(date, 0.0)
+            weekly_returns.append((nav - prev_nav - cf) / prev_nav)
+        peak = max(peak, nav)
+        if peak > 0:
+            max_dd = min(max_dd, (nav - peak) / peak)
+        prev_nav = nav
+
+    if len(weekly_returns) < 2:
+        return {"sharpeRatio": 0.0, "maxDrawdownPct": clean_float(max_dd * 100)}
+
+    mean_r = float(np.mean(weekly_returns))
+    std_r = float(np.std(weekly_returns, ddof=1))
+    rf_weekly = (1 + risk_free_annual_pct / 100.0) ** (1 / 52.0) - 1
+    sharpe = ((mean_r - rf_weekly) / std_r * math.sqrt(52)) if std_r > 0 else 0.0
+
+    return {
+        "sharpeRatio": clean_float(sharpe),
+        "maxDrawdownPct": clean_float(max_dd * 100),
+        "volatilityPct": clean_float(std_r * math.sqrt(52) * 100)
+    }
 
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
@@ -130,6 +174,10 @@ g2_realized = {t: 0.0 for t in TICKERS}
 g1_stop_counts = {t: 0 for t in TICKERS}
 g2_stop_counts = {t: 0 for t in TICKERS}
 
+# Weekly mark-to-market NAV snapshots (cash + held positions), used for Sharpe/drawdown
+g1_nav_series, g2_nav_series = [], []
+last_known_price = {}
+
 for current_week in dates_range:
     g1_candidates = []
     g2_candidates = []
@@ -139,6 +187,7 @@ for current_week in dates_range:
         if pd.isna(wk_idx): continue
         row = df.loc[wk_idx]
         price = row['Close']
+        last_known_price[ticker] = price
 
         # --- Weekly exit check: sell out of a held position if it has dipped
         # 20%+ below the price we last bought it at ---
@@ -189,6 +238,11 @@ for current_week in dates_range:
         g2_flows.append(WEEKLY_ALLOCATION)
         g2_dates.append(current_week)
 
+    g1_nav = g1_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g1_portfolio.items() if units > 0)
+    g2_nav = g2_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g2_portfolio.items() if units > 0)
+    g1_nav_series.append((current_week, g1_nav))
+    g2_nav_series.append((current_week, g2_nav))
+
 # ============================================================================
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
 # ============================================================================
@@ -198,6 +252,11 @@ g2_end_val = g2_cash + sum(units * weekly_universe[t]['Close'].iloc[-1] for t, u
 
 g1_xirr = calculate_xirr(g1_flows, g1_dates, g1_end_val, end_dt)
 g2_xirr = calculate_xirr(g2_flows, g2_dates, g2_end_val, end_dt)
+
+g1_flow_by_date = dict(zip(g1_dates, g1_flows))
+g2_flow_by_date = dict(zip(g2_dates, g2_flows))
+g1_risk = compute_risk_metrics(g1_nav_series, g1_flow_by_date)
+g2_risk = compute_risk_metrics(g2_nav_series, g2_flow_by_date)
 
 ticker_results_payload = []
 
@@ -259,7 +318,8 @@ final_json_payload = {
         "windowYears": 3,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
-        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block, then each week sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at."
+        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block, then each week sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at.",
+        "riskFreeRatePct": RISK_FREE_RATE_PCT
     },
     "pooled": {
         "proximityDCA": {
@@ -269,7 +329,10 @@ final_json_payload = {
             "simpleReturnPct": clean_float(((g1_end_val - g1_total_cost) / g1_total_cost * 100) if g1_total_cost else 0.0),
             "xirrPct": clean_float(g1_xirr),
             "stopLossExits": sum(g1_stop_counts.values()),
-            "cashUninvested": clean_float(g1_cash)
+            "cashUninvested": clean_float(g1_cash),
+            "sharpeRatio": g1_risk["sharpeRatio"],
+            "maxDrawdownPct": g1_risk["maxDrawdownPct"],
+            "volatilityPct": g1_risk.get("volatilityPct", 0.0)
         },
         "guppyProximityDCA": {
             "events": len(g2_flows),
@@ -278,7 +341,10 @@ final_json_payload = {
             "simpleReturnPct": clean_float(((g2_end_val - g2_total_cost) / g2_total_cost * 100) if g2_total_cost else 0.0),
             "xirrPct": clean_float(g2_xirr),
             "stopLossExits": sum(g2_stop_counts.values()),
-            "cashUninvested": clean_float(g2_cash)
+            "cashUninvested": clean_float(g2_cash),
+            "sharpeRatio": g2_risk["sharpeRatio"],
+            "maxDrawdownPct": g2_risk["maxDrawdownPct"],
+            "volatilityPct": g2_risk.get("volatilityPct", 0.0)
         }
     },
     "tickers": ticker_results_payload

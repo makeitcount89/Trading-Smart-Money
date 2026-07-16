@@ -90,6 +90,9 @@ export interface BacktestStrategySummary {
   xirrPct: number | null;
   stopLossExits?: number; // Count of -20%-from-last-buy exits, checked weekly alongside the DCA buy
   cashUninvested?: number; // Pooled only: cash raised by stop-loss exits still sitting idle
+  sharpeRatio?: number; // Pooled only: annualized, net of weekly contributions, vs. meta.riskFreeRatePct
+  maxDrawdownPct?: number; // Pooled only: worst peak-to-trough NAV decline over the window (<= 0)
+  volatilityPct?: number; // Pooled only: annualized stdev of weekly returns net of contributions
 }
 
 export interface ProximityDcaEvent {
@@ -120,6 +123,7 @@ export interface BacktestMeta {
   amountPerWeek: number;
   strategyName: string;
   note: string;
+  riskFreeRatePct?: number; // Annualized baseline the Sharpe ratio is measured against
 }
 
 export interface BacktestData {

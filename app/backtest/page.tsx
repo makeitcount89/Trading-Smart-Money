@@ -85,6 +85,7 @@ export default function BacktestPage() {
         <>
           <div className="mb-2 text-xs text-[var(--text-muted)]">
             Strategy: {data.meta.strategyName} &middot; Window: {data.meta.windowYears} Years &middot; Allocation: ${data.meta.amountPerWeek}/week
+            {data.meta.riskFreeRatePct != null && <> &middot; Sharpe risk-free rate: {data.meta.riskFreeRatePct}%</>}
           </div>
           
           <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
