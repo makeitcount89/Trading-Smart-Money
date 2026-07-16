@@ -12,21 +12,32 @@ from datetime import datetime, timedelta
 # ============================================================================
 # Modified sections only - Updated TICKERS list
 TICKERS = sorted([
-    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
-    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
-    'HJPN.AX','JHX.AX','LNAS.AX','MNRS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
-    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','DRIV.AX','EDOC.AX','ERTH.AX',
+    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
+    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GMD.AX','HACK.AX',
+    'HJPN.AX','JHX.AX','LNAS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
+    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','EDOC.AX',
     'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
     'SNAS.AX',
     # Added: top-value ASX stocks (per Simply Wall St) confirmed tradable on BetaShares
     # Direct. GMD.AX was already in the universe above, so not duplicated here.
-    'PPS.AX','WGX.AX','WAF.AX','OBM.AX','PNI.AX','RSG.AX','TEA.AX','JDO.AX','FCL.AX'
+    'PPS.AX','OBM.AX','PNI.AX','RSG.AX','JDO.AX','FCL.AX',
+    # Removed (2026-07-16): ASIA.AX, DRIV.AX, ERTH.AX, GGUS.AX, MNRS.AX, TEA.AX, WAF.AX,
+    # WGX.AX -- confirmed zero hits in both strategies across 2+ independent 3-year
+    # backtest runs (chronically inactive: niche/geared/thematic products that rarely
+    # produce a clean order-block signal, or redundant with names that do contribute).
+    # Added in their place: large, liquid, well-established ASX names chosen to plug
+    # theme gaps without adding to the already-heavy Gold & Precious Metals exposure.
+    # General-knowledge picks, NOT verified against live valuation data -- confirm
+    # current pricing/fundamentals independently before treating these as "cheap".
+    'CSL.AX','TLS.AX','WOW.AX','GMG.AX','BXB.AX','QBE.AX','BHP.AX','WES.AX'
 ])
 
-# Snapshot of the universe before the above "top-value ASX stocks" expansion (which is
-# mostly gold miners) was added. Kept so the walk-forward sweep can be re-run against
-# just this original set, isolating how much of the recent-window outperformance is
-# the new tickers riding a gold rally vs. the base strategy itself.
+# Snapshot of the universe before the "top-value ASX stocks" expansion (which is mostly
+# gold miners) was added -- kept frozen even though 5 of these 41 tickers (ASIA, DRIV,
+# ERTH, GGUS, MNRS) were later dropped for being chronically inactive, so this stays a
+# fixed reference point rather than chasing every subsequent curation round. Any listed
+# ticker no longer in TICKERS just won't appear in weekly_universe and is naturally
+# skipped by the baseline walk-forward filter below.
 BASELINE_TICKERS = sorted([
     'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
     'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
@@ -46,17 +57,16 @@ NEW_TICKERS = sorted([t for t in TICKERS if t not in BASELINE_TICKERS])
 TICKER_THEMES = {
     # Gold & precious metals -- individual miners and gold/gold-miner funds alike
     'EVN.AX': 'Gold & Precious Metals', 'GMD.AX': 'Gold & Precious Metals', 'OBM.AX': 'Gold & Precious Metals',
-    'RSG.AX': 'Gold & Precious Metals', 'WAF.AX': 'Gold & Precious Metals', 'WGX.AX': 'Gold & Precious Metals',
-    'GDX.AX': 'Gold & Precious Metals', 'MNRS.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
+    'RSG.AX': 'Gold & Precious Metals', 'GDX.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
     # Broad market index funds (AU/US/regional), geared or hedged variants included
     'A200.AX': 'Broad Market Index', 'NDQ.AX': 'Broad Market Index', 'HNDQ.AX': 'Broad Market Index',
-    'LNAS.AX': 'Broad Market Index', 'GGUS.AX': 'Broad Market Index', 'SNAS.AX': 'Broad Market Index',
-    'HJPN.AX': 'Broad Market Index', 'CNEW.AX': 'Broad Market Index', 'ASIA.AX': 'Broad Market Index',
+    'LNAS.AX': 'Broad Market Index', 'SNAS.AX': 'Broad Market Index',
+    'HJPN.AX': 'Broad Market Index', 'CNEW.AX': 'Broad Market Index',
     'WRLD.AX': 'Broad Market Index',
-    # Narrower sector/thematic funds (tech, banks, EVs, health, ESG, etc.)
+    # Narrower sector/thematic funds (tech, banks, health, ESG, etc.)
     'ATEC.AX': 'Sector & Thematic ETF', 'BNKS.AX': 'Sector & Thematic ETF', 'CLDD.AX': 'Sector & Thematic ETF',
-    'HACK.AX': 'Sector & Thematic ETF', 'ROBO.AX': 'Sector & Thematic ETF', 'DRIV.AX': 'Sector & Thematic ETF',
-    'ACDC.AX': 'Sector & Thematic ETF', 'EDOC.AX': 'Sector & Thematic ETF', 'ERTH.AX': 'Sector & Thematic ETF',
+    'HACK.AX': 'Sector & Thematic ETF', 'ROBO.AX': 'Sector & Thematic ETF',
+    'ACDC.AX': 'Sector & Thematic ETF', 'EDOC.AX': 'Sector & Thematic ETF',
     'ETHI.AX': 'Sector & Thematic ETF', 'FAIR.AX': 'Sector & Thematic ETF', 'QFN.AX': 'Sector & Thematic ETF',
     'QRE.AX': 'Sector & Thematic ETF', 'FUEL.AX': 'Sector & Thematic ETF',
     # Crypto
@@ -68,9 +78,18 @@ TICKER_THEMES = {
     # Individual stocks, grouped roughly by what they actually do
     'ANZ.AX': 'Individual Stock - Financials', 'JDO.AX': 'Individual Stock - Financials',
     'PNI.AX': 'Individual Stock - Financials', 'PPS.AX': 'Individual Stock - Financials',
+    'QBE.AX': 'Individual Stock - Financials',
     'WTC.AX': 'Individual Stock - Tech', 'XRO.AX': 'Individual Stock - Tech', 'FCL.AX': 'Individual Stock - Tech',
     'A2M.AX': 'Individual Stock - Other', 'AGL.AX': 'Individual Stock - Other', 'APA.AX': 'Individual Stock - Other',
-    'JHX.AX': 'Individual Stock - Other', 'QAN.AX': 'Individual Stock - Other', 'TEA.AX': 'Individual Stock - Other',
+    'JHX.AX': 'Individual Stock - Other', 'QAN.AX': 'Individual Stock - Other',
+    # Added 2026-07-16 to plug theme gaps without adding more gold exposure
+    'CSL.AX': 'Individual Stock - Healthcare',
+    'TLS.AX': 'Individual Stock - Telecom',
+    'WOW.AX': 'Individual Stock - Consumer Staples',
+    'GMG.AX': 'Individual Stock - Property/REIT',
+    'BXB.AX': 'Individual Stock - Industrials',
+    'BHP.AX': 'Individual Stock - Resources',
+    'WES.AX': 'Individual Stock - Consumer Discretionary',
 }
 
 WEEKLY_ALLOCATION = 50.0
