@@ -94,6 +94,7 @@ export interface BacktestStrategySummary {
   sharpeRatio?: number; // Pooled only: annualized, net of weekly contributions, vs. meta.riskFreeRatePct
   maxDrawdownPct?: number; // Pooled only: worst peak-to-trough NAV decline over the window (<= 0)
   volatilityPct?: number; // Pooled only: annualized stdev of weekly returns net of contributions
+  calmarRatio?: number; // xirrPct / |maxDrawdownPct| -- return per unit of worst-case pain, vs. Sharpe's per-unit-of-volatility
 }
 
 export interface ProximityDcaEvent {
@@ -212,6 +213,7 @@ export interface WalkForwardAggregate {
   maxReturnPct: number;
   meanXirrPct: number;
   meanSharpeRatio: number;
+  meanCalmarRatio: number; // Mean of each window's XIRR / |maxDrawdown|
   winRatePct: number; // % of tested windows with a positive simple return
   consistencyScore: number; // meanReturnPct / stdReturnPct (falls back to meanReturnPct when stdReturnPct is 0)
   perWindow: WalkForwardWindowResult[];
@@ -236,6 +238,24 @@ export interface WalkForwardData {
   configs: WalkForwardConfig[];
 }
 
+// ============================================================================
+// --- Theme Exposure: ending portfolio value grouped by a best-effort sector/ ---
+// --- theme tag per ticker, so correlated positions (e.g. several gold miners) -
+// --- read as one exposure instead of unrelated-looking individual holdings ----
+// ============================================================================
+
+export interface ThemeExposureRow {
+  theme: string;
+  endingValue: number;
+  sharePct: number; // Shares across all rows for one strategy sum to 100%
+  tickers: string[];
+}
+
+export interface ThemeExposure {
+  proximityDCA: ThemeExposureRow[];
+  guppyProximityDCA: ThemeExposureRow[];
+}
+
 export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
@@ -249,4 +269,5 @@ export interface BacktestData {
   exitRuleSweep?: ExitRuleSweepConfig[];
   walkForward?: WalkForwardData; // Full universe (meta.universe)
   walkForwardBaseline?: WalkForwardData; // Same windows/configs, restricted to meta.baselineUniverse -- isolates the effect of meta.newTickers
+  themeExposure?: ThemeExposure;
 }

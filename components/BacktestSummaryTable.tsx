@@ -12,6 +12,7 @@ interface StrategyMetrics {
   profitProtectExits?: number;
   sharpeRatio?: number;
   maxDrawdownPct?: number;
+  calmarRatio?: number;
 }
 
 export default function BacktestSummaryTable({
@@ -33,7 +34,7 @@ export default function BacktestSummaryTable({
       <div className="border-b border-base-700 px-4 py-3 text-sm font-medium text-[var(--text-primary)]">
         {title}
       </div>
-      <table className="w-full min-w-[1040px] text-sm">
+      <table className="w-full min-w-[1140px] text-sm">
         <thead>
           <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
             <th className="px-4 py-3 font-medium">Strategy Config</th>
@@ -46,6 +47,7 @@ export default function BacktestSummaryTable({
             <th className="px-4 py-3 font-medium">Annualized (XIRR)</th>
             <th className="px-4 py-3 font-medium">Sharpe</th>
             <th className="px-4 py-3 font-medium">Max Drawdown</th>
+            <th className="px-4 py-3 font-medium">Calmar</th>
           </tr>
         </thead>
         <tbody>
@@ -76,6 +78,9 @@ export default function BacktestSummaryTable({
             <td className="px-4 py-3 tabular text-short">
               {g1.maxDrawdownPct != null ? `${g1.maxDrawdownPct.toFixed(2)}%` : "—"}
             </td>
+            <td className={cn("px-4 py-3 tabular", (g1.calmarRatio ?? 0) >= 0 ? "text-long" : "text-short")}>
+              {g1.calmarRatio != null ? g1.calmarRatio.toFixed(2) : "—"}
+            </td>
           </tr>
 
           {/* GROUP 2 ROW: GUPPY FILTERED */}
@@ -105,6 +110,9 @@ export default function BacktestSummaryTable({
               </td>
               <td className="px-4 py-3 tabular text-short">
                 {g2.maxDrawdownPct != null ? `${g2.maxDrawdownPct.toFixed(2)}%` : "—"}
+              </td>
+              <td className={cn("px-4 py-3 tabular", (g2.calmarRatio ?? 0) >= 0 ? "text-long" : "text-short")}>
+                {g2.calmarRatio != null ? g2.calmarRatio.toFixed(2) : "—"}
               </td>
             </tr>
           )}

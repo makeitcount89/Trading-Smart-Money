@@ -37,6 +37,42 @@ BASELINE_TICKERS = sorted([
 ])
 NEW_TICKERS = sorted([t for t in TICKERS if t not in BASELINE_TICKERS])
 
+# Best-effort manual classification (not authoritative security/GICS data) so exposure
+# can be broken down by theme instead of only by individual ticker -- e.g. surfacing
+# that several tickers are all gold miners, which move together, rather than reading
+# as 6 unrelated small positions. Correlated ETF+equity exposure to the same
+# commodity/theme is grouped into one bucket (e.g. gold miner stocks and gold-miner
+# ETFs both land in "Gold & Precious Metals") since that's the risk that matters.
+TICKER_THEMES = {
+    # Gold & precious metals -- individual miners and gold/gold-miner funds alike
+    'EVN.AX': 'Gold & Precious Metals', 'GMD.AX': 'Gold & Precious Metals', 'OBM.AX': 'Gold & Precious Metals',
+    'RSG.AX': 'Gold & Precious Metals', 'WAF.AX': 'Gold & Precious Metals', 'WGX.AX': 'Gold & Precious Metals',
+    'GDX.AX': 'Gold & Precious Metals', 'MNRS.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
+    # Broad market index funds (AU/US/regional), geared or hedged variants included
+    'A200.AX': 'Broad Market Index', 'NDQ.AX': 'Broad Market Index', 'HNDQ.AX': 'Broad Market Index',
+    'LNAS.AX': 'Broad Market Index', 'GGUS.AX': 'Broad Market Index', 'SNAS.AX': 'Broad Market Index',
+    'HJPN.AX': 'Broad Market Index', 'CNEW.AX': 'Broad Market Index', 'ASIA.AX': 'Broad Market Index',
+    'WRLD.AX': 'Broad Market Index',
+    # Narrower sector/thematic funds (tech, banks, EVs, health, ESG, etc.)
+    'ATEC.AX': 'Sector & Thematic ETF', 'BNKS.AX': 'Sector & Thematic ETF', 'CLDD.AX': 'Sector & Thematic ETF',
+    'HACK.AX': 'Sector & Thematic ETF', 'ROBO.AX': 'Sector & Thematic ETF', 'DRIV.AX': 'Sector & Thematic ETF',
+    'ACDC.AX': 'Sector & Thematic ETF', 'EDOC.AX': 'Sector & Thematic ETF', 'ERTH.AX': 'Sector & Thematic ETF',
+    'ETHI.AX': 'Sector & Thematic ETF', 'FAIR.AX': 'Sector & Thematic ETF', 'QFN.AX': 'Sector & Thematic ETF',
+    'QRE.AX': 'Sector & Thematic ETF', 'FUEL.AX': 'Sector & Thematic ETF',
+    # Crypto
+    'CRYP.AX': 'Crypto', 'HETH.AX': 'Crypto',
+    # Fixed income
+    'AGVT.AX': 'Fixed Income',
+    # Commodities (non-gold)
+    'OOO.AX': 'Commodities',
+    # Individual stocks, grouped roughly by what they actually do
+    'ANZ.AX': 'Individual Stock - Financials', 'JDO.AX': 'Individual Stock - Financials',
+    'PNI.AX': 'Individual Stock - Financials', 'PPS.AX': 'Individual Stock - Financials',
+    'WTC.AX': 'Individual Stock - Tech', 'XRO.AX': 'Individual Stock - Tech', 'FCL.AX': 'Individual Stock - Tech',
+    'A2M.AX': 'Individual Stock - Other', 'AGL.AX': 'Individual Stock - Other', 'APA.AX': 'Individual Stock - Other',
+    'JHX.AX': 'Individual Stock - Other', 'QAN.AX': 'Individual Stock - Other', 'TEA.AX': 'Individual Stock - Other',
+}
+
 WEEKLY_ALLOCATION = 50.0
 BACKTEST_WINDOW_YEARS = 3  # Length of the production ("This Week" / "Backtest Results") window
 DATA_HISTORY_YEARS = 6  # Pull extra history beyond the backtest window so the walk-forward sweep has room for older rolling windows
@@ -294,6 +330,12 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
 def summarize_leg(leg, weekly_allocation):
     """Pooled-style strategy summary from a run_simulation() leg result."""
     total_cost = len(leg['flows']) * weekly_allocation
+    max_dd = leg['risk']['maxDrawdownPct']
+    # Calmar ratio: annualized return per unit of worst-case pain (peak-to-trough
+    # decline), as opposed to Sharpe's per-unit-of-volatility -- two drawdown-sized
+    # configs with identical Sharpe can have very different Calmar ratios if one's
+    # volatility is smooth chop and the other's is one big drawdown.
+    calmar_ratio = (leg['xirr'] / abs(max_dd)) if max_dd != 0 else 0.0
     return {
         "events": len(leg['flows']),
         "totalInvested": clean_float(total_cost),
@@ -304,8 +346,9 @@ def summarize_leg(leg, weekly_allocation):
         "profitProtectExits": sum(leg['trail_counts'].values()),
         "cashUninvested": clean_float(leg['cash']),
         "sharpeRatio": leg['risk']['sharpeRatio'],
-        "maxDrawdownPct": leg['risk']['maxDrawdownPct'],
-        "volatilityPct": leg['risk'].get('volatilityPct', 0.0)
+        "maxDrawdownPct": max_dd,
+        "volatilityPct": leg['risk'].get('volatilityPct', 0.0),
+        "calmarRatio": clean_float(calmar_ratio)
     }
 
 def generate_walk_forward_windows(end_dt, window_weeks, step_weeks, count):
@@ -331,6 +374,7 @@ def aggregate_window_results(window_results):
     returns = [w['simpleReturnPct'] for w in valid]
     xirrs = [w['xirrPct'] for w in valid]
     sharpes = [w['sharpeRatio'] for w in valid]
+    calmars = [w['calmarRatio'] for w in valid]
     mean_return = float(np.mean(returns))
     std_return = float(np.std(returns, ddof=1)) if len(returns) > 1 else 0.0
     win_rate = sum(1 for r in returns if r > 0) / len(returns) * 100
@@ -346,6 +390,7 @@ def aggregate_window_results(window_results):
         "maxReturnPct": clean_float(max(returns)),
         "meanXirrPct": clean_float(float(np.mean(xirrs))),
         "meanSharpeRatio": clean_float(float(np.mean(sharpes))),
+        "meanCalmarRatio": clean_float(float(np.mean(calmars))),
         "winRatePct": clean_float(win_rate),
         "consistencyScore": clean_float(consistency_score),
         "perWindow": valid
@@ -568,6 +613,39 @@ for ticker in TICKERS:
     }
     ticker_results_payload.append(ticker_payload)
 
+def compute_theme_exposure(ticker_payloads, strategy_key):
+    """% of ending portfolio value grouped by TICKER_THEMES, for one strategy leg.
+    Ending values per ticker already account for both currently-held value and
+    realized stop-loss/trailing-stop proceeds, and sum exactly to that leg's total
+    ending value, so shares here add to 100%."""
+    totals = {}
+    for tp in ticker_payloads:
+        ending = tp['strategies'][strategy_key]['endingValue']
+        if ending <= 0:
+            continue
+        theme = TICKER_THEMES.get(tp['ticker'], 'Other')
+        totals.setdefault(theme, {'value': 0.0, 'tickers': []})
+        totals[theme]['value'] += ending
+        totals[theme]['tickers'].append(tp['ticker'])
+
+    grand_total = sum(t['value'] for t in totals.values())
+    rows = [
+        {
+            "theme": theme,
+            "endingValue": clean_float(t['value']),
+            "sharePct": clean_float(t['value'] / grand_total * 100) if grand_total else 0.0,
+            "tickers": sorted(t['tickers'])
+        }
+        for theme, t in totals.items()
+    ]
+    rows.sort(key=lambda r: r['sharePct'], reverse=True)
+    return rows
+
+theme_exposure_payload = {
+    "proximityDCA": compute_theme_exposure(ticker_results_payload, 'proximityDCA'),
+    "guppyProximityDCA": compute_theme_exposure(ticker_results_payload, 'guppyProximityDCA')
+}
+
 final_json_payload = {
     "generatedAt": end_dt.strftime('%Y-%m-%dT%H:%M:%SZ'),
     "meta": {
@@ -592,7 +670,8 @@ final_json_payload = {
     "weeklyRun": weekly_run_payload,
     "exitRuleSweep": exit_rule_sweep_payload,
     "walkForward": walk_forward_payload,
-    "walkForwardBaseline": walk_forward_baseline_payload
+    "walkForwardBaseline": walk_forward_baseline_payload,
+    "themeExposure": theme_exposure_payload
 }
 
 output_path = 'public/backtest_data.json'

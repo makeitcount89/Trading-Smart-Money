@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Award, ChevronDown, ChevronRight } from "lucide-rea
 import type { WalkForwardAggregate, WalkForwardConfig, WalkForwardData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type SortKey = "consistencyScore" | "meanReturnPct" | "stdReturnPct" | "winRatePct" | "meanSharpeRatio" | "minReturnPct";
+type SortKey = "consistencyScore" | "meanReturnPct" | "stdReturnPct" | "winRatePct" | "meanSharpeRatio" | "meanCalmarRatio" | "minReturnPct";
 type StrategyKey = "proximityDCA" | "guppyProximityDCA";
 
 const SORT_COLUMNS: { key: SortKey; label: string }[] = [
@@ -15,6 +15,7 @@ const SORT_COLUMNS: { key: SortKey; label: string }[] = [
   { key: "stdReturnPct", label: "Return Std Dev" },
   { key: "minReturnPct", label: "Worst Window" },
   { key: "meanSharpeRatio", label: "Mean Sharpe" },
+  { key: "meanCalmarRatio", label: "Mean Calmar" },
   { key: "consistencyScore", label: "Consistency" },
 ];
 
@@ -98,9 +99,9 @@ function NewTickerImpactBanner({
 function PerWindowBreakdown({ agg }: { agg: WalkForwardAggregate }) {
   return (
     <tr>
-      <td colSpan={10} className="bg-base-900/40 px-4 py-3">
+      <td colSpan={11} className="bg-base-900/40 px-4 py-3">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-xs">
+          <table className="w-full min-w-[760px] text-xs">
             <thead>
               <tr className="text-left text-[10px] text-[var(--text-muted)]">
                 <th className="py-1.5 pr-4 font-medium">Window</th>
@@ -109,6 +110,8 @@ function PerWindowBreakdown({ agg }: { agg: WalkForwardAggregate }) {
                 <th className="py-1.5 pr-4 font-medium">Return</th>
                 <th className="py-1.5 pr-4 font-medium">XIRR</th>
                 <th className="py-1.5 pr-4 font-medium">Sharpe</th>
+                <th className="py-1.5 pr-4 font-medium">Max DD</th>
+                <th className="py-1.5 pr-4 font-medium">Calmar</th>
               </tr>
             </thead>
             <tbody>
@@ -128,6 +131,12 @@ function PerWindowBreakdown({ agg }: { agg: WalkForwardAggregate }) {
                   </td>
                   <td className="py-1.5 pr-4 tabular text-[var(--text-secondary)]">
                     {w.sharpeRatio != null ? w.sharpeRatio.toFixed(2) : "—"}
+                  </td>
+                  <td className="py-1.5 pr-4 tabular text-short">
+                    {w.maxDrawdownPct != null ? `${w.maxDrawdownPct.toFixed(2)}%` : "—"}
+                  </td>
+                  <td className="py-1.5 pr-4 tabular text-[var(--text-secondary)]">
+                    {w.calmarRatio != null ? w.calmarRatio.toFixed(2) : "—"}
                   </td>
                 </tr>
               ))}
@@ -285,7 +294,7 @@ export default function WalkForwardSweepTable({
         genuinely new, unseen market conditions.
       </div>
 
-      <table className="w-full min-w-[1080px] text-sm">
+      <table className="w-full min-w-[1180px] text-sm">
         <thead>
           <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
             <th className="px-4 py-3 font-medium"></th>
@@ -350,6 +359,9 @@ export default function WalkForwardSweepTable({
                 </td>
                 <td className={cn("px-4 py-3 tabular", agg.meanSharpeRatio >= 0 ? "text-long" : "text-short")}>
                   {agg.meanSharpeRatio.toFixed(2)}
+                </td>
+                <td className={cn("px-4 py-3 tabular", agg.meanCalmarRatio >= 0 ? "text-long" : "text-short")}>
+                  {agg.meanCalmarRatio.toFixed(2)}
                 </td>
                 <td className="px-4 py-3 tabular font-semibold text-smcBlue">{agg.consistencyScore.toFixed(2)}</td>
               </tr>

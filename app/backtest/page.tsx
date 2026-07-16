@@ -10,6 +10,7 @@ import BacktestTickerCard from "@/components/BacktestTickerCard";
 import WeeklyRunPanel from "@/components/WeeklyRunPanel";
 import ExitRuleSweepTable from "@/components/ExitRuleSweepTable";
 import WalkForwardSweepTable from "@/components/WalkForwardSweepTable";
+import ThemeExposureTable from "@/components/ThemeExposureTable";
 
 type Tab = "weekly" | "backtest" | "sweep";
 type SweepView = "single" | "walkForward";
@@ -145,6 +146,12 @@ export default function BacktestPage() {
               </div>
 
               <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
+
+              {data.themeExposure && (
+                <div className="mt-6">
+                  <ThemeExposureTable exposure={data.themeExposure} />
+                </div>
+              )}
 
               <div className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                 Per-ticker detail
