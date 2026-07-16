@@ -190,7 +190,7 @@ export default function BacktestPage() {
               )}
 
               {sweepView === "walkForward" && data.walkForward && data.walkForward.configs.length > 0 && (
-                <WalkForwardSweepTable data={data.walkForward} />
+                <WalkForwardSweepTable data={data.walkForward} baselineData={data.walkForwardBaseline} newTickers={data.meta.newTickers} />
               )}
               {sweepView === "walkForward" && (!data.walkForward || data.walkForward.configs.length === 0) && (
                 <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">

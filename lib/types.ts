@@ -120,6 +120,8 @@ export interface BacktestTickerResult {
 
 export interface BacktestMeta {
   universe: string[];
+  newTickers?: string[]; // Tickers added on top of baselineUniverse (currently: top-value ASX stocks, mostly gold miners)
+  baselineUniverse?: string[]; // Universe as it stood before newTickers were added
   windowYears: number;
   amountPerWeek: number;
   strategyName: string;
@@ -229,6 +231,7 @@ export interface WalkForwardData {
   windowYears: number; // Length of each individual window, same as meta.windowYears
   windowCount: number;
   stepWeeks: number; // How far back each successive window starts, relative to the previous one
+  tickerCount?: number; // Size of the universe this run used (differs between walkForward and walkForwardBaseline)
   windows: WalkForwardWindowMeta[];
   configs: WalkForwardConfig[];
 }
@@ -244,5 +247,6 @@ export interface BacktestData {
   tickers: BacktestTickerResult[];
   weeklyRun?: WeeklyRun;
   exitRuleSweep?: ExitRuleSweepConfig[];
-  walkForward?: WalkForwardData;
+  walkForward?: WalkForwardData; // Full universe (meta.universe)
+  walkForwardBaseline?: WalkForwardData; // Same windows/configs, restricted to meta.baselineUniverse -- isolates the effect of meta.newTickers
 }

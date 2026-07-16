@@ -27,6 +27,74 @@ function formatRules(cfg: WalkForwardConfig): string {
   return `Stop ${stop} · Trail ${trail}`;
 }
 
+function fmtSigned(v: number, digits = 2): string {
+  return `${v > 0 ? "+" : ""}${v.toFixed(digits)}%`;
+}
+
+function NewTickerImpactBanner({
+  strategy,
+  full,
+  baseline,
+  newTickerCount,
+}: {
+  strategy: StrategyKey;
+  full: WalkForwardConfig;
+  baseline: WalkForwardConfig;
+  newTickerCount: number;
+}) {
+  const fullAgg = full[strategy];
+  const baseAgg = baseline[strategy];
+  if (!fullAgg || !baseAgg) return null;
+
+  const deltaReturn = fullAgg.meanReturnPct - baseAgg.meanReturnPct;
+  const deltaConsistency = fullAgg.consistencyScore - baseAgg.consistencyScore;
+
+  return (
+    <div className="rounded-xl border border-smcBlue/30 bg-smcBlue/5 p-4">
+      <div className="text-sm font-medium text-[var(--text-primary)]">
+        Impact of the {newTickerCount} newly-added tickers on &ldquo;Current (Production)&rdquo;
+      </div>
+      <div className="mt-1 text-xs text-[var(--text-muted)]">
+        Same windows, same exit rules &mdash; only the universe changes (baseline = before the new tickers were added).
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="rounded-lg border border-base-700 bg-base-800/40 px-3 py-2">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Mean Walk-Forward Return</div>
+          <div className="mt-1 tabular text-sm">
+            <span className="text-[var(--text-muted)]">{fmtSigned(baseAgg.meanReturnPct)}</span>
+            <span className="mx-1.5 text-[var(--text-muted)]">&rarr;</span>
+            <span className="font-semibold text-[var(--text-primary)]">{fmtSigned(fullAgg.meanReturnPct)}</span>
+          </div>
+          <div className={cn("mt-0.5 text-xs font-medium", deltaReturn >= 0 ? "text-long" : "text-short")}>
+            {deltaReturn >= 0 ? "+" : ""}
+            {deltaReturn.toFixed(2)} pp
+          </div>
+        </div>
+        <div className="rounded-lg border border-base-700 bg-base-800/40 px-3 py-2">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Consistency Score</div>
+          <div className="mt-1 tabular text-sm">
+            <span className="text-[var(--text-muted)]">{baseAgg.consistencyScore.toFixed(2)}</span>
+            <span className="mx-1.5 text-[var(--text-muted)]">&rarr;</span>
+            <span className="font-semibold text-[var(--text-primary)]">{fullAgg.consistencyScore.toFixed(2)}</span>
+          </div>
+          <div className={cn("mt-0.5 text-xs font-medium", deltaConsistency >= 0 ? "text-long" : "text-short")}>
+            {deltaConsistency >= 0 ? "+" : ""}
+            {deltaConsistency.toFixed(2)}
+          </div>
+        </div>
+        <div className="rounded-lg border border-base-700 bg-base-800/40 px-3 py-2">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Mean Sharpe</div>
+          <div className="mt-1 tabular text-sm">
+            <span className="text-[var(--text-muted)]">{baseAgg.meanSharpeRatio.toFixed(2)}</span>
+            <span className="mx-1.5 text-[var(--text-muted)]">&rarr;</span>
+            <span className="font-semibold text-[var(--text-primary)]">{fullAgg.meanSharpeRatio.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PerWindowBreakdown({ agg }: { agg: WalkForwardAggregate }) {
   return (
     <tr>
@@ -71,14 +139,25 @@ function PerWindowBreakdown({ agg }: { agg: WalkForwardAggregate }) {
   );
 }
 
-export default function WalkForwardSweepTable({ data }: { data: WalkForwardData }) {
+export default function WalkForwardSweepTable({
+  data,
+  baselineData,
+  newTickers,
+}: {
+  data: WalkForwardData;
+  baselineData?: WalkForwardData;
+  newTickers?: string[];
+}) {
   const [strategy, setStrategy] = useState<StrategyKey>("proximityDCA");
+  const [universe, setUniverse] = useState<"full" | "baseline">("full");
   const [sortKey, setSortKey] = useState<SortKey>("consistencyScore");
   const [sortDesc, setSortDesc] = useState(true);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
+  const activeData = universe === "baseline" && baselineData ? baselineData : data;
+
   const rows = useMemo(() => {
-    const withMetrics = data.configs
+    const withMetrics = activeData.configs
       .map((cfg) => ({ cfg, agg: cfg[strategy] }))
       .filter((r): r is { cfg: WalkForwardConfig; agg: WalkForwardAggregate } => r.agg !== null);
     return [...withMetrics].sort((a, b) => {
@@ -86,18 +165,26 @@ export default function WalkForwardSweepTable({ data }: { data: WalkForwardData 
       const bv = b.agg[sortKey];
       return sortDesc ? bv - av : av - bv;
     });
-  }, [data.configs, strategy, sortKey, sortDesc]);
+  }, [activeData, strategy, sortKey, sortDesc]);
 
   const bestConsistencyName = useMemo(() => {
     let best: { name: string; score: number } | null = null;
-    for (const cfg of data.configs) {
+    for (const cfg of activeData.configs) {
       const agg = cfg[strategy];
       if (agg && (best === null || agg.consistencyScore > best.score)) {
         best = { name: cfg.name, score: agg.consistencyScore };
       }
     }
     return best?.name ?? null;
-  }, [data.configs, strategy]);
+  }, [activeData, strategy]);
+
+  const impactConfigs = useMemo(() => {
+    if (!baselineData) return null;
+    const full = data.configs.find((c) => c.isCurrent);
+    const baseline = baselineData.configs.find((c) => c.isCurrent);
+    if (!full || !baseline) return null;
+    return { full, baseline };
+  }, [data, baselineData]);
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -117,16 +204,27 @@ export default function WalkForwardSweepTable({ data }: { data: WalkForwardData 
     });
   }
 
-  const oldest = data.windows[0];
-  const newest = data.windows[data.windows.length - 1];
+  const oldest = activeData.windows[0];
+  const newest = activeData.windows[activeData.windows.length - 1];
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-base-700 bg-base-850">
+    <div className="space-y-4">
+      {impactConfigs && (
+        <NewTickerImpactBanner
+          strategy={strategy}
+          full={impactConfigs.full}
+          baseline={impactConfigs.baseline}
+          newTickerCount={newTickers?.length ?? (data.tickerCount ?? 0) - (baselineData?.tickerCount ?? 0)}
+        />
+      )}
+
+      <div className="overflow-x-auto rounded-xl border border-base-700 bg-base-850">
       <div className="flex flex-col gap-2 border-b border-base-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="text-sm font-medium text-[var(--text-primary)]">
-            Walk-Forward Consistency &mdash; {data.windowCount} overlapping {data.windowYears}-year windows, stepped{" "}
-            {Math.round(data.stepWeeks / 4.345)} months apart
+            Walk-Forward Consistency &mdash; {activeData.windowCount} overlapping {activeData.windowYears}-year windows, stepped{" "}
+            {Math.round(activeData.stepWeeks / 4.345)} months apart
+            {activeData.tickerCount != null && <> &middot; {activeData.tickerCount} tickers</>}
           </div>
           {oldest && newest && (
             <div className="mt-0.5 text-xs text-[var(--text-muted)]">
@@ -134,30 +232,54 @@ export default function WalkForwardSweepTable({ data }: { data: WalkForwardData 
             </div>
           )}
         </div>
-        <div className="flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
-          <button
-            onClick={() => setStrategy("proximityDCA")}
-            className={cn(
-              "rounded px-2.5 py-1 font-medium transition-colors",
-              strategy === "proximityDCA" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-            )}
-          >
-            Pure Proximity
-          </button>
-          <button
-            onClick={() => setStrategy("guppyProximityDCA")}
-            className={cn(
-              "rounded px-2.5 py-1 font-medium transition-colors",
-              strategy === "guppyProximityDCA" ? "bg-emerald-400/20 text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-            )}
-          >
-            Guppy Filtered
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {baselineData && (
+            <div className="flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
+              <button
+                onClick={() => setUniverse("full")}
+                className={cn(
+                  "rounded px-2.5 py-1 font-medium transition-colors",
+                  universe === "full" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                Full ({data.tickerCount ?? "?"})
+              </button>
+              <button
+                onClick={() => setUniverse("baseline")}
+                className={cn(
+                  "rounded px-2.5 py-1 font-medium transition-colors",
+                  universe === "baseline" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                Baseline ({baselineData.tickerCount ?? "?"}, pre-expansion)
+              </button>
+            </div>
+          )}
+          <div className="flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
+            <button
+              onClick={() => setStrategy("proximityDCA")}
+              className={cn(
+                "rounded px-2.5 py-1 font-medium transition-colors",
+                strategy === "proximityDCA" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              Pure Proximity
+            </button>
+            <button
+              onClick={() => setStrategy("guppyProximityDCA")}
+              className={cn(
+                "rounded px-2.5 py-1 font-medium transition-colors",
+                strategy === "guppyProximityDCA" ? "bg-emerald-400/20 text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              Guppy Filtered
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="border-b border-base-700 bg-[var(--status-warning)]/5 px-4 py-2.5 text-[11px] text-[var(--text-secondary)]">
-        Each window shares roughly {Math.max(0, Math.round(data.windowYears * 12 - data.stepWeeks / 4.345))} months of history with
+        Each window shares roughly {Math.max(0, Math.round(activeData.windowYears * 12 - activeData.stepWeeks / 4.345))} months of history with
         its neighbor &mdash; they&apos;re a sensitivity check across different starting points and partially-overlapping regimes,
         not independent trials. Treat a config that wins here as more <em>robust</em>, not as proven to generalize to
         genuinely new, unseen market conditions.
@@ -241,6 +363,7 @@ export default function WalkForwardSweepTable({ data }: { data: WalkForwardData 
         std dev across windows &mdash; a Sharpe-like score for how steady a config's outcome was across different starting
         points, not just how high it went in any one of them. Windows with no eligible signal that far back (a ticker hadn&apos;t
         listed yet, etc.) are excluded from a config&apos;s stats rather than counted as a 0% result.
+      </div>
       </div>
     </div>
   );
