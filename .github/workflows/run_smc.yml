@@ -51,4 +51,25 @@ jobs:
           fi
           git add public/smc_data.json
           git commit -m "chore: update SMC data [skip ci]"
-          git push
+
+          # main can move while this job is running (a merged PR, or the
+          # separate run_backtest.yml workflow pushing public/backtest_data.json
+          # on its own schedule) -- rebase onto the latest tip and retry the
+          # push instead of failing outright on a non-fast-forward.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push origin HEAD:main; then
+                echo "Pushed successfully on attempt $attempt."
+                exit 0
+              fi
+            else
+              echo "Rebase conflict on attempt $attempt -- aborting and retrying."
+              git rebase --abort
+            fi
+            echo "Push attempt $attempt failed, retrying after backoff..."
+            sleep $((attempt * 3))
+          done
+
+          echo "Failed to push updated SMC data after multiple attempts."
+          exit 1
