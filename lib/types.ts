@@ -169,6 +169,21 @@ export interface WeeklyRun {
   guppyProximityDCA?: WeeklyRunStrategy;
 }
 
+// ============================================================================
+// --- Exit-Rule Sweep: same historical data, alternative stop-loss / trailing- ---
+// --- stop configurations backtested side by side for comparison ---------------
+// ============================================================================
+
+export interface ExitRuleSweepConfig {
+  name: string;
+  isCurrent: boolean; // Marks the config matching meta.stopLossPct/trailingStop* (the live production settings)
+  stopLossPct: number | null; // null = stop-loss disabled for this config
+  trailingStopArmPct: number | null; // null = trailing stop disabled for this config
+  trailingStopPct: number | null;
+  proximityDCA: BacktestStrategySummary;
+  guppyProximityDCA: BacktestStrategySummary;
+}
+
 export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
@@ -179,4 +194,5 @@ export interface BacktestData {
   };
   tickers: BacktestTickerResult[];
   weeklyRun?: WeeklyRun;
+  exitRuleSweep?: ExitRuleSweepConfig[];
 }

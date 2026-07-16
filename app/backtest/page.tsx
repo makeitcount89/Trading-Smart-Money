@@ -2,14 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw, SlidersHorizontal } from "lucide-react";
 import type { BacktestData } from "@/lib/types";
 import { cn, formatDateTime } from "@/lib/utils";
 import BacktestSummaryTable from "@/components/BacktestSummaryTable";
 import BacktestTickerCard from "@/components/BacktestTickerCard";
 import WeeklyRunPanel from "@/components/WeeklyRunPanel";
+import ExitRuleSweepTable from "@/components/ExitRuleSweepTable";
 
-type Tab = "weekly" | "backtest";
+type Tab = "weekly" | "backtest" | "sweep";
 
 export default function BacktestPage() {
   const [data, setData] = useState<BacktestData | null>(null);
@@ -112,6 +113,18 @@ export default function BacktestPage() {
               <FlaskConical size={14} />
               Backtest Results
             </button>
+            <button
+              onClick={() => setTab("sweep")}
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+                tab === "sweep"
+                  ? "border-smcBlue text-smcBlue"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              <SlidersHorizontal size={14} />
+              Exit Rule Sweep
+            </button>
           </div>
 
           {tab === "weekly" && data.weeklyRun && <WeeklyRunPanel weeklyRun={data.weeklyRun} meta={data.meta} />}
@@ -139,6 +152,15 @@ export default function BacktestPage() {
                 ))}
               </div>
             </>
+          )}
+
+          {tab === "sweep" && data.exitRuleSweep && data.exitRuleSweep.length > 0 && (
+            <ExitRuleSweepTable configs={data.exitRuleSweep} maxPositionPct={data.meta.maxPositionPct} />
+          )}
+          {tab === "sweep" && (!data.exitRuleSweep || data.exitRuleSweep.length === 0) && (
+            <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
+              This data set was generated before the Exit Rule Sweep was added. Re-run the backtest to populate it.
+            </div>
           )}
         </>
       )}
