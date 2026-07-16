@@ -22,6 +22,7 @@ TICKERS = sorted([
 
 WEEKLY_ALLOCATION = 50.0
 START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
+STOP_LOSS_PCT = 0.20  # Sell a held position if it closes >= 20% below our last purchase price for it
 
 # ============================================================================
 # 2. FINANCIAL MATH & SANITIZATION UTILITIES
@@ -120,6 +121,15 @@ g1_ticker_counts = {t: 0 for t in TICKERS}
 g2_ticker_counts = {t: 0 for t in TICKERS}
 first_purchase_price = {t: None for t in TICKERS}
 
+# Exit-rule bookkeeping: last price we bought each ticker at, cash raised by stop-outs
+# (sits idle until the router picks that ticker again), and per-ticker exit counts.
+g1_last_buy_price, g2_last_buy_price = {}, {}
+g1_cash, g2_cash = 0.0, 0.0
+g1_realized = {t: 0.0 for t in TICKERS}
+g2_realized = {t: 0.0 for t in TICKERS}
+g1_stop_counts = {t: 0 for t in TICKERS}
+g2_stop_counts = {t: 0 for t in TICKERS}
+
 for current_week in dates_range:
     g1_candidates = []
     g2_candidates = []
@@ -128,17 +138,41 @@ for current_week in dates_range:
         wk_idx = df.index.asof(current_week)
         if pd.isna(wk_idx): continue
         row = df.loc[wk_idx]
+        price = row['Close']
+
+        # --- Weekly exit check: sell out of a held position if it has dipped
+        # 20%+ below the price we last bought it at ---
+        if g1_portfolio.get(ticker, 0) > 0:
+            last_buy = g1_last_buy_price.get(ticker)
+            if last_buy and price <= last_buy * (1 - STOP_LOSS_PCT):
+                proceeds = g1_portfolio[ticker] * price
+                g1_cash += proceeds
+                g1_realized[ticker] += proceeds
+                g1_portfolio[ticker] = 0.0
+                g1_stop_counts[ticker] += 1
+                del g1_last_buy_price[ticker]
+
+        if g2_portfolio.get(ticker, 0) > 0:
+            last_buy = g2_last_buy_price.get(ticker)
+            if last_buy and price <= last_buy * (1 - STOP_LOSS_PCT):
+                proceeds = g2_portfolio[ticker] * price
+                g2_cash += proceeds
+                g2_realized[ticker] += proceeds
+                g2_portfolio[ticker] = 0.0
+                g2_stop_counts[ticker] += 1
+                del g2_last_buy_price[ticker]
 
         if not np.isnan(row['Proximity']):
-            g1_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': row['Close']})
+            g1_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
             if row['Guppy_Trend']:
-                g2_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': row['Close']})
+                g2_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
 
     if g1_candidates:
         best_g1 = min(g1_candidates, key=lambda x: x['prox'])
         t1 = best_g1['ticker']
         g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
         g1_ticker_counts[t1] += 1
+        g1_last_buy_price[t1] = best_g1['price']
         if first_purchase_price[t1] is None:
             first_purchase_price[t1] = best_g1['price']
         g1_flows.append(WEEKLY_ALLOCATION)
@@ -149,6 +183,7 @@ for current_week in dates_range:
         t2 = best_g2['ticker']
         g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
         g2_ticker_counts[t2] += 1
+        g2_last_buy_price[t2] = best_g2['price']
         if first_purchase_price[t2] is None:
             first_purchase_price[t2] = best_g2['price']
         g2_flows.append(WEEKLY_ALLOCATION)
@@ -158,8 +193,8 @@ for current_week in dates_range:
 # 5. HIGHLY COMPACT DATA STRUCTURE GENERATION
 # ============================================================================
 end_dt = datetime.now()
-g1_end_val = sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g1_portfolio.items() if t in weekly_universe)
-g2_end_val = sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g2_portfolio.items() if t in weekly_universe)
+g1_end_val = g1_cash + sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g1_portfolio.items() if t in weekly_universe)
+g2_end_val = g2_cash + sum(units * weekly_universe[t]['Close'].iloc[-1] for t, units in g2_portfolio.items() if t in weekly_universe)
 
 g1_xirr = calculate_xirr(g1_flows, g1_dates, g1_end_val, end_dt)
 g2_xirr = calculate_xirr(g2_flows, g2_dates, g2_end_val, end_dt)
@@ -173,18 +208,19 @@ for ticker in TICKERS:
         
     last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
-    
+
     c1 = g1_ticker_counts[ticker]
     c2 = g2_ticker_counts[ticker]
-    p_base = first_purchase_price[ticker] if first_purchase_price[ticker] else last_price
 
+    # Ending value = cash already realized from any stop-loss exits on this ticker,
+    # plus whatever units (if any) are still being held at the current close.
     g1_invested = c1 * int(WEEKLY_ALLOCATION)
-    g1_ending = c1 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c1 > 0 else 0.0
-    g1_return = ((last_price - p_base) / p_base * 100) if c1 > 0 else 0.0
+    g1_ending = g1_realized[ticker] + g1_portfolio.get(ticker, 0.0) * last_price
+    g1_return = ((g1_ending - g1_invested) / g1_invested * 100) if g1_invested > 0 else 0.0
 
     g2_invested = c2 * int(WEEKLY_ALLOCATION)
-    g2_ending = c2 * int(WEEKLY_ALLOCATION) * (last_price / p_base) if c2 > 0 else 0.0
-    g2_return = ((last_price - p_base) / p_base * 100) if c2 > 0 else 0.0
+    g2_ending = g2_realized[ticker] + g2_portfolio.get(ticker, 0.0) * last_price
+    g2_return = ((g2_ending - g2_invested) / g2_invested * 100) if g2_invested > 0 else 0.0
 
     ticker_payload = {
         "ticker": ticker,
@@ -198,14 +234,16 @@ for ticker in TICKERS:
                 "totalInvested": clean_float(g1_invested),
                 "endingValue": clean_float(g1_ending),
                 "simpleReturnPct": clean_float(g1_return),
-                "xirrPct": 0.0
+                "xirrPct": 0.0,
+                "stopLossExits": g1_stop_counts[ticker]
             },
             "guppyProximityDCA": {
                 "events": c2,
                 "totalInvested": clean_float(g2_invested),
                 "endingValue": clean_float(g2_ending),
                 "simpleReturnPct": clean_float(g2_return),
-                "xirrPct": 0.0
+                "xirrPct": 0.0,
+                "stopLossExits": g2_stop_counts[ticker]
             }
         }
     }
@@ -220,7 +258,8 @@ final_json_payload = {
         "universe": TICKERS,
         "windowYears": 3,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
-        "strategyName": "Proximity-Ranked Weekly OB DCA Engine"
+        "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
+        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block, then each week sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at."
     },
     "pooled": {
         "proximityDCA": {
@@ -228,14 +267,18 @@ final_json_payload = {
             "totalInvested": clean_float(g1_total_cost),
             "endingValue": clean_float(g1_end_val),
             "simpleReturnPct": clean_float(((g1_end_val - g1_total_cost) / g1_total_cost * 100) if g1_total_cost else 0.0),
-            "xirrPct": clean_float(g1_xirr)
+            "xirrPct": clean_float(g1_xirr),
+            "stopLossExits": sum(g1_stop_counts.values()),
+            "cashUninvested": clean_float(g1_cash)
         },
         "guppyProximityDCA": {
             "events": len(g2_flows),
             "totalInvested": clean_float(g2_total_cost),
             "endingValue": clean_float(g2_end_val),
             "simpleReturnPct": clean_float(((g2_end_val - g2_total_cost) / g2_total_cost * 100) if g2_total_cost else 0.0),
-            "xirrPct": clean_float(g2_xirr)
+            "xirrPct": clean_float(g2_xirr),
+            "stopLossExits": sum(g2_stop_counts.values()),
+            "cashUninvested": clean_float(g2_cash)
         }
     },
     "tickers": ticker_results_payload

@@ -8,6 +8,7 @@ interface StrategyMetrics {
   endingValue: number;
   simpleReturnPct: number;
   xirrPct: number | null;
+  stopLossExits?: number;
 }
 
 export default function BacktestSummaryTable({
@@ -34,6 +35,7 @@ export default function BacktestSummaryTable({
           <tr className="border-b border-base-700 text-left text-xs text-[var(--text-muted)]">
             <th className="px-4 py-3 font-medium">Strategy Config</th>
             <th className="px-4 py-3 font-medium">Buys</th>
+            <th className="px-4 py-3 font-medium">Stop-Outs</th>
             <th className="px-4 py-3 font-medium">Invested</th>
             <th className="px-4 py-3 font-medium">Ending Value</th>
             <th className="px-4 py-3 font-medium">Simple Return</th>
@@ -48,6 +50,7 @@ export default function BacktestSummaryTable({
               <span className="text-[10px] text-[var(--text-muted)] font-normal mt-0.5">Unfiltered multi-asset universe allocation</span>
             </td>
             <td className="px-4 py-3 tabular">{g1.events}</td>
+            <td className="px-4 py-3 tabular text-short">{g1.stopLossExits ?? 0}</td>
             <td className="px-4 py-3 tabular">
               ${g1.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
@@ -70,6 +73,7 @@ export default function BacktestSummaryTable({
                 <span className="text-[10px] text-[var(--text-muted)] font-normal mt-0.5">Requires upward-sloping EMA stack confirmation</span>
               </td>
               <td className="px-4 py-3 tabular">{g2.events}</td>
+              <td className="px-4 py-3 tabular text-short">{g2.stopLossExits ?? 0}</td>
               <td className="px-4 py-3 tabular">
                 ${g2.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
