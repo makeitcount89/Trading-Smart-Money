@@ -17,7 +17,10 @@ TICKERS = sorted([
     'HJPN.AX','JHX.AX','LNAS.AX','MNRS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
     'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','DRIV.AX','EDOC.AX','ERTH.AX',
     'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
-    'SNAS.AX'
+    'SNAS.AX',
+    # Added: top-value ASX stocks (per Simply Wall St) confirmed tradable on BetaShares
+    # Direct. GMD.AX was already in the universe above, so not duplicated here.
+    'PPS.AX','WGX.AX','WAF.AX','OBM.AX','PNI.AX','RSG.AX','TEA.AX','JDO.AX','FCL.AX'
 ])
 
 WEEKLY_ALLOCATION = 50.0
