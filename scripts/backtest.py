@@ -23,6 +23,9 @@ TICKERS = sorted([
 WEEKLY_ALLOCATION = 50.0
 START_DATE = (datetime.now() - timedelta(days=3*365)).strftime('%Y-%m-%d')
 STOP_LOSS_PCT = 0.20  # Sell a held position if it closes >= 20% below our last purchase price for it
+TRAILING_STOP_ARM_PCT = 0.10  # A position must be up this much from its last buy price before the trailing stop activates
+TRAILING_STOP_PCT = 0.15  # Once armed, sell if price pulls back this much from its post-purchase high (protects profits)
+MAX_POSITION_PCT = 0.15  # Skip a candidate for this week's buy if it already exceeds this share of the strategy's NAV
 RISK_FREE_RATE_PCT = 4.0  # Annualized, used as the Sharpe ratio's baseline (approx. AU cash rate)
 
 # ============================================================================
@@ -100,6 +103,20 @@ def compute_risk_metrics(nav_series, flow_by_date, risk_free_annual_pct=RISK_FRE
         "volatilityPct": clean_float(std_r * math.sqrt(52) * 100)
     }
 
+def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
+    """Best (lowest-proximity) candidate whose existing position doesn't already
+    exceed max_position_pct of NAV -- forces rotation into the next-best opportunity
+    instead of endlessly concentrating in a single already-large holding."""
+    if not candidates:
+        return None
+    if nav_now <= 0:
+        eligible = candidates
+    else:
+        eligible = [c for c in candidates if portfolio.get(c['ticker'], 0.0) * c['price'] <= max_position_pct * nav_now]
+    if not eligible:
+        return None
+    return min(eligible, key=lambda x: x['prox'])
+
 # ============================================================================
 # 3. BULK DATA DOWNLOAD & SNAPSHOT CONVERSION
 # ============================================================================
@@ -174,6 +191,13 @@ g2_realized = {t: 0.0 for t in TICKERS}
 g1_stop_counts = {t: 0 for t in TICKERS}
 g2_stop_counts = {t: 0 for t in TICKERS}
 
+# Trailing-stop bookkeeping: highest close seen since the last buy of each ticker,
+# and a separate exit counter so profit-protection exits are distinguishable from
+# hard stop-loss exits in the reported stats.
+g1_peak_price, g2_peak_price = {}, {}
+g1_trail_counts = {t: 0 for t in TICKERS}
+g2_trail_counts = {t: 0 for t in TICKERS}
+
 # Weekly mark-to-market NAV snapshots (cash + held positions), used for Sharpe/drawdown
 g1_nav_series, g2_nav_series = [], []
 last_known_price = {}
@@ -189,8 +213,10 @@ for current_week in dates_range:
         price = row['Close']
         last_known_price[ticker] = price
 
-        # --- Weekly exit check: sell out of a held position if it has dipped
-        # 20%+ below the price we last bought it at ---
+        # --- Weekly exit check: sell out of a held position if it has dipped 20%+
+        # below the price we last bought it at (hard stop-loss), otherwise track its
+        # post-purchase high and sell if it's given back 15%+ of a 10%+ gain (trailing
+        # stop, protects profits on a winner instead of riding it back down) ---
         if g1_portfolio.get(ticker, 0) > 0:
             last_buy = g1_last_buy_price.get(ticker)
             if last_buy and price <= last_buy * (1 - STOP_LOSS_PCT):
@@ -200,6 +226,18 @@ for current_week in dates_range:
                 g1_portfolio[ticker] = 0.0
                 g1_stop_counts[ticker] += 1
                 del g1_last_buy_price[ticker]
+                g1_peak_price.pop(ticker, None)
+            elif last_buy:
+                peak = max(g1_peak_price.get(ticker, last_buy), price)
+                g1_peak_price[ticker] = peak
+                if peak >= last_buy * (1 + TRAILING_STOP_ARM_PCT) and price <= peak * (1 - TRAILING_STOP_PCT):
+                    proceeds = g1_portfolio[ticker] * price
+                    g1_cash += proceeds
+                    g1_realized[ticker] += proceeds
+                    g1_portfolio[ticker] = 0.0
+                    g1_trail_counts[ticker] += 1
+                    del g1_last_buy_price[ticker]
+                    g1_peak_price.pop(ticker, None)
 
         if g2_portfolio.get(ticker, 0) > 0:
             last_buy = g2_last_buy_price.get(ticker)
@@ -210,29 +248,47 @@ for current_week in dates_range:
                 g2_portfolio[ticker] = 0.0
                 g2_stop_counts[ticker] += 1
                 del g2_last_buy_price[ticker]
+                g2_peak_price.pop(ticker, None)
+            elif last_buy:
+                peak = max(g2_peak_price.get(ticker, last_buy), price)
+                g2_peak_price[ticker] = peak
+                if peak >= last_buy * (1 + TRAILING_STOP_ARM_PCT) and price <= peak * (1 - TRAILING_STOP_PCT):
+                    proceeds = g2_portfolio[ticker] * price
+                    g2_cash += proceeds
+                    g2_realized[ticker] += proceeds
+                    g2_portfolio[ticker] = 0.0
+                    g2_trail_counts[ticker] += 1
+                    del g2_last_buy_price[ticker]
+                    g2_peak_price.pop(ticker, None)
 
         if not np.isnan(row['Proximity']):
             g1_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
             if row['Guppy_Trend']:
                 g2_candidates.append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
 
-    if g1_candidates:
-        best_g1 = min(g1_candidates, key=lambda x: x['prox'])
+    # NAV going into this week's buy decision, used to cap concentration in a single ticker
+    g1_nav_pre_buy = g1_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g1_portfolio.items() if units > 0)
+    g2_nav_pre_buy = g2_cash + sum(units * last_known_price.get(t, 0.0) for t, units in g2_portfolio.items() if units > 0)
+
+    best_g1 = pick_best_candidate(g1_candidates, g1_portfolio, g1_nav_pre_buy, MAX_POSITION_PCT)
+    if best_g1:
         t1 = best_g1['ticker']
         g1_portfolio[t1] = g1_portfolio.get(t1, 0) + (WEEKLY_ALLOCATION / best_g1['price'])
         g1_ticker_counts[t1] += 1
         g1_last_buy_price[t1] = best_g1['price']
+        g1_peak_price[t1] = best_g1['price']
         if first_purchase_price[t1] is None:
             first_purchase_price[t1] = best_g1['price']
         g1_flows.append(WEEKLY_ALLOCATION)
         g1_dates.append(current_week)
 
-    if g2_candidates:
-        best_g2 = min(g2_candidates, key=lambda x: x['prox'])
+    best_g2 = pick_best_candidate(g2_candidates, g2_portfolio, g2_nav_pre_buy, MAX_POSITION_PCT)
+    if best_g2:
         t2 = best_g2['ticker']
         g2_portfolio[t2] = g2_portfolio.get(t2, 0) + (WEEKLY_ALLOCATION / best_g2['price'])
         g2_ticker_counts[t2] += 1
         g2_last_buy_price[t2] = best_g2['price']
+        g2_peak_price[t2] = best_g2['price']
         if first_purchase_price[t2] is None:
             first_purchase_price[t2] = best_g2['price']
         g2_flows.append(WEEKLY_ALLOCATION)
@@ -294,7 +350,8 @@ for ticker in TICKERS:
                 "endingValue": clean_float(g1_ending),
                 "simpleReturnPct": clean_float(g1_return),
                 "xirrPct": 0.0,
-                "stopLossExits": g1_stop_counts[ticker]
+                "stopLossExits": g1_stop_counts[ticker],
+                "profitProtectExits": g1_trail_counts[ticker]
             },
             "guppyProximityDCA": {
                 "events": c2,
@@ -302,7 +359,8 @@ for ticker in TICKERS:
                 "endingValue": clean_float(g2_ending),
                 "simpleReturnPct": clean_float(g2_return),
                 "xirrPct": 0.0,
-                "stopLossExits": g2_stop_counts[ticker]
+                "stopLossExits": g2_stop_counts[ticker],
+                "profitProtectExits": g2_trail_counts[ticker]
             }
         }
     }
@@ -318,8 +376,12 @@ final_json_payload = {
         "windowYears": 3,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
-        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block, then each week sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at.",
-        "riskFreeRatePct": RISK_FREE_RATE_PCT
+        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
+        "riskFreeRatePct": RISK_FREE_RATE_PCT,
+        "stopLossPct": STOP_LOSS_PCT * 100,
+        "trailingStopArmPct": TRAILING_STOP_ARM_PCT * 100,
+        "trailingStopPct": TRAILING_STOP_PCT * 100,
+        "maxPositionPct": MAX_POSITION_PCT * 100
     },
     "pooled": {
         "proximityDCA": {
@@ -329,6 +391,7 @@ final_json_payload = {
             "simpleReturnPct": clean_float(((g1_end_val - g1_total_cost) / g1_total_cost * 100) if g1_total_cost else 0.0),
             "xirrPct": clean_float(g1_xirr),
             "stopLossExits": sum(g1_stop_counts.values()),
+            "profitProtectExits": sum(g1_trail_counts.values()),
             "cashUninvested": clean_float(g1_cash),
             "sharpeRatio": g1_risk["sharpeRatio"],
             "maxDrawdownPct": g1_risk["maxDrawdownPct"],
@@ -341,6 +404,7 @@ final_json_payload = {
             "simpleReturnPct": clean_float(((g2_end_val - g2_total_cost) / g2_total_cost * 100) if g2_total_cost else 0.0),
             "xirrPct": clean_float(g2_xirr),
             "stopLossExits": sum(g2_stop_counts.values()),
+            "profitProtectExits": sum(g2_trail_counts.values()),
             "cashUninvested": clean_float(g2_cash),
             "sharpeRatio": g2_risk["sharpeRatio"],
             "maxDrawdownPct": g2_risk["maxDrawdownPct"],
