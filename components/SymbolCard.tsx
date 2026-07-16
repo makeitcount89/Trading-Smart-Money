@@ -1,11 +1,34 @@
-import { AlertTriangle } from "lucide-react";
-import type { OrderBlockZone, SymbolResult, TimeframeKey, TimeframeResult } from "@/lib/types";
+import { AlertTriangle, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import type { GuppyTrendSnapshot, OrderBlockZone, SymbolResult, TimeframeKey, TimeframeResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const TIMEFRAME_LABELS: Record<TimeframeKey, string> = {
   "1d": "Daily",
   "1wk": "Weekly",
 };
+
+function GuppyStrip({ trend }: { trend: GuppyTrendSnapshot | null | undefined }) {
+  if (!trend) return null;
+  const entries: { key: keyof GuppyTrendSnapshot; label: string }[] = [
+    { key: "sixMonth", label: "6mo" },
+    { key: "oneYear", label: "1yr" },
+    { key: "threeYear", label: "3yr" },
+  ];
+  return (
+    <div className="mt-1 flex items-center gap-2 text-[10px]">
+      {entries.map(({ key, label }) => {
+        const v = trend[key];
+        const color = v == null ? "text-[var(--text-muted)]" : v ? "text-long" : "text-short";
+        return (
+          <span key={key} className={cn("inline-flex items-center gap-0.5 font-medium", color)}>
+            {v == null ? <Minus size={9} /> : v ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
+            {label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 function ZoneRow({ zone, bullish }: { zone: OrderBlockZone; bullish: boolean }) {
   return (
@@ -48,6 +71,8 @@ function TimeframeSection({ tfKey, tf }: { tfKey: TimeframeKey; tf: TimeframeRes
           {tf.lastPrice.toFixed(3)} · {tf.lastBarDate}
         </div>
       </div>
+
+      <GuppyStrip trend={tf.guppyTrend} />
 
       {tf.bullishOrderBlocks.length === 0 ? (
         <div className="text-xs text-[var(--text-muted)]">No active blue order block.</div>

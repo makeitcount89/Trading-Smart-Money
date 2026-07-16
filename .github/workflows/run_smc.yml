@@ -21,7 +21,9 @@ concurrency:
 jobs:
   run-engine:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Bumped from 10 after the universe grew ~4.5x (11 -> 50 tickers) to keep headroom
+    # for the extra per-ticker yfinance fetches and Guppy EMA computation.
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
