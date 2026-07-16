@@ -2,16 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, FlaskConical, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw } from "lucide-react";
 import type { BacktestData } from "@/lib/types";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import BacktestSummaryTable from "@/components/BacktestSummaryTable";
 import BacktestTickerCard from "@/components/BacktestTickerCard";
+import WeeklyRunPanel from "@/components/WeeklyRunPanel";
+
+type Tab = "weekly" | "backtest";
 
 export default function BacktestPage() {
   const [data, setData] = useState<BacktestData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("weekly");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,21 +87,59 @@ export default function BacktestPage() {
 
       {data && data.tickers.length > 0 && (
         <>
-          <div className="mb-2 text-xs text-[var(--text-muted)]">
-            Strategy: {data.meta.strategyName} &middot; Window: {data.meta.windowYears} Years &middot; Allocation: ${data.meta.amountPerWeek}/week
-            {data.meta.riskFreeRatePct != null && <> &middot; Sharpe risk-free rate: {data.meta.riskFreeRatePct}%</>}
+          <div className="mb-4 flex gap-1 border-b border-base-700">
+            <button
+              onClick={() => setTab("weekly")}
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+                tab === "weekly"
+                  ? "border-smcBlue text-smcBlue"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              <CalendarClock size={14} />
+              This Week
+            </button>
+            <button
+              onClick={() => setTab("backtest")}
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+                tab === "backtest"
+                  ? "border-smcBlue text-smcBlue"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              )}
+            >
+              <FlaskConical size={14} />
+              Backtest Results
+            </button>
           </div>
-          
-          <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
 
-          <div className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-            Per-ticker detail
-          </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {data.tickers.map((t) => (
-              <BacktestTickerCard key={t.ticker} ticker={t} />
-            ))}
-          </div>
+          {tab === "weekly" && data.weeklyRun && <WeeklyRunPanel weeklyRun={data.weeklyRun} meta={data.meta} />}
+          {tab === "weekly" && !data.weeklyRun && (
+            <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
+              This data set was generated before the Weekly Run tab was added. Re-run the backtest to populate it.
+            </div>
+          )}
+
+          {tab === "backtest" && (
+            <>
+              <div className="mb-2 text-xs text-[var(--text-muted)]">
+                Strategy: {data.meta.strategyName} &middot; Window: {data.meta.windowYears} Years &middot; Allocation: ${data.meta.amountPerWeek}/week
+                {data.meta.riskFreeRatePct != null && <> &middot; Sharpe risk-free rate: {data.meta.riskFreeRatePct}%</>}
+              </div>
+
+              <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
+
+              <div className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                Per-ticker detail
+              </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                {data.tickers.map((t) => (
+                  <BacktestTickerCard key={t.ticker} ticker={t} />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
 

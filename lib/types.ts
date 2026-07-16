@@ -131,6 +131,44 @@ export interface BacktestMeta {
   maxPositionPct?: number; // Max share of strategy NAV a single ticker can reach before new buys are skipped
 }
 
+// ============================================================================
+// --- Weekly Run: this week's actionable buy signal + open-position watch list ---
+// ============================================================================
+
+export interface WeeklyRunRecommendation {
+  ticker: string;
+  price: number;
+  proximityPct: number;
+}
+
+export interface WeeklyRunPosition {
+  ticker: string;
+  unitsHeld: number;
+  lastBuyPrice: number | null;
+  currentPrice: number;
+  peakPrice: number | null;
+  positionValue: number;
+  positionSharePct: number | null; // Share of this strategy's NAV -- compare against meta.maxPositionPct
+  unrealizedPnlPct: number | null; // Relative to lastBuyPrice, not a blended cost basis
+  stopLossTriggerPrice: number | null;
+  distanceToStopLossPct: number | null; // % price would need to fall from here to hit the stop-loss
+  trailingStopArmed: boolean;
+  trailingStopTriggerPrice: number | null; // Set only once armed
+  distanceToTrailingStopPct: number | null; // % price would need to fall from here to hit the trailing stop, once armed
+  distanceToArmPct: number | null; // % price would need to rise from here to arm the trailing stop, until armed
+}
+
+export interface WeeklyRunStrategy {
+  recommendedBuy: WeeklyRunRecommendation | null;
+  positions: WeeklyRunPosition[];
+}
+
+export interface WeeklyRun {
+  asOfDate: string;
+  proximityDCA: WeeklyRunStrategy;
+  guppyProximityDCA?: WeeklyRunStrategy;
+}
+
 export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
@@ -140,4 +178,5 @@ export interface BacktestData {
     guppyProximityDCA?: BacktestStrategySummary; // Upgraded to support side-by-side totals
   };
   tickers: BacktestTickerResult[];
+  weeklyRun?: WeeklyRun;
 }
