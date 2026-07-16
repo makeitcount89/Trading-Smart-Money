@@ -41,14 +41,18 @@ export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerR
           </span>
         </div>
         
-        <div className="grid grid-cols-4 gap-1.5 text-center text-[11px]">
+        <div className="grid grid-cols-5 gap-1.5 text-center text-[11px]">
           <div className="rounded-md border border-base-700 bg-base-800/40 py-1">
             <div className="text-[var(--text-muted)] text-[9px]">Hits</div>
             <div className="font-semibold text-[var(--text-primary)]">{strategy.events}</div>
           </div>
           <div className="rounded-md border border-base-700 bg-base-800/40 py-1">
-            <div className="text-[var(--text-muted)] text-[9px]">Stops</div>
+            <div className="text-[var(--text-muted)] text-[9px]">Stop-Loss</div>
             <div className="font-semibold text-short">{strategy.stopLossExits ?? 0}</div>
+          </div>
+          <div className="rounded-md border border-base-700 bg-base-800/40 py-1">
+            <div className="text-[var(--text-muted)] text-[9px]">Profit-Take</div>
+            <div className="font-semibold text-long">{strategy.profitProtectExits ?? 0}</div>
           </div>
           <div className="rounded-md border border-base-700 bg-base-800/40 py-1">
             <div className="text-[var(--text-muted)] text-[9px]">Invested</div>
