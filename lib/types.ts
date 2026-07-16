@@ -16,11 +16,18 @@ export interface OrderBlockZone {
   insideZone: boolean;
 }
 
+export interface GuppyTrendSnapshot {
+  sixMonth: boolean | null;
+  oneYear: boolean | null;
+  threeYear: boolean | null;
+}
+
 export interface TimeframeResult {
   lastPrice: number;
   lastBarDate: string;
   swingTrend: Bias | null;
   internalTrend: Bias | null;
+  guppyTrend?: GuppyTrendSnapshot; // Guppy EMA-stack trend filter (same stack as backtest.py), evaluated at 3 different slope lookback windows. null per-window means not enough history yet for that window.
   nearestBullishOrderBlock: OrderBlockZone | null;
   bullishOrderBlocks: OrderBlockZone[];
   bearishOrderBlocks: OrderBlockZone[];
@@ -38,6 +45,11 @@ export interface TimeframeMeta {
   label: string;
 }
 
+export interface GuppySlopeWindowMeta {
+  key: "sixMonth" | "oneYear" | "threeYear";
+  label: string;
+}
+
 export interface SmcMeta {
   universe: string[];
   source: string;
@@ -49,6 +61,8 @@ export interface SmcMeta {
   atrLength: number;
   priceAdjustment: string;
   timezone: string;
+  guppyEmaPeriods?: number[];
+  guppySlopeWindows?: GuppySlopeWindowMeta[];
 }
 
 export interface SmcData {

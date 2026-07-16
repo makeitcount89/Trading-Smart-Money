@@ -25,20 +25,20 @@ import yfinance as yf
 # Universe -- add or remove tickers here. Any Yahoo Finance symbol works
 # (ASX listings use the ".AX" suffix). Push a change and the next scheduled
 # run (or a manual workflow_dispatch) picks it up automatically.
+#
+# Kept in sync (manually -- the two scripts run independently, no shared
+# import) with backtest.py's TICKERS, so both dashboards research the same
+# universe. Last synced 2026-07-16.
 # ---------------------------------------------------------------------------
-UNIVERSE = [
-    "ASIA.AX",
-    "LNAS.AX",
-    "HJPN.AX",
-    "BNKS.AX",
-    "MNRS.AX",
-    "FUEL.AX",
-    "NDQ.AX",
-    "HACK.AX",
-    "QAU.AX",
-    "OOO.AX",
-    "GGUS.AX",
-]
+UNIVERSE = sorted([
+    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
+    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GMD.AX','HACK.AX',
+    'HJPN.AX','JHX.AX','LNAS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
+    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','EDOC.AX',
+    'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
+    'SNAS.AX','PPS.AX','OBM.AX','PNI.AX','RSG.AX','JDO.AX','FCL.AX',
+    'CSL.AX','TLS.AX','WOW.AX','GMG.AX','BXB.AX','QBE.AX','BHP.AX','WES.AX'
+])
 
 # The Pine indicator is timeframe-agnostic -- it just runs on whatever bars
 # are loaded on the chart. TradingView users routinely check both the Daily
@@ -56,6 +56,23 @@ INTERNAL_LENGTH = 5     # fixed internal-structure length in the source indicato
 INTERNAL_OB_COUNT = 5   # internalOrderBlocksSizeInput default
 SWING_OB_COUNT = 5      # swingOrderBlocksSizeInput default
 ATR_LENGTH = 200
+
+# Guppy-style trend filter (same EMA stack as backtest.py's Guppy_Trend): short EMA(3)
+# above the long group, the long group internally stacked (30>35>...>60), and the long
+# group's slowest EMA(60) trending up. backtest.py only ever checks that last condition
+# one bar back; here it's evaluated at three different lookback windows so "trending up"
+# can mean over the last 6 months, 1 year, or 3 years, not just the most recent bar.
+GUPPY_EMA_PERIODS = [3, 30, 35, 40, 45, 50, 60]
+GUPPY_SLOPE_WINDOWS = [
+    {"key": "sixMonth", "label": "6 Months"},
+    {"key": "oneYear", "label": "1 Year"},
+    {"key": "threeYear", "label": "3 Years"},
+]
+# Approximate bar counts per window, per timeframe (ASX trading days / weeks).
+GUPPY_SLOPE_BARS = {
+    "1d": {"sixMonth": 126, "oneYear": 252, "threeYear": 756},
+    "1wk": {"sixMonth": 26, "oneYear": 52, "threeYear": 156},
+}
 
 LEG_BEARISH = 0
 LEG_BULLISH = 1
@@ -118,6 +135,29 @@ def wilder_atr(high: np.ndarray, low: np.ndarray, close: np.ndarray, length: int
         np.vstack([high - low, np.abs(high - prev_close), np.abs(low - prev_close)]), axis=0
     )
     return wilder_rma(true_range, length)
+
+
+def compute_guppy_emas(close: np.ndarray, periods: list[int]) -> dict[int, np.ndarray]:
+    close_series = pd.Series(close)
+    return {p: close_series.ewm(span=p, adjust=False).mean().to_numpy() for p in periods}
+
+
+def guppy_trend_snapshot(emas: dict[int, np.ndarray], last_idx: int, slope_bars: dict[str, int]) -> dict[str, bool | None]:
+    """Current (last-bar) Guppy trend state for each slope window. None means there
+    isn't enough history yet to evaluate that window's lookback (e.g. a ticker with
+    under 3 years of data can't have a "3 year slope" opinion)."""
+    long_group = [p for p in GUPPY_EMA_PERIODS if p != 3]
+    ema3 = emas[3]
+    short_above_long = bool(ema3[last_idx] > emas[long_group[0]][last_idx])
+    stacked = all(emas[long_group[j]][last_idx] > emas[long_group[j + 1]][last_idx] for j in range(len(long_group) - 1))
+    snapshot: dict[str, bool | None] = {}
+    for key, lookback in slope_bars.items():
+        if last_idx - lookback < 0:
+            snapshot[key] = None
+            continue
+        sloping_up = emas[60][last_idx] > emas[60][last_idx - lookback]
+        snapshot[key] = bool(short_above_long and stacked and sloping_up)
+    return snapshot
 
 
 def compute_legs(high: np.ndarray, low: np.ndarray, size: int) -> np.ndarray:
@@ -332,11 +372,15 @@ def process_timeframe(ticker: str, interval: str) -> dict:
     bullish_zones.sort(key=lambda z: z["distancePct"])
     bearish_zones.sort(key=lambda z: z["distancePct"])
 
+    emas = compute_guppy_emas(close, GUPPY_EMA_PERIODS)
+    guppy_trend = guppy_trend_snapshot(emas, n - 1, GUPPY_SLOPE_BARS[interval])
+
     return {
         "lastPrice": round(price, 4),
         "lastBarDate": str(times[-1].date()),
         "swingTrend": bias_str(swing_trend),
         "internalTrend": bias_str(internal_trend),
+        "guppyTrend": guppy_trend,
         "nearestBullishOrderBlock": bullish_zones[0] if bullish_zones else None,
         "bullishOrderBlocks": bullish_zones,
         "bearishOrderBlocks": bearish_zones,
@@ -407,6 +451,8 @@ def main() -> None:
             "atrLength": ATR_LENGTH,
             "priceAdjustment": "raw (Yahoo split-adjusted, not dividend-adjusted) -- matches a default/unadjusted TradingView chart",
             "timezone": TIMEZONE,
+            "guppyEmaPeriods": GUPPY_EMA_PERIODS,
+            "guppySlopeWindows": GUPPY_SLOPE_WINDOWS,
         },
         "ranking": ranking,
         "closestSymbol": closest_symbol,
