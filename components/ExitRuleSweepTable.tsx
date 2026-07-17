@@ -3,11 +3,11 @@
 
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Award } from "lucide-react";
-import type { BacktestStrategySummary, ExitRuleSweepConfig } from "@/lib/types";
+import type { BacktestStrategySummary, ExitRuleSweepConfig, StrategyLegMeta } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { legColorClass } from "@/lib/legColors";
 
 type SortKey = "simpleReturnPct" | "xirrPct" | "sharpeRatio" | "maxDrawdownPct" | "calmarRatio" | "endingValue";
-type StrategyKey = "proximityDCA" | "guppyProximityDCA";
 
 const SORT_COLUMNS: { key: SortKey; label: string }[] = [
   { key: "endingValue", label: "Ending Value" },
@@ -27,8 +27,16 @@ function formatRules(cfg: ExitRuleSweepConfig): string {
   return `Stop ${stop} · Trail ${trail}`;
 }
 
-export default function ExitRuleSweepTable({ configs, maxPositionPct }: { configs: ExitRuleSweepConfig[]; maxPositionPct?: number }) {
-  const [strategy, setStrategy] = useState<StrategyKey>("proximityDCA");
+export default function ExitRuleSweepTable({
+  configs,
+  legs,
+  maxPositionPct,
+}: {
+  configs: ExitRuleSweepConfig[];
+  legs: StrategyLegMeta[];
+  maxPositionPct?: number;
+}) {
+  const [strategy, setStrategy] = useState<string>(legs[0]?.key ?? "");
   const [sortKey, setSortKey] = useState<SortKey>("sharpeRatio");
   const [sortDesc, setSortDesc] = useState(true);
 
@@ -68,27 +76,30 @@ export default function ExitRuleSweepTable({ configs, maxPositionPct }: { config
         <div className="text-sm font-medium text-[var(--text-primary)]">
           Exit-Rule Sweep &mdash; same historical data, alternative stop-loss / trailing-stop settings
         </div>
-        <div className="flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
-          <button
-            onClick={() => setStrategy("proximityDCA")}
-            className={cn(
-              "rounded px-2.5 py-1 font-medium transition-colors",
-              strategy === "proximityDCA" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-            )}
-          >
-            Pure Proximity
-          </button>
-          <button
-            onClick={() => setStrategy("guppyProximityDCA")}
-            className={cn(
-              "rounded px-2.5 py-1 font-medium transition-colors",
-              strategy === "guppyProximityDCA" ? "bg-emerald-400/20 text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-            )}
-          >
-            Guppy Filtered
-          </button>
+        <div className="flex flex-wrap gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
+          {legs.map((leg, i) => {
+            const color = legColorClass(i);
+            return (
+              <button
+                key={leg.key}
+                onClick={() => setStrategy(leg.key)}
+                className={cn(
+                  "rounded px-2.5 py-1 font-medium transition-colors",
+                  strategy === leg.key ? color.toggleActive : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                {leg.label}
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {legs.find((l) => l.key === strategy)?.description && (
+        <div className="border-b border-base-800 px-4 py-2 text-[11px] text-[var(--text-muted)]">
+          {legs.find((l) => l.key === strategy)?.description}
+        </div>
+      )}
 
       <table className="w-full min-w-[1180px] text-sm">
         <thead>

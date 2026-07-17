@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 # and the Multi-Stock Dashboard agree on what "closest to a bullish order block" means.
 # Works because both scripts live in scripts/ and this is always run as
 # `python scripts/backtest.py`, which puts that directory on sys.path.
-from engine import compute_structure_series
+from engine import compute_structure_series, BIAS_BULLISH
 
 # ============================================================================
 # 1. COMPLETE UNIVERSE DEFINITION
@@ -137,6 +137,45 @@ EXIT_RULE_SWEEP_CONFIGS = [
     {"name": "Tight Stop + Tight Trail (-10%, +5%/-10%)", "stopLossPct": 0.10, "trailArmPct": 0.05, "trailPct": 0.10},
     {"name": "Loose Stop + Loose Trail (-30%, +15%/-25%)", "stopLossPct": 0.30, "trailArmPct": 0.15, "trailPct": 0.25},
 ]
+
+SMA_TREND_WINDOW_WEEKS = 40  # ~200 trading days -- the classic "price above its 200-day
+# moving average" trend-following filter, expressed in weekly bars since this router
+# operates weekly.
+
+# Every leg runs the identical weekly proximity router, sharing the same exit rules,
+# concentration cap, and CGT hold rule -- only the entry confirmation differs. filterColumn
+# is a boolean column in weekly_universe that gates candidacy (None = unfiltered, every
+# ticker with a valid Proximity is eligible). Adding a new leg is just adding an entry here
+# plus the column that computes it in Section 3; every function below reads this list
+# instead of hardcoding leg names.
+STRATEGY_LEGS = [
+    {
+        "key": "proximityDCA",
+        "label": "Pure Proximity",
+        "description": "Unfiltered -- buys whichever candidate is closest to its nearest active bullish order block, no trend confirmation required.",
+        "filterColumn": None,
+    },
+    {
+        "key": "guppyProximityDCA",
+        "label": "Guppy Filtered",
+        "description": "Requires a Guppy multi-EMA stack (short EMA above a rising, stacked long-EMA group) to confirm an established uptrend before entering.",
+        "filterColumn": "Guppy_Trend",
+    },
+    {
+        "key": "smaTrendDCA",
+        "label": "200-Day Trend Filtered",
+        "description": "Requires price to be trading above its own 40-week (~200-day) moving average -- the classic trend-following rule (\"never buy below the 200-day MA\") many professional trend-followers use to avoid entering during a primary downtrend.",
+        "filterColumn": "Sma_Trend",
+    },
+    {
+        "key": "structureFilteredDCA",
+        "label": "Bullish Structure Filtered",
+        "description": "Requires the SMC swing market structure itself (higher highs / higher lows, from engine.py's own structure detection) to be bullish before entering -- a market-structure confirmation professional/discretionary SMC traders check before taking a long-term position.",
+        "filterColumn": "Structure_Trend",
+    },
+]
+LEG_KEYS = [leg["key"] for leg in STRATEGY_LEGS]
+LEG_FILTER_COLUMNS = {leg["key"]: leg["filterColumn"] for leg in STRATEGY_LEGS}
 
 # ============================================================================
 # 2. FINANCIAL MATH & SIMULATION UTILITIES
@@ -283,17 +322,22 @@ def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss
 
 def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
                     stop_loss_pct, trail_arm_pct, trail_pct, max_position_pct, risk_free_rate_pct,
-                    cgt_hold_days=None):
-    """Runs the full weekly router simulation -- both the unfiltered ('proximityDCA')
-    and Guppy-trend-filtered ('guppyProximityDCA') legs side by side, sharing the same
-    exit rules -- for one exit-rule configuration. Pass stop_loss_pct/trail_arm_pct/
-    trail_pct as None to disable that rule entirely (e.g. for a buy-and-hold baseline).
-    cgt_hold_days, if set, defers a trailing-stop (profit-take) exit until the position has
-    been held that long -- the hard stop-loss is never gated, since there's no CGT-discount
-    incentive to hold a loss longer. Returns a dict with a full result per leg plus the
-    shared last-known-price map."""
+                    cgt_hold_days=None, leg_filter_columns=None):
+    """Runs the full weekly router simulation -- every leg in leg_filter_columns (default
+    STRATEGY_LEGS/LEG_FILTER_COLUMNS) side by side, sharing the same exit rules -- for one
+    exit-rule configuration. Each leg requires its own filterColumn (a boolean column in
+    weekly_universe) to be true for a candidate to be eligible that week; None means
+    unfiltered. Pass stop_loss_pct/trail_arm_pct/trail_pct as None to disable that rule
+    entirely (e.g. for a buy-and-hold baseline). cgt_hold_days, if set, defers a
+    trailing-stop (profit-take) exit until the position has been held that long -- the hard
+    stop-loss is never gated, since there's no CGT-discount incentive to hold a loss longer.
+    Returns a dict with a full result per leg plus the shared last-known-price map."""
+    if leg_filter_columns is None:
+        leg_filter_columns = LEG_FILTER_COLUMNS
+    leg_keys = list(leg_filter_columns.keys())
+
     legs = {}
-    for key in ('proximityDCA', 'guppyProximityDCA'):
+    for key in leg_keys:
         legs[key] = {
             'portfolio': {}, 'flows': [], 'dates': [],
             'ticker_counts': {t: 0 for t in tickers},
@@ -307,7 +351,7 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
     last_known_price = {}
 
     for current_week in dates_range:
-        candidates = {'proximityDCA': [], 'guppyProximityDCA': []}
+        candidates = {key: [] for key in leg_keys}
 
         for ticker, df in weekly_universe.items():
             wk_idx = df.index.asof(current_week)
@@ -321,7 +365,7 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
             # skipped entirely if stop_loss_pct is None), otherwise track its
             # post-purchase high and sell if it's given back trail_pct of a
             # trail_arm_pct+ gain (trailing stop, protects profits) ---
-            for key in ('proximityDCA', 'guppyProximityDCA'):
+            for key in leg_keys:
                 leg = legs[key]
                 if leg['portfolio'].get(ticker, 0) <= 0:
                     continue
@@ -356,11 +400,12 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
 
             if not np.isnan(row['Proximity']):
                 inside_zone = bool(row.get('InsideZone', False))
-                candidates['proximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price, 'insideZone': inside_zone})
-                if row['Guppy_Trend']:
-                    candidates['guppyProximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price, 'insideZone': inside_zone})
+                for key in leg_keys:
+                    filter_col = leg_filter_columns[key]
+                    if filter_col is None or bool(row.get(filter_col, False)):
+                        candidates[key].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price, 'insideZone': inside_zone})
 
-        for key in ('proximityDCA', 'guppyProximityDCA'):
+        for key in leg_keys:
             leg = legs[key]
             nav_pre_buy = leg['cash'] + sum(u * last_known_price.get(t, 0.0) for t, u in leg['portfolio'].items() if u > 0)
             best = pick_best_candidate(candidates[key], leg['portfolio'], nav_pre_buy, max_position_pct)
@@ -383,7 +428,7 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
     # window ending in the past must be valued using its own end-of-period prices, or
     # every historical window would be silently marked to today's price instead.
     end_dt = dates_range[-1]
-    for key in ('proximityDCA', 'guppyProximityDCA'):
+    for key in leg_keys:
         leg = legs[key]
         leg['end_val'] = leg['cash'] + sum(
             units * last_known_price.get(t, 0.0) for t, units in leg['portfolio'].items() if units > 0
@@ -463,18 +508,22 @@ def aggregate_window_results(window_results):
         "perWindow": valid
     }
 
-def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_allocation, max_position_pct, risk_free_rate_pct, cgt_hold_days=None):
+def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_allocation, max_position_pct, risk_free_rate_pct, cgt_hold_days=None, leg_filter_columns=None):
     """Every config in `configs` re-run over every window in `windows`, against
     `weekly_universe`/`tickers` -- the same shape whether that's the full universe or
     a restricted subset, so results from two different universes over the same windows
     can be compared directly."""
-    wf_raw = {cfg['name']: {'proximityDCA': [], 'guppyProximityDCA': []} for cfg in configs}
+    if leg_filter_columns is None:
+        leg_filter_columns = LEG_FILTER_COLUMNS
+    leg_keys = list(leg_filter_columns.keys())
+
+    wf_raw = {cfg['name']: {key: [] for key in leg_keys} for cfg in configs}
     for win in windows:
         for cfg in configs:
             win_sim = run_simulation(weekly_universe, win['dates_range'], tickers, weekly_allocation,
                                       cfg['stopLossPct'], cfg['trailArmPct'], cfg['trailPct'], max_position_pct, risk_free_rate_pct,
-                                      cgt_hold_days)
-            for key in ('proximityDCA', 'guppyProximityDCA'):
+                                      cgt_hold_days, leg_filter_columns)
+            for key in leg_keys:
                 row = summarize_leg(win_sim['legs'][key], weekly_allocation)
                 row['windowNumber'] = win['windowNumber']
                 row['startDate'] = win['startDate'].strftime('%Y-%m-%d')
@@ -497,8 +546,7 @@ def run_walk_forward_sweep(weekly_universe, tickers, windows, configs, weekly_al
                 "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
                 "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
                 "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
-                "proximityDCA": aggregate_window_results(wf_raw[cfg['name']]['proximityDCA']),
-                "guppyProximityDCA": aggregate_window_results(wf_raw[cfg['name']]['guppyProximityDCA'])
+                **{key: aggregate_window_results(wf_raw[cfg['name']][key]) for key in leg_keys}
             }
             for cfg in configs
         ]
@@ -543,6 +591,15 @@ for ticker in TICKERS:
         (bool(bar.bullish_zones[0]['insideZone']) if bar.bullish_zones else False)
         for bar in structure_series
     ]
+    # Bullish Structure Filtered leg: requires the SMC swing structure itself (higher
+    # highs / higher lows) to be bullish, straight from the same structure_series used
+    # for Proximity above -- a market-structure confirmation, not a moving-average one.
+    df_wk['Structure_Trend'] = [bar.swing_trend == BIAS_BULLISH for bar in structure_series]
+    # 200-Day Trend Filtered leg: price above its own 40-week (~200-day) moving average.
+    # Comparing against NaN (the first SMA_TREND_WINDOW_WEEKS-1 bars, before the rolling
+    # window has enough history) evaluates to False, so those weeks are naturally excluded
+    # rather than raising.
+    df_wk['Sma_Trend'] = df_wk['Close'] > df_wk['Close'].rolling(window=SMA_TREND_WINDOW_WEEKS).mean()
     df_wk['Guppy_Trend'] = False
 
     for i in range(2, len(df_wk)):
@@ -570,8 +627,6 @@ dates_range = pd.date_range(end=datetime.now(), periods=BACKTEST_WINDOW_YEARS * 
 sim = run_simulation(weekly_universe, dates_range, TICKERS, WEEKLY_ALLOCATION,
                       STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT, MAX_POSITION_PCT, RISK_FREE_RATE_PCT,
                       CGT_DISCOUNT_HOLD_DAYS)
-g1 = sim['legs']['proximityDCA']
-g2 = sim['legs']['guppyProximityDCA']
 last_known_price = sim['last_known_price']
 
 print(f"Running exit-rule sweep ({len(EXIT_RULE_SWEEP_CONFIGS)} configurations)...")
@@ -586,8 +641,7 @@ for cfg in EXIT_RULE_SWEEP_CONFIGS:
         "stopLossPct": clean_float(cfg['stopLossPct'] * 100) if cfg['stopLossPct'] is not None else None,
         "trailingStopArmPct": clean_float(cfg['trailArmPct'] * 100) if cfg['trailArmPct'] is not None else None,
         "trailingStopPct": clean_float(cfg['trailPct'] * 100) if cfg['trailPct'] is not None else None,
-        "proximityDCA": summarize_leg(cfg_sim['legs']['proximityDCA'], WEEKLY_ALLOCATION),
-        "guppyProximityDCA": summarize_leg(cfg_sim['legs']['guppyProximityDCA'], WEEKLY_ALLOCATION)
+        **{key: summarize_leg(cfg_sim['legs'][key], WEEKLY_ALLOCATION) for key in LEG_KEYS}
     })
 
 walk_forward_windows = generate_walk_forward_windows(datetime.now(), WALK_FORWARD_WINDOW_WEEKS, WALK_FORWARD_STEP_WEEKS, WALK_FORWARD_WINDOW_COUNT)
@@ -619,28 +673,22 @@ def build_recommendation(rec):
         "insideZone": bool(rec.get('insideZone', False))
     }
 
-g1_positions = sorted([
-    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1['last_buy_price'].get(t), g1['peak_price'].get(t),
-                             g1['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT,
-                             g1['last_buy_date'].get(t), dates_range[-1], CGT_DISCOUNT_HOLD_DAYS)
-    for t, units in g1['portfolio'].items() if units > 0
-], key=lambda p: p['ticker'])
-g2_positions = sorted([
-    build_position_snapshot(t, units, last_known_price.get(t, 0.0), g2['last_buy_price'].get(t), g2['peak_price'].get(t),
-                             g2['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT,
-                             g2['last_buy_date'].get(t), dates_range[-1], CGT_DISCOUNT_HOLD_DAYS)
-    for t, units in g2['portfolio'].items() if units > 0
-], key=lambda p: p['ticker'])
+def build_leg_positions(leg):
+    return sorted([
+        build_position_snapshot(t, units, last_known_price.get(t, 0.0), leg['last_buy_price'].get(t), leg['peak_price'].get(t),
+                                 leg['end_val'], STOP_LOSS_PCT, TRAILING_STOP_ARM_PCT, TRAILING_STOP_PCT,
+                                 leg['last_buy_date'].get(t), dates_range[-1], CGT_DISCOUNT_HOLD_DAYS)
+        for t, units in leg['portfolio'].items() if units > 0
+    ], key=lambda p: p['ticker'])
 
 weekly_run_payload = {
     "asOfDate": dates_range[-1].strftime('%Y-%m-%d'),
-    "proximityDCA": {
-        "recommendedBuy": build_recommendation(g1['last_recommendation']),
-        "positions": g1_positions
-    },
-    "guppyProximityDCA": {
-        "recommendedBuy": build_recommendation(g2['last_recommendation']),
-        "positions": g2_positions
+    **{
+        key: {
+            "recommendedBuy": build_recommendation(sim['legs'][key]['last_recommendation']),
+            "positions": build_leg_positions(sim['legs'][key])
+        }
+        for key in LEG_KEYS
     }
 }
 
@@ -654,18 +702,24 @@ for ticker in TICKERS:
     last_price = float(df_wk.iloc[-1]['Close'])
     as_of_date = df_wk.index[-1].strftime('%Y-%m-%d')
 
-    c1 = g1['ticker_counts'][ticker]
-    c2 = g2['ticker_counts'][ticker]
-
-    # Ending value = cash already realized from any stop-loss/trailing-stop exits on
-    # this ticker, plus whatever units (if any) are still being held at the current close.
-    g1_invested = c1 * int(WEEKLY_ALLOCATION)
-    g1_ending = g1['realized'][ticker] + g1['portfolio'].get(ticker, 0.0) * last_price
-    g1_return = ((g1_ending - g1_invested) / g1_invested * 100) if g1_invested > 0 else 0.0
-
-    g2_invested = c2 * int(WEEKLY_ALLOCATION)
-    g2_ending = g2['realized'][ticker] + g2['portfolio'].get(ticker, 0.0) * last_price
-    g2_return = ((g2_ending - g2_invested) / g2_invested * 100) if g2_invested > 0 else 0.0
+    strategies_payload = {}
+    for key in LEG_KEYS:
+        leg = sim['legs'][key]
+        count = leg['ticker_counts'][ticker]
+        # Ending value = cash already realized from any stop-loss/trailing-stop exits on
+        # this ticker, plus whatever units (if any) are still being held at the current close.
+        invested = count * int(WEEKLY_ALLOCATION)
+        ending = leg['realized'][ticker] + leg['portfolio'].get(ticker, 0.0) * last_price
+        ret = ((ending - invested) / invested * 100) if invested > 0 else 0.0
+        strategies_payload[key] = {
+            "events": count,
+            "totalInvested": clean_float(invested),
+            "endingValue": clean_float(ending),
+            "simpleReturnPct": clean_float(ret),
+            "xirrPct": 0.0,
+            "stopLossExits": leg['stop_counts'][ticker],
+            "profitProtectExits": leg['trail_counts'][ticker]
+        }
 
     ticker_payload = {
         "ticker": ticker,
@@ -673,60 +727,52 @@ for ticker in TICKERS:
         "error": None,
         "asOfDate": as_of_date,
         "asOfPrice": clean_float(last_price),
-        "strategies": {
-            "proximityDCA": {
-                "events": c1,
-                "totalInvested": clean_float(g1_invested),
-                "endingValue": clean_float(g1_ending),
-                "simpleReturnPct": clean_float(g1_return),
-                "xirrPct": 0.0,
-                "stopLossExits": g1['stop_counts'][ticker],
-                "profitProtectExits": g1['trail_counts'][ticker]
-            },
-            "guppyProximityDCA": {
-                "events": c2,
-                "totalInvested": clean_float(g2_invested),
-                "endingValue": clean_float(g2_ending),
-                "simpleReturnPct": clean_float(g2_return),
-                "xirrPct": 0.0,
-                "stopLossExits": g2['stop_counts'][ticker],
-                "profitProtectExits": g2['trail_counts'][ticker]
-            }
-        }
+        "strategies": strategies_payload
     }
     ticker_results_payload.append(ticker_payload)
 
-def compute_theme_exposure(ticker_payloads, strategy_key):
-    """% of ending portfolio value grouped by TICKER_THEMES, for one strategy leg.
-    Ending values per ticker already account for both currently-held value and
-    realized stop-loss/trailing-stop proceeds, and sum exactly to that leg's total
-    ending value, so shares here add to 100%."""
+def compute_theme_exposure(ticker_payloads, strategy_key, window_years):
+    """Per-theme breakdown (grouped by TICKER_THEMES) of $ invested, ending value, $/%
+    gain, and an annualized $/year figure, for one strategy leg. Ending values per ticker
+    already account for both currently-held value and realized stop-loss/trailing-stop
+    proceeds, and sum exactly to that leg's total ending value, so endingValue shares add
+    to 100%. A theme is only included if this leg actually bought into it (investedValue >
+    0) -- a theme none of whose tickers this leg ever traded contributes nothing to compare.
+    annualGainValue is gainValue / window_years -- a simple average, not a compounding
+    (XIRR-style) figure, since that would need per-theme weekly cash-flow tracking; treat
+    it as "dollars of profit per year on average over this window," not a growth rate."""
     totals = {}
     for tp in ticker_payloads:
-        ending = tp['strategies'][strategy_key]['endingValue']
-        if ending <= 0:
+        s = tp['strategies'][strategy_key]
+        invested = s['totalInvested']
+        if invested <= 0:
             continue
         theme = TICKER_THEMES.get(tp['ticker'], 'Other')
-        totals.setdefault(theme, {'value': 0.0, 'tickers': []})
-        totals[theme]['value'] += ending
+        totals.setdefault(theme, {'value': 0.0, 'invested': 0.0, 'tickers': []})
+        totals[theme]['value'] += s['endingValue']
+        totals[theme]['invested'] += invested
         totals[theme]['tickers'].append(tp['ticker'])
 
     grand_total = sum(t['value'] for t in totals.values())
-    rows = [
-        {
+    rows = []
+    for theme, t in totals.items():
+        gain = t['value'] - t['invested']
+        rows.append({
             "theme": theme,
+            "investedValue": clean_float(t['invested']),
             "endingValue": clean_float(t['value']),
+            "gainValue": clean_float(gain),
+            "returnPct": clean_float(gain / t['invested'] * 100) if t['invested'] else 0.0,
+            "annualGainValue": clean_float(gain / window_years) if window_years else 0.0,
             "sharePct": clean_float(t['value'] / grand_total * 100) if grand_total else 0.0,
             "tickers": sorted(t['tickers'])
-        }
-        for theme, t in totals.items()
-    ]
+        })
     rows.sort(key=lambda r: r['sharePct'], reverse=True)
     return rows
 
 theme_exposure_payload = {
-    "proximityDCA": compute_theme_exposure(ticker_results_payload, 'proximityDCA'),
-    "guppyProximityDCA": compute_theme_exposure(ticker_results_payload, 'guppyProximityDCA')
+    key: compute_theme_exposure(ticker_results_payload, key, BACKTEST_WINDOW_YEARS)
+    for key in LEG_KEYS
 }
 
 final_json_payload = {
@@ -744,12 +790,10 @@ final_json_payload = {
         "trailingStopArmPct": TRAILING_STOP_ARM_PCT * 100,
         "trailingStopPct": TRAILING_STOP_PCT * 100,
         "maxPositionPct": MAX_POSITION_PCT * 100,
-        "cgtDiscountHoldDays": CGT_DISCOUNT_HOLD_DAYS
+        "cgtDiscountHoldDays": CGT_DISCOUNT_HOLD_DAYS,
+        "strategyLegs": [{"key": leg["key"], "label": leg["label"], "description": leg["description"]} for leg in STRATEGY_LEGS]
     },
-    "pooled": {
-        "proximityDCA": summarize_leg(g1, WEEKLY_ALLOCATION),
-        "guppyProximityDCA": summarize_leg(g2, WEEKLY_ALLOCATION)
-    },
+    "pooled": {key: summarize_leg(sim['legs'][key], WEEKLY_ALLOCATION) for key in LEG_KEYS},
     "tickers": ticker_results_payload,
     "weeklyRun": weekly_run_payload,
     "exitRuleSweep": exit_rule_sweep_payload,

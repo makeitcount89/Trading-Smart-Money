@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, CalendarClock, FlaskConical, RefreshCw, SlidersHorizontal } from "lucide-react";
-import type { BacktestData } from "@/lib/types";
+import type { BacktestData, StrategyLegMeta } from "@/lib/types";
 import { cn, formatDateTime } from "@/lib/utils";
 import BacktestSummaryTable from "@/components/BacktestSummaryTable";
 import BacktestTickerCard from "@/components/BacktestTickerCard";
@@ -14,6 +14,12 @@ import ThemeExposureTable from "@/components/ThemeExposureTable";
 
 type Tab = "weekly" | "backtest" | "sweep";
 type SweepView = "single" | "walkForward";
+
+// Fallback for data sets generated before meta.strategyLegs existed, so older JSON still renders.
+const DEFAULT_LEGS: StrategyLegMeta[] = [
+  { key: "proximityDCA", label: "Pure Proximity", description: "" },
+  { key: "guppyProximityDCA", label: "Guppy Filtered", description: "" },
+];
 
 export default function BacktestPage() {
   const [data, setData] = useState<BacktestData | null>(null);
@@ -40,6 +46,8 @@ export default function BacktestPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const legs = data?.meta?.strategyLegs && data.meta.strategyLegs.length > 0 ? data.meta.strategyLegs : DEFAULT_LEGS;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -131,7 +139,7 @@ export default function BacktestPage() {
             </button>
           </div>
 
-          {tab === "weekly" && data.weeklyRun && <WeeklyRunPanel weeklyRun={data.weeklyRun} meta={data.meta} />}
+          {tab === "weekly" && data.weeklyRun && <WeeklyRunPanel weeklyRun={data.weeklyRun} meta={data.meta} legs={legs} />}
           {tab === "weekly" && !data.weeklyRun && (
             <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
               This data set was generated before the Weekly Run tab was added. Re-run the backtest to populate it.
@@ -145,11 +153,11 @@ export default function BacktestPage() {
                 {data.meta.riskFreeRatePct != null && <> &middot; Sharpe risk-free rate: {data.meta.riskFreeRatePct}%</>}
               </div>
 
-              <BacktestSummaryTable pooled={data.pooled} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
+              <BacktestSummaryTable pooled={data.pooled} legs={legs} title={`Pooled Portfolio Performance (${data.tickers.length} Tickers)`} />
 
               {data.themeExposure && (
                 <div className="mt-6">
-                  <ThemeExposureTable exposure={data.themeExposure} />
+                  <ThemeExposureTable exposure={data.themeExposure} legs={legs} />
                 </div>
               )}
 
@@ -158,7 +166,7 @@ export default function BacktestPage() {
               </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {data.tickers.map((t) => (
-                  <BacktestTickerCard key={t.ticker} ticker={t} />
+                  <BacktestTickerCard key={t.ticker} ticker={t} legs={legs} />
                 ))}
               </div>
             </>
@@ -188,7 +196,7 @@ export default function BacktestPage() {
               </div>
 
               {sweepView === "single" && data.exitRuleSweep && data.exitRuleSweep.length > 0 && (
-                <ExitRuleSweepTable configs={data.exitRuleSweep} maxPositionPct={data.meta.maxPositionPct} />
+                <ExitRuleSweepTable configs={data.exitRuleSweep} legs={legs} maxPositionPct={data.meta.maxPositionPct} />
               )}
               {sweepView === "single" && (!data.exitRuleSweep || data.exitRuleSweep.length === 0) && (
                 <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
@@ -197,7 +205,7 @@ export default function BacktestPage() {
               )}
 
               {sweepView === "walkForward" && data.walkForward && data.walkForward.configs.length > 0 && (
-                <WalkForwardSweepTable data={data.walkForward} baselineData={data.walkForwardBaseline} newTickers={data.meta.newTickers} />
+                <WalkForwardSweepTable data={data.walkForward} baselineData={data.walkForwardBaseline} newTickers={data.meta.newTickers} legs={legs} />
               )}
               {sweepView === "walkForward" && (!data.walkForward || data.walkForward.configs.length === 0) && (
                 <div className="rounded-lg border border-base-600 bg-base-800 px-4 py-3 text-sm text-[var(--text-secondary)]">
