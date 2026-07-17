@@ -26,8 +26,12 @@ function RecommendedBuyCard({
           <div>
             <div className="text-lg font-bold text-[var(--text-primary)]">{rec.ticker}</div>
             <div className="text-xs text-[var(--text-muted)]">
-              @ ${rec.price.toFixed(2)} &middot; {rec.proximityPct > 0 ? "+" : ""}
-              {rec.proximityPct.toFixed(2)}% from order block
+              @ ${rec.price.toFixed(2)} &middot;{" "}
+              {rec.insideZone ? (
+                <span className="text-smcBlue">Inside zone</span>
+              ) : (
+                `${rec.proximityPct.toFixed(2)}% from order block`
+              )}
             </div>
           </div>
           <div className="text-right text-xs text-[var(--text-muted)]">

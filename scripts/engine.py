@@ -246,15 +246,34 @@ def zone_from_order_block(ob: OrderBlock, kind: str, price: float) -> dict:
     }
 
 
-def process_timeframe(ticker: str, interval: str) -> dict:
-    df = fetch_history(ticker, interval)
+@dataclass
+class StructureBar:
+    """Full swing/internal market-structure + order-block state as of one bar."""
+    swing_trend: int
+    internal_trend: int
+    bullish_zones: list[dict]  # zone_from_order_block() dicts, nearest-first
+    bearish_zones: list[dict]
+
+
+def compute_structure_series(df: pd.DataFrame) -> list[StructureBar]:
+    """Runs the LuxAlgo SMC swing/internal structure + order-block detection (leg/pivot
+    tracking, BOS/CHoCH-based order block formation, ATR high-volatility wick handling,
+    and mitigation) over the full bar history in `df`, returning the resulting state
+    AFTER EACH bar -- not just the final one.
+
+    This is the single implementation of the detection loop. process_timeframe() below
+    takes the last entry for the dashboard's "as of now" snapshot; scripts/backtest.py
+    consumes the full per-bar series so its weekly backtest is driven by the exact same
+    detection logic bar-by-bar, instead of a separate, simplified reimplementation.
+
+    Returned list is index-aligned with `df` (one StructureBar per row); bar 0 is always
+    an empty/neutral placeholder since the detection loop needs at least one prior bar.
+    """
     high = df["High"].to_numpy()
     low = df["Low"].to_numpy()
     close = df["Close"].to_numpy()
     times = df.index
     n = len(df)
-    if n < SWING_LENGTH + 5:
-        raise ValueError(f"Not enough {interval} history for {ticker} ({n} bars)")
 
     atr = wilder_atr(high, low, close, ATR_LENGTH)
     bar_range = high - low
@@ -304,6 +323,8 @@ def process_timeframe(ticker: str, interval: str) -> dict:
             if not (ob.bias == BIAS_BEARISH and bear_src > ob.bar_high)
             and not (ob.bias == BIAS_BULLISH and bull_src < ob.bar_low)
         ]
+
+    series: list[StructureBar] = [StructureBar(0, 0, [], [])]
 
     for i in range(1, n):
         swing_high_prev, swing_low_prev = swing_high.level, swing_low.level
@@ -357,20 +378,35 @@ def process_timeframe(ticker: str, interval: str) -> dict:
         internal_obs = mitigate(internal_obs, i)
         swing_obs = mitigate(swing_obs, i)
 
-    # Only the most recent N per structure type survive, matching the
-    # indicator's own default on-chart box count.
-    internal_capped = internal_obs[:INTERNAL_OB_COUNT]
-    swing_capped = swing_obs[:SWING_OB_COUNT]
+        # Only the most recent N per structure type survive, matching the
+        # indicator's own default on-chart box count.
+        internal_capped = internal_obs[:INTERNAL_OB_COUNT]
+        swing_capped = swing_obs[:SWING_OB_COUNT]
+        price = float(close[i])
 
+        bullish_zones = [zone_from_order_block(ob, "internal", price) for ob in internal_capped if ob.bias == BIAS_BULLISH]
+        bullish_zones += [zone_from_order_block(ob, "swing", price) for ob in swing_capped if ob.bias == BIAS_BULLISH]
+        bearish_zones = [zone_from_order_block(ob, "internal", price) for ob in internal_capped if ob.bias == BIAS_BEARISH]
+        bearish_zones += [zone_from_order_block(ob, "swing", price) for ob in swing_capped if ob.bias == BIAS_BEARISH]
+        bullish_zones.sort(key=lambda z: z["distancePct"])
+        bearish_zones.sort(key=lambda z: z["distancePct"])
+
+        series.append(StructureBar(swing_trend, internal_trend, bullish_zones, bearish_zones))
+
+    return series
+
+
+def process_timeframe(ticker: str, interval: str) -> dict:
+    df = fetch_history(ticker, interval)
+    close = df["Close"].to_numpy()
+    times = df.index
+    n = len(df)
+    if n < SWING_LENGTH + 5:
+        raise ValueError(f"Not enough {interval} history for {ticker} ({n} bars)")
+
+    series = compute_structure_series(df)
+    last = series[-1]
     price = float(close[-1])
-
-    bullish_zones = [zone_from_order_block(ob, "internal", price) for ob in internal_capped if ob.bias == BIAS_BULLISH]
-    bullish_zones += [zone_from_order_block(ob, "swing", price) for ob in swing_capped if ob.bias == BIAS_BULLISH]
-    bearish_zones = [zone_from_order_block(ob, "internal", price) for ob in internal_capped if ob.bias == BIAS_BEARISH]
-    bearish_zones += [zone_from_order_block(ob, "swing", price) for ob in swing_capped if ob.bias == BIAS_BEARISH]
-
-    bullish_zones.sort(key=lambda z: z["distancePct"])
-    bearish_zones.sort(key=lambda z: z["distancePct"])
 
     emas = compute_guppy_emas(close, GUPPY_EMA_PERIODS)
     guppy_trend = guppy_trend_snapshot(emas, n - 1, GUPPY_SLOPE_BARS[interval])
@@ -378,12 +414,12 @@ def process_timeframe(ticker: str, interval: str) -> dict:
     return {
         "lastPrice": round(price, 4),
         "lastBarDate": str(times[-1].date()),
-        "swingTrend": bias_str(swing_trend),
-        "internalTrend": bias_str(internal_trend),
+        "swingTrend": bias_str(last.swing_trend),
+        "internalTrend": bias_str(last.internal_trend),
         "guppyTrend": guppy_trend,
-        "nearestBullishOrderBlock": bullish_zones[0] if bullish_zones else None,
-        "bullishOrderBlocks": bullish_zones,
-        "bearishOrderBlocks": bearish_zones,
+        "nearestBullishOrderBlock": last.bullish_zones[0] if last.bullish_zones else None,
+        "bullishOrderBlocks": last.bullish_zones,
+        "bearishOrderBlocks": last.bearish_zones,
     }
 
 
