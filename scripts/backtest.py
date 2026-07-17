@@ -206,9 +206,14 @@ def compute_risk_metrics(nav_series, flow_by_date, risk_free_annual_pct=RISK_FRE
     }
 
 def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
-    """Best (lowest-proximity) candidate whose existing position doesn't already
-    exceed max_position_pct of NAV -- forces rotation into the next-best opportunity
-    instead of endlessly concentrating in a single already-large holding."""
+    """Best (smallest-distance-to-order-block) candidate whose existing position doesn't
+    already exceed max_position_pct of NAV -- forces rotation into the next-best
+    opportunity instead of endlessly concentrating in a single already-large holding.
+    Ranked by abs(prox): with order-block mitigation in place (see weekly_universe
+    construction below) prox is never negative in practice, but ranking by absolute
+    value keeps that the explicit contract rather than an incidental side effect --
+    a signed min() here previously mistook "crashed furthest below a dead order block"
+    for "closest to one."""
     if not candidates:
         return None
     if nav_now <= 0:
@@ -217,7 +222,7 @@ def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
         eligible = [c for c in candidates if portfolio.get(c['ticker'], 0.0) * c['price'] <= max_position_pct * nav_now]
     if not eligible:
         return None
-    return min(eligible, key=lambda x: x['prox'])
+    return min(eligible, key=lambda x: abs(x['prox']))
 
 def build_position_snapshot(ticker, units, price, last_buy, peak, nav, stop_loss_pct, trail_arm_pct, trail_pct,
                              last_buy_date=None, as_of_date=None, cgt_hold_days=None):
@@ -516,10 +521,20 @@ for ticker in TICKERS:
     df_wk['Guppy_Trend'] = False
 
     for i in range(2, len(df_wk)):
+        prev_ob = df_wk['OB_Level'].iloc[i-1]
         if df_wk['Close'].iloc[i-1] < df_wk['Open'].iloc[i-1] and df_wk['Close'].iloc[i] > df_wk['High'].iloc[i-1]:
             df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['Low'].iloc[i-1]
+        elif not np.isnan(prev_ob) and df_wk['Low'].iloc[i] < prev_ob:
+            # Mitigated: this week's low broke back below the block's own low, invalidating it as a
+            # bullish reference (same mitigation rule as engine.py's mitigate()). It stays inactive
+            # -- no Proximity computed against it -- until a new bullish OB forms. Without this, a
+            # ticker that crashed straight through its last order block would keep generating an
+            # ever-more-negative "proximity" against a dead level, and the router (which picks the
+            # smallest signed proximity) would mistake "crashed the furthest below a broken level"
+            # for "closest to a valid one."
+            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = np.nan
         else:
-            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['OB_Level'].iloc[i-1]
+            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = prev_ob
 
         current_ob = df_wk['OB_Level'].iloc[i]
         if not np.isnan(current_ob) and current_ob > 0:
@@ -712,7 +727,7 @@ final_json_payload = {
         "windowYears": BACKTEST_WINDOW_YEARS,
         "amountPerWeek": int(WEEKLY_ALLOCATION),
         "strategyName": "Proximity-Ranked Weekly OB DCA Engine",
-        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its latest weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits, deferred until it's been held over {CGT_DISCOUNT_HOLD_DAYS} days to preserve the AU 12-month CGT discount); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
+        "note": f"Routes fixed weekly DCA capital dynamically into the universe asset closest to its nearest active (unmitigated) weekly bullish order block. Each week: sells out of any held position that has closed {int(STOP_LOSS_PCT*100)}% or more below the price it was last bought at (stop-loss); sells a position that's up {int(TRAILING_STOP_ARM_PCT*100)}%+ from its last buy price if it then pulls back {int(TRAILING_STOP_PCT*100)}%+ from its post-purchase high (trailing stop, protects profits, deferred until it's been held over {CGT_DISCOUNT_HOLD_DAYS} days to preserve the AU 12-month CGT discount); and skips a candidate for that week's buy if it already exceeds {int(MAX_POSITION_PCT*100)}% of the strategy's portfolio value, routing capital to the next-best opportunity instead.",
         "riskFreeRatePct": RISK_FREE_RATE_PCT,
         "stopLossPct": STOP_LOSS_PCT * 100,
         "trailingStopArmPct": TRAILING_STOP_ARM_PCT * 100,
