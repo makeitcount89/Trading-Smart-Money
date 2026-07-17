@@ -1,9 +1,10 @@
 // components/BacktestTickerCard.tsx
 import { AlertTriangle } from "lucide-react";
-import type { BacktestTickerResult } from "@/lib/types";
+import type { BacktestTickerResult, ProximityDcaStrategy, StrategyLegMeta } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { legColorClass } from "@/lib/legColors";
 
-export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerResult }) {
+export default function BacktestTickerCard({ ticker, legs }: { ticker: BacktestTickerResult; legs: StrategyLegMeta[] }) {
   if (!ticker.ok) {
     return (
       <div className="rounded-xl border border-base-700 bg-base-850 p-5">
@@ -16,22 +17,18 @@ export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerR
     );
   }
 
-  // Extract both strategies from the ticker data object mapping
-  const s1 = ticker.strategies.proximityDCA;
-  const s2 = ticker.strategies.guppyProximityDCA;
-
   // Reusable sub-component helper to keep rendering DRY
-  const StrategyPerformanceMetrics = ({ 
-    strategy, 
-    label, 
-    colorClass 
-  }: { 
-    strategy: typeof s1; 
-    label: string; 
-    colorClass: string; 
+  const StrategyPerformanceMetrics = ({
+    strategy,
+    label,
+    colorClass,
+  }: {
+    strategy: ProximityDcaStrategy | undefined;
+    label: string;
+    colorClass: string;
   }) => {
     if (!strategy) return null;
-    
+
     return (
       <div className="space-y-2 mt-3 border-t border-base-800/60 pt-3 first:border-t-0 first:pt-0">
         <div className="flex items-center justify-between">
@@ -97,21 +94,14 @@ export default function BacktestTickerCard({ ticker }: { ticker: BacktestTickerR
         </div>
 
         <div className="space-y-4">
-          {/* Render Pure Proximity Mode Metrics */}
-          <StrategyPerformanceMetrics 
-            strategy={s1} 
-            label="Pure Proximity" 
-            colorClass="text-smcBlue" 
-          />
-
-          {/* Render Guppy Filtered Mode Metrics if available */}
-          {s2 && (
-            <StrategyPerformanceMetrics 
-              strategy={s2} 
-              label="Guppy Filtered" 
-              colorClass="text-emerald-400" 
+          {legs.map((leg, i) => (
+            <StrategyPerformanceMetrics
+              key={leg.key}
+              strategy={ticker.strategies[leg.key]}
+              label={leg.label}
+              colorClass={legColorClass(i).text}
             />
-          )}
+          ))}
         </div>
       </div>
     </div>

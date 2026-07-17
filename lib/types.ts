@@ -128,10 +128,17 @@ export interface BacktestTickerResult {
   error: string | null;
   asOfDate: string | null;
   asOfPrice: number | null;
-  strategies: {
-    proximityDCA: ProximityDcaStrategy;
-    guppyProximityDCA?: ProximityDcaStrategy; // Upgraded to support dual-execution tracking
-  };
+  strategies: Record<string, ProximityDcaStrategy>; // Keyed by strategy leg key -- see BacktestMeta.strategyLegs
+}
+
+// One entry-filter variant of the weekly router -- e.g. unfiltered, Guppy-EMA-confirmed,
+// 200-day-MA-confirmed, bullish-SMC-structure-confirmed. All legs share the same exit
+// rules/concentration cap/CGT hold rule; only the entry confirmation differs. Drives every
+// dynamic N-way strategy toggle in the UI instead of hardcoding leg names/labels.
+export interface StrategyLegMeta {
+  key: string;
+  label: string;
+  description: string;
 }
 
 export interface BacktestMeta {
@@ -148,6 +155,7 @@ export interface BacktestMeta {
   trailingStopPct?: number; // Pullback from post-purchase high that triggers the trailing stop, once armed
   maxPositionPct?: number; // Max share of strategy NAV a single ticker can reach before new buys are skipped
   cgtDiscountHoldDays?: number; // A profit-take (trailing-stop) exit is deferred until a position has been held this long, to preserve the AU 12-month CGT discount. Does not gate the stop-loss.
+  strategyLegs?: StrategyLegMeta[]; // Every strategy leg key/label/description this data set contains
 }
 
 // ============================================================================
@@ -189,8 +197,7 @@ export interface WeeklyRunStrategy {
 
 export interface WeeklyRun {
   asOfDate: string;
-  proximityDCA: WeeklyRunStrategy;
-  guppyProximityDCA?: WeeklyRunStrategy;
+  [legKey: string]: WeeklyRunStrategy | string; // Leg data keyed by strategy leg key -- see BacktestMeta.strategyLegs
 }
 
 // ============================================================================
@@ -204,8 +211,7 @@ export interface ExitRuleSweepConfig {
   stopLossPct: number | null; // null = stop-loss disabled for this config
   trailingStopArmPct: number | null; // null = trailing stop disabled for this config
   trailingStopPct: number | null;
-  proximityDCA: BacktestStrategySummary;
-  guppyProximityDCA: BacktestStrategySummary;
+  [legKey: string]: string | boolean | number | null | BacktestStrategySummary; // Per-leg summary keyed by strategy leg key -- see BacktestMeta.strategyLegs
 }
 
 // ============================================================================
@@ -246,8 +252,7 @@ export interface WalkForwardConfig {
   stopLossPct: number | null;
   trailingStopArmPct: number | null;
   trailingStopPct: number | null;
-  proximityDCA: WalkForwardAggregate | null; // null if no window had any activity for this config
-  guppyProximityDCA: WalkForwardAggregate | null;
+  [legKey: string]: string | boolean | number | null | WalkForwardAggregate; // Per-leg aggregate keyed by strategy leg key -- null if no window had any activity for this config
 }
 
 export interface WalkForwardData {
@@ -267,24 +272,22 @@ export interface WalkForwardData {
 
 export interface ThemeExposureRow {
   theme: string;
+  investedValue: number; // $ this leg put into this theme's tickers
   endingValue: number;
+  gainValue: number; // endingValue - investedValue
+  returnPct: number; // gainValue / investedValue * 100 (simple total return, not annualized)
+  annualGainValue: number; // gainValue / meta.windowYears -- average $/year, not a compounding growth rate
   sharePct: number; // Shares across all rows for one strategy sum to 100%
   tickers: string[];
 }
 
-export interface ThemeExposure {
-  proximityDCA: ThemeExposureRow[];
-  guppyProximityDCA: ThemeExposureRow[];
-}
+export type ThemeExposure = Record<string, ThemeExposureRow[]>; // Keyed by strategy leg key -- see BacktestMeta.strategyLegs
 
 export interface BacktestData {
   generatedAt: string | null;
   status?: "awaiting_first_run";
   meta: BacktestMeta;
-  pooled: {
-    proximityDCA: BacktestStrategySummary;
-    guppyProximityDCA?: BacktestStrategySummary; // Upgraded to support side-by-side totals
-  };
+  pooled: Record<string, BacktestStrategySummary>; // Keyed by strategy leg key -- see BacktestMeta.strategyLegs
   tickers: BacktestTickerResult[];
   weeklyRun?: WeeklyRun;
   exitRuleSweep?: ExitRuleSweepConfig[];

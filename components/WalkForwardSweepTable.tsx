@@ -3,11 +3,11 @@
 
 import { Fragment, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Award, ChevronDown, ChevronRight } from "lucide-react";
-import type { WalkForwardAggregate, WalkForwardConfig, WalkForwardData } from "@/lib/types";
+import type { StrategyLegMeta, WalkForwardAggregate, WalkForwardConfig, WalkForwardData } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { legColorClass } from "@/lib/legColors";
 
 type SortKey = "consistencyScore" | "meanReturnPct" | "stdReturnPct" | "winRatePct" | "meanSharpeRatio" | "meanCalmarRatio" | "minReturnPct";
-type StrategyKey = "proximityDCA" | "guppyProximityDCA";
 
 const SORT_COLUMNS: { key: SortKey; label: string }[] = [
   { key: "winRatePct", label: "Win Rate" },
@@ -38,13 +38,13 @@ function NewTickerImpactBanner({
   baseline,
   newTickerCount,
 }: {
-  strategy: StrategyKey;
+  strategy: string;
   full: WalkForwardConfig;
   baseline: WalkForwardConfig;
   newTickerCount: number;
 }) {
-  const fullAgg = full[strategy];
-  const baseAgg = baseline[strategy];
+  const fullAgg = full[strategy] as WalkForwardAggregate | null | undefined;
+  const baseAgg = baseline[strategy] as WalkForwardAggregate | null | undefined;
   if (!fullAgg || !baseAgg) return null;
 
   const deltaReturn = fullAgg.meanReturnPct - baseAgg.meanReturnPct;
@@ -152,12 +152,14 @@ export default function WalkForwardSweepTable({
   data,
   baselineData,
   newTickers,
+  legs,
 }: {
   data: WalkForwardData;
   baselineData?: WalkForwardData;
   newTickers?: string[];
+  legs: StrategyLegMeta[];
 }) {
-  const [strategy, setStrategy] = useState<StrategyKey>("proximityDCA");
+  const [strategy, setStrategy] = useState<string>(legs[0]?.key ?? "");
   const [universe, setUniverse] = useState<"full" | "baseline">("full");
   const [sortKey, setSortKey] = useState<SortKey>("consistencyScore");
   const [sortDesc, setSortDesc] = useState(true);
@@ -167,7 +169,7 @@ export default function WalkForwardSweepTable({
 
   const rows = useMemo(() => {
     const withMetrics = activeData.configs
-      .map((cfg) => ({ cfg, agg: cfg[strategy] }))
+      .map((cfg) => ({ cfg, agg: cfg[strategy] as WalkForwardAggregate | null }))
       .filter((r): r is { cfg: WalkForwardConfig; agg: WalkForwardAggregate } => r.agg !== null);
     return [...withMetrics].sort((a, b) => {
       const av = a.agg[sortKey];
@@ -179,7 +181,7 @@ export default function WalkForwardSweepTable({
   const bestConsistencyName = useMemo(() => {
     let best: { name: string; score: number } | null = null;
     for (const cfg of activeData.configs) {
-      const agg = cfg[strategy];
+      const agg = cfg[strategy] as WalkForwardAggregate | null;
       if (agg && (best === null || agg.consistencyScore > best.score)) {
         best = { name: cfg.name, score: agg.consistencyScore };
       }
@@ -264,25 +266,22 @@ export default function WalkForwardSweepTable({
               </button>
             </div>
           )}
-          <div className="flex gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
-            <button
-              onClick={() => setStrategy("proximityDCA")}
-              className={cn(
-                "rounded px-2.5 py-1 font-medium transition-colors",
-                strategy === "proximityDCA" ? "bg-smcBlue/20 text-smcBlue" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-              )}
-            >
-              Pure Proximity
-            </button>
-            <button
-              onClick={() => setStrategy("guppyProximityDCA")}
-              className={cn(
-                "rounded px-2.5 py-1 font-medium transition-colors",
-                strategy === "guppyProximityDCA" ? "bg-emerald-400/20 text-emerald-400" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-              )}
-            >
-              Guppy Filtered
-            </button>
+          <div className="flex flex-wrap gap-1 rounded-md border border-base-600 bg-base-800 p-0.5 text-xs">
+            {legs.map((leg, i) => {
+              const color = legColorClass(i);
+              return (
+                <button
+                  key={leg.key}
+                  onClick={() => setStrategy(leg.key)}
+                  className={cn(
+                    "rounded px-2.5 py-1 font-medium transition-colors",
+                    strategy === leg.key ? color.toggleActive : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  )}
+                >
+                  {leg.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

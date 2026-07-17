@@ -1,7 +1,8 @@
 // components/WeeklyRunPanel.tsx
 import { AlertTriangle, Lock, ShoppingCart, ShieldAlert, TrendingUp } from "lucide-react";
-import type { BacktestMeta, WeeklyRun, WeeklyRunPosition, WeeklyRunStrategy } from "@/lib/types";
+import type { BacktestMeta, StrategyLegMeta, WeeklyRun, WeeklyRunPosition, WeeklyRunStrategy } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { legColorClass } from "@/lib/legColors";
 
 function RecommendedBuyCard({
   strategy,
@@ -161,10 +162,15 @@ function StrategyWatchList({
   );
 }
 
-export default function WeeklyRunPanel({ weeklyRun, meta }: { weeklyRun: WeeklyRun; meta: BacktestMeta }) {
-  const g1 = weeklyRun.proximityDCA;
-  const g2 = weeklyRun.guppyProximityDCA;
-
+export default function WeeklyRunPanel({
+  weeklyRun,
+  meta,
+  legs,
+}: {
+  weeklyRun: WeeklyRun;
+  meta: BacktestMeta;
+  legs: StrategyLegMeta[];
+}) {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-2 rounded-lg border border-short-muted bg-short-muted/20 px-4 py-3 text-xs text-[var(--text-secondary)]">
@@ -191,26 +197,30 @@ export default function WeeklyRunPanel({ weeklyRun, meta }: { weeklyRun: WeeklyR
           position: {meta.maxPositionPct ?? 15}% of portfolio &middot; Profit-takes held until {meta.cgtDiscountHoldDays ?? 366}{" "}
           days held (CGT discount)
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <RecommendedBuyCard
-            strategy={g1}
-            label="Pure Proximity Router"
-            colorClass="text-smcBlue"
-            accentClass="border-smcBlue/30"
-          />
-          {g2 && (
-            <RecommendedBuyCard
-              strategy={g2}
-              label="Guppy Filtered Router"
-              colorClass="text-emerald-400"
-              accentClass="border-emerald-400/30"
-            />
-          )}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {legs.map((leg, i) => {
+            const strategy = weeklyRun[leg.key];
+            if (!strategy || typeof strategy === "string") return null;
+            const color = legColorClass(i);
+            return (
+              <RecommendedBuyCard
+                key={leg.key}
+                strategy={strategy}
+                label={leg.label}
+                colorClass={color.text}
+                accentClass={color.border}
+              />
+            );
+          })}
         </div>
       </div>
 
-      <StrategyWatchList strategy={g1} label="Pure Proximity" colorClass="text-smcBlue" />
-      {g2 && <StrategyWatchList strategy={g2} label="Guppy Filtered" colorClass="text-emerald-400" />}
+      {legs.map((leg, i) => {
+        const strategy = weeklyRun[leg.key];
+        if (!strategy || typeof strategy === "string") return null;
+        const color = legColorClass(i);
+        return <StrategyWatchList key={leg.key} strategy={strategy} label={leg.label} colorClass={color.text} />;
+      })}
     </div>
   );
 }
