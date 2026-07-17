@@ -42,7 +42,8 @@ chart, and both are computed and shown independently here):
    TradingView chart (dividend adjustment is opt-in there); using `auto_adjust=True`
    was tried initially but back-adjusts for dividends too, shifting every historical
    price level — and therefore every order block boundary — away from what
-   TradingView displays.
+   TradingView displays. A trailing-bar sanity guard (`sanitize_trailing_bars`, see
+   Known limitations) also runs here to catch a specific, confirmed Yahoo data issue.
 2. **Volatility filter** — True Range is smoothed with an exact port of Pine's
    `ta.rma` (SMA-seeded Wilder smoothing, not a plain EWM approximation) over 200
    bars. Bars whose range is ≥ 2× that ATR have their high/low swapped before being
@@ -192,9 +193,15 @@ python scripts/backtest.py    # writes public/backtest_data.json
 
 - Price levels are raw/unadjusted but still reflect Yahoo's own split-adjustment,
   which occasionally lags a *very recent* real-world split by a few days until
-  Yahoo's data catches up — the same caveat LNAS-SNAS documents for LNAS.AX. If an
-  order block's price range looks implausible right after a known split, this is the
-  likely cause.
+  Yahoo's data catches up — the same caveat LNAS-SNAS documents for LNAS.AX.
+  Confirmed in practice on a real run: MNRS.AX's most recent daily bar was ~10x off
+  the surrounding history, turning a real ~-9% two-week move into a reported -90%.
+  `engine.sanitize_trailing_bars` now guards `fetch_history` against this: it drops
+  up to 3 trailing bars whose close deviates by more than 3x (or less than 1/3x)
+  from the trailing 10-bar median before them, self-healing as Yahoo's data catches
+  up on subsequent runs. It's a heuristic against this specific, confirmed failure
+  mode, not a general data-quality fix — if an order block's price range still looks
+  implausible right after a known split, this is the likely remaining cause.
 - Weekly bar boundaries from `yfinance` may not land on exactly the same week-start
   convention TradingView uses in every timezone; this is a minor, rare source of
   divergence at week edges only.

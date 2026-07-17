@@ -107,12 +107,39 @@ class OrderBlock:
     bias: int  # BIAS_BULLISH or BIAS_BEARISH
 
 
+def sanitize_trailing_bars(df: pd.DataFrame, lookback: int = 10, max_ratio: float = 3.0, max_drops: int = 3) -> pd.DataFrame:
+    """Drops trailing bars whose close deviates wildly (> max_ratio x or
+    < 1/max_ratio x) from the trailing median of the bars before them.
+
+    Yahoo's raw feed occasionally lags a very recent stock split / unit
+    consolidation by a few days, leaving only the newest bar(s) on a
+    different price scale than the rest of already-adjusted history (or vice
+    versa). Confirmed in practice: a 2-week move worth ~-9% was reported as
+    -90% because the last daily bar was ~10x off the surrounding bars. This
+    is a heuristic guard, not a fix for the underlying data -- see README's
+    Known limitations.
+    """
+    for _ in range(max_drops):
+        if len(df) < lookback + 2:
+            break
+        recent_median = df["Close"].iloc[-(lookback + 1) : -1].median()
+        last_close = df["Close"].iloc[-1]
+        if recent_median <= 0:
+            break
+        ratio = last_close / recent_median
+        if 1 / max_ratio <= ratio <= max_ratio:
+            break
+        df = df.iloc[:-1]
+    return df
+
+
 def fetch_history(ticker: str, interval: str) -> pd.DataFrame:
     df = yf.Ticker(ticker).history(period=HISTORY_PERIOD, interval=interval, auto_adjust=AUTO_ADJUST)
     if df.empty:
         raise ValueError(f"No {interval} price history returned for {ticker}")
     df = df.dropna(subset=["Open", "High", "Low", "Close"])
     df.index = pd.to_datetime(df.index)
+    df = sanitize_trailing_bars(df)
     return df
 
 
