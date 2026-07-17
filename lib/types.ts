@@ -157,7 +157,8 @@ export interface BacktestMeta {
 export interface WeeklyRunRecommendation {
   ticker: string;
   price: number;
-  proximityPct: number;
+  proximityPct: number; // Unsigned distance to the nearest active bullish order block (0 when insideZone)
+  insideZone: boolean;
 }
 
 export interface WeeklyRunPosition {

@@ -7,6 +7,14 @@ import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 
+# Reuses the actual LuxAlgo Smart Money Concepts port from engine.py (swing/internal
+# structure, BOS/CHoCH-based order block formation, ATR wick handling, mitigation)
+# instead of a separate, simplified order-block heuristic -- so the weekly router here
+# and the Multi-Stock Dashboard agree on what "closest to a bullish order block" means.
+# Works because both scripts live in scripts/ and this is always run as
+# `python scripts/backtest.py`, which puts that directory on sys.path.
+from engine import compute_structure_series
+
 # ============================================================================
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
@@ -209,11 +217,12 @@ def pick_best_candidate(candidates, portfolio, nav_now, max_position_pct):
     """Best (smallest-distance-to-order-block) candidate whose existing position doesn't
     already exceed max_position_pct of NAV -- forces rotation into the next-best
     opportunity instead of endlessly concentrating in a single already-large holding.
-    Ranked by abs(prox): with order-block mitigation in place (see weekly_universe
-    construction below) prox is never negative in practice, but ranking by absolute
-    value keeps that the explicit contract rather than an incidental side effect --
-    a signed min() here previously mistook "crashed furthest below a dead order block"
-    for "closest to one."""
+    Ranked by abs(prox): prox comes from engine.py's zone_from_order_block(), which is
+    already an unsigned distance (0 when price is inside the block's high/low range), so
+    prox is never negative in practice -- but ranking by absolute value keeps that the
+    explicit contract rather than an incidental side effect of whatever produced prox.
+    A signed min() here previously (before reusing engine.py's SMC detection) mistook
+    "crashed furthest below a dead order block" for "closest to one."""
     if not candidates:
         return None
     if nav_now <= 0:
@@ -346,9 +355,10 @@ def run_simulation(weekly_universe, dates_range, tickers, weekly_allocation,
                             leg['cgt_deferred_counts'][ticker] += 1
 
             if not np.isnan(row['Proximity']):
-                candidates['proximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
+                inside_zone = bool(row.get('InsideZone', False))
+                candidates['proximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price, 'insideZone': inside_zone})
                 if row['Guppy_Trend']:
-                    candidates['guppyProximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price})
+                    candidates['guppyProximityDCA'].append({'ticker': ticker, 'prox': row['Proximity'], 'price': price, 'insideZone': inside_zone})
 
         for key in ('proximityDCA', 'guppyProximityDCA'):
             leg = legs[key]
@@ -515,31 +525,27 @@ for ticker in TICKERS:
     logic = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'}
     for ema in guppy_emas: logic[f'ema_{ema}'] = 'last'
     df_wk = df_daily.resample('W').apply(logic).dropna().copy()
+    if len(df_wk) < 10: continue
 
-    df_wk['OB_Level'] = np.nan
-    df_wk['Proximity'] = np.nan
+    # Nearest active (unmitigated) bullish order block, per week, via engine.py's actual
+    # SMC structure detection -- same algorithm the Multi-Stock Dashboard's Weekly
+    # timeframe uses, run here over this ticker's own weekly-resampled bars rather than
+    # a fresh yfinance weekly fetch, since this script already pulls+resamples daily data
+    # in bulk for all tickers in one call. distancePct from zone_from_order_block() is
+    # already an unsigned distance (0 when price is inside the block's high/low range),
+    # so no sign-convention bug is possible here the way the old single-level heuristic had.
+    structure_series = compute_structure_series(df_wk)
+    df_wk['Proximity'] = [
+        (bar.bullish_zones[0]['distancePct'] if bar.bullish_zones else np.nan)
+        for bar in structure_series
+    ]
+    df_wk['InsideZone'] = [
+        (bool(bar.bullish_zones[0]['insideZone']) if bar.bullish_zones else False)
+        for bar in structure_series
+    ]
     df_wk['Guppy_Trend'] = False
 
     for i in range(2, len(df_wk)):
-        prev_ob = df_wk['OB_Level'].iloc[i-1]
-        if df_wk['Close'].iloc[i-1] < df_wk['Open'].iloc[i-1] and df_wk['Close'].iloc[i] > df_wk['High'].iloc[i-1]:
-            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = df_wk['Low'].iloc[i-1]
-        elif not np.isnan(prev_ob) and df_wk['Low'].iloc[i] < prev_ob:
-            # Mitigated: this week's low broke back below the block's own low, invalidating it as a
-            # bullish reference (same mitigation rule as engine.py's mitigate()). It stays inactive
-            # -- no Proximity computed against it -- until a new bullish OB forms. Without this, a
-            # ticker that crashed straight through its last order block would keep generating an
-            # ever-more-negative "proximity" against a dead level, and the router (which picks the
-            # smallest signed proximity) would mistake "crashed the furthest below a broken level"
-            # for "closest to a valid one."
-            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = np.nan
-        else:
-            df_wk.iloc[i, df_wk.columns.get_loc('OB_Level')] = prev_ob
-
-        current_ob = df_wk['OB_Level'].iloc[i]
-        if not np.isnan(current_ob) and current_ob > 0:
-            df_wk.iloc[i, df_wk.columns.get_loc('Proximity')] = ((df_wk['Close'].iloc[i] - current_ob) / current_ob) * 100
-
         # Modified sections only - Replaced Guppy_Trend block
         ema3_above_30 = df_wk['ema_3'].iloc[i] > df_wk['ema_30'].iloc[i]
 
@@ -606,7 +612,12 @@ end_dt = datetime.now()
 def build_recommendation(rec):
     if not rec:
         return None
-    return {"ticker": rec['ticker'], "price": clean_float(rec['price']), "proximityPct": clean_float(rec['prox'])}
+    return {
+        "ticker": rec['ticker'],
+        "price": clean_float(rec['price']),
+        "proximityPct": clean_float(rec['prox']),
+        "insideZone": bool(rec.get('insideZone', False))
+    }
 
 g1_positions = sorted([
     build_position_snapshot(t, units, last_known_price.get(t, 0.0), g1['last_buy_price'].get(t), g1['peak_price'].get(t),
