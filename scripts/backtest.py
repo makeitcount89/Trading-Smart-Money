@@ -20,7 +20,7 @@ from engine import compute_structure_series, BIAS_BULLISH
 # ============================================================================
 # Modified sections only - Updated TICKERS list
 
- TICKERS = sorted([
+TICKERS = sorted([
     # Core market ETFs
     'A200.AX','AGVT.AX','ATEC.AX','BNKS.AX','CLDD.AX','CNEW.AX',
     'EDOC.AX','ETHI.AX','FAIR.AX','HACK.AX','HETH.AX','HJPN.AX',
