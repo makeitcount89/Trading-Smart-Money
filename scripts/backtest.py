@@ -19,33 +19,30 @@ from engine import compute_structure_series, BIAS_BULLISH
 # 1. COMPLETE UNIVERSE DEFINITION
 # ============================================================================
 # Modified sections only - Updated TICKERS list
-TICKERS = sorted([
-    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
-    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GMD.AX','HACK.AX',
-    'HJPN.AX','JHX.AX','LNAS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
-    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','EDOC.AX',
-    'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
-    'SNAS.AX',
-    # Added: top-value ASX stocks (per Simply Wall St) confirmed tradable on BetaShares
-    # Direct. GMD.AX was already in the universe above, so not duplicated here.
-    'PPS.AX','OBM.AX','PNI.AX','RSG.AX','JDO.AX','FCL.AX',
-    # Removed (2026-07-16): ASIA.AX, DRIV.AX, ERTH.AX, GGUS.AX, MNRS.AX, TEA.AX, WAF.AX,
-    # WGX.AX -- confirmed zero hits in both strategies across 2+ independent 3-year
-    # backtest runs (chronically inactive: niche/geared/thematic products that rarely
-    # produce a clean order-block signal, or redundant with names that do contribute).
-    # Added in their place: large, liquid, well-established ASX names chosen to plug
-    # theme gaps without adding to the already-heavy Gold & Precious Metals exposure.
-    # General-knowledge picks, NOT verified against live valuation data -- confirm
-    # current pricing/fundamentals independently before treating these as "cheap".
-    'CSL.AX','TLS.AX','WOW.AX','GMG.AX','BXB.AX','QBE.AX','BHP.AX','WES.AX'
+
+ TICKERS = sorted([
+    # Core market ETFs
+    'A200.AX','AGVT.AX','ATEC.AX','BNKS.AX','CLDD.AX','CNEW.AX',
+    'EDOC.AX','ETHI.AX','FAIR.AX','HACK.AX','HETH.AX','HJPN.AX',
+    'HNDQ.AX','NDQ.AX','QAU.AX','QFN.AX','QRE.AX','ROBO.AX',
+    'VGS.AX','IVV.AX','WRLD.AX',
+
+    # Thematic ETFs
+    'ACDC.AX',
+
+    # Australian blue chips
+    'A2M.AX','AGL.AX','ANZ.AX','APA.AX','BHP.AX','BXB.AX',
+    'CSL.AX','GMG.AX','JHX.AX','MQG.AX','QAN.AX','QBE.AX',
+    'REA.AX','RMD.AX','TLS.AX','WES.AX','WOW.AX',
+    'WTC.AX','XRO.AX','CAR.AX','ALL.AX',
+
+    # Resources
+    'EVN.AX','GMD.AX','MIN.AX','OBM.AX','RSG.AX',
+
+    # Mid-cap quality/value
+    'FCL.AX','JDO.AX','PNI.AX','PPS.AX'
 ])
 
-# Snapshot of the universe before the "top-value ASX stocks" expansion (which is mostly
-# gold miners) was added -- kept frozen even though 5 of these 41 tickers (ASIA, DRIV,
-# ERTH, GGUS, MNRS) were later dropped for being chronically inactive, so this stays a
-# fixed reference point rather than chasing every subsequent curation round. Any listed
-# ticker no longer in TICKERS just won't appear in weekly_universe and is naturally
-# skipped by the baseline walk-forward filter below.
 BASELINE_TICKERS = sorted([
     'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
     'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
