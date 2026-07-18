@@ -21,28 +21,21 @@ from engine import compute_structure_series, BIAS_BULLISH
 # Modified sections only - Updated TICKERS list
 
 TICKERS = sorted([
-    # Core market ETFs
-    'A200.AX','AGVT.AX','ATEC.AX','BNKS.AX','CLDD.AX','CNEW.AX',
-    'EDOC.AX','ETHI.AX','FAIR.AX','HACK.AX','HETH.AX','HJPN.AX',
-    'HNDQ.AX','NDQ.AX','QAU.AX','QFN.AX','QRE.AX','ROBO.AX',
-    'VGS.AX','IVV.AX','WRLD.AX',
+    '200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
+    'ATEC.AX','BHP.AX','BNKS.AX','BXB.AX','CLDD.AX','CNEW.AX',
+    'CRYP.AX','CSL.AX','EDOC.AX','ETHI.AX','EVN.AX','FAIR.AX',
+    'FCL.AX','FUEL.AX','GDX.AX','GMD.AX','GMG.AX','HACK.AX',
+    'HETH.AX','HJPN.AX','HNDQ.AX','JDO.AX','JHX.AX',
+    'LNAS.AX','NDQ.AX','OBM.AX','OOO.AX','PNI.AX','PPS.AX',
+    'QAN.AX','QAU.AX','QBE.AX','QFN.AX','QRE.AX','ROBO.AX',
+    'RSG.AX','SNAS.AX','TLS.AX','WES.AX','WOW.AX','WRLD.AX',
+    'WTC.AX','XRO.AX',
 
-    # Thematic ETFs
-    'ACDC.AX',
-
-    # Australian blue chips
-    'A2M.AX','AGL.AX','ANZ.AX','APA.AX','BHP.AX','BXB.AX',
-    'CSL.AX','GMG.AX','JHX.AX','MQG.AX','QAN.AX','QBE.AX',
-    'REA.AX','RMD.AX','TLS.AX','WES.AX','WOW.AX',
-    'WTC.AX','XRO.AX','CAR.AX','ALL.AX',
-
-    # Resources
-    'EVN.AX','GMD.AX','MIN.AX','OBM.AX','RSG.AX',
-
-    # Mid-cap quality/value
-    'FCL.AX','JDO.AX','PNI.AX','PPS.AX'
+    # Added diversification / quality
+    'IVV.AX','VGS.AX','VAS.AX','QUAL.AX',
+    'MQG.AX','REA.AX','RMD.AX','CAR.AX',
+    'ALL.AX','MIN.AX'
 ])
-
 BASELINE_TICKERS = sorted([
     'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
     'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GGUS.AX','GMD.AX','HACK.AX',
