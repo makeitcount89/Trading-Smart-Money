@@ -26,18 +26,22 @@ import yfinance as yf
 # (ASX listings use the ".AX" suffix). Push a change and the next scheduled
 # run (or a manual workflow_dispatch) picks it up automatically.
 #
+# Individual-stock membership is filtered to a supplied large/mid-cap ASX
+# watchlist (all ETFs are kept regardless). Removed stocks not on that list:
+# A2M, ANZ, APA, GMD, JHX, QAN, XRO, PPS, OBM, RSG, JDO, FCL, TLS, WOW, GMG.
+#
 # Kept in sync (manually -- the two scripts run independently, no shared
 # import) with backtest.py's TICKERS, so both dashboards research the same
-# universe. Last synced 2026-07-16.
+# universe. Last synced 2026-07-22.
 # ---------------------------------------------------------------------------
 UNIVERSE = sorted([
-    'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
-    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','GMD.AX','HACK.AX',
-    'HJPN.AX','JHX.AX','LNAS.AX','NDQ.AX','OOO.AX','QAN.AX','QAU.AX',
-    'WTC.AX','XRO.AX','CLDD.AX','CRYP.AX','CNEW.AX','EDOC.AX',
+    'A200.AX','ACDC.AX','AGL.AX','AGVT.AX',
+    'ATEC.AX','BNKS.AX','EVN.AX','FUEL.AX','GDX.AX','HACK.AX',
+    'HJPN.AX','LNAS.AX','NDQ.AX','OOO.AX','QAU.AX',
+    'WTC.AX','CLDD.AX','CRYP.AX','CNEW.AX','EDOC.AX',
     'ETHI.AX','FAIR.AX','HNDQ.AX','HETH.AX','QFN.AX','QRE.AX','ROBO.AX','WRLD.AX',
-    'SNAS.AX','PPS.AX','OBM.AX','PNI.AX','RSG.AX','JDO.AX','FCL.AX',
-    'CSL.AX','TLS.AX','WOW.AX','GMG.AX','BXB.AX','QBE.AX','BHP.AX','WES.AX'
+    'SNAS.AX','PNI.AX',
+    'CSL.AX','BXB.AX','QBE.AX','BHP.AX','WES.AX'
 ])
 
 # The Pine indicator is timeframe-agnostic -- it just runs on whatever bars
