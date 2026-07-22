@@ -21,20 +21,23 @@ from engine import compute_structure_series, BIAS_BULLISH
 # Modified sections only - Updated TICKERS list
 
 TICKERS = sorted([
-    '200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX',
+    # Individual-stock membership filtered to a supplied large/mid-cap ASX
+    # watchlist (ETFs kept regardless). Removed: A2M, ANZ, APA, FCL, GMD, GMG,
+    # JDO, JHX, OBM, PPS, QAN, RSG, TLS, WOW, XRO, RMD, MIN.
+    '200.AX','ACDC.AX','AGL.AX','AGVT.AX',
     'ATEC.AX','BHP.AX','BNKS.AX','BXB.AX','CLDD.AX','CNEW.AX',
     'CRYP.AX','CSL.AX','EDOC.AX','ETHI.AX','EVN.AX','FAIR.AX',
-    'FCL.AX','FUEL.AX','GDX.AX','GMD.AX','GMG.AX','HACK.AX',
-    'HETH.AX','HJPN.AX','HNDQ.AX','JDO.AX','JHX.AX',
-    'LNAS.AX','NDQ.AX','OBM.AX','OOO.AX','PNI.AX','PPS.AX',
-    'QAN.AX','QAU.AX','QBE.AX','QFN.AX','QRE.AX','ROBO.AX',
-    'RSG.AX','SNAS.AX','TLS.AX','WES.AX','WOW.AX','WRLD.AX',
-    'WTC.AX','XRO.AX',
+    'FUEL.AX','GDX.AX','HACK.AX',
+    'HETH.AX','HJPN.AX','HNDQ.AX',
+    'LNAS.AX','NDQ.AX','OOO.AX','PNI.AX',
+    'QAU.AX','QBE.AX','QFN.AX','QRE.AX','ROBO.AX',
+    'SNAS.AX','WES.AX','WRLD.AX',
+    'WTC.AX',
 
     # Added diversification / quality
     'IVV.AX','VGS.AX','VAS.AX','QUAL.AX',
-    'MQG.AX','REA.AX','RMD.AX','CAR.AX',
-    'ALL.AX','MIN.AX'
+    'MQG.AX','REA.AX','CAR.AX',
+    'ALL.AX'
 ])
 BASELINE_TICKERS = sorted([
     'A200.AX','A2M.AX','ACDC.AX','AGL.AX','AGVT.AX','ANZ.AX','APA.AX','ASIA.AX',
@@ -54,8 +57,7 @@ NEW_TICKERS = sorted([t for t in TICKERS if t not in BASELINE_TICKERS])
 # ETFs both land in "Gold & Precious Metals") since that's the risk that matters.
 TICKER_THEMES = {
     # Gold & precious metals -- individual miners and gold/gold-miner funds alike
-    'EVN.AX': 'Gold & Precious Metals', 'GMD.AX': 'Gold & Precious Metals', 'OBM.AX': 'Gold & Precious Metals',
-    'RSG.AX': 'Gold & Precious Metals', 'GDX.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
+    'EVN.AX': 'Gold & Precious Metals', 'GDX.AX': 'Gold & Precious Metals', 'QAU.AX': 'Gold & Precious Metals',
     # Broad market index funds (AU/US/regional), geared or hedged variants included
     'A200.AX': 'Broad Market Index', 'NDQ.AX': 'Broad Market Index', 'HNDQ.AX': 'Broad Market Index',
     'LNAS.AX': 'Broad Market Index', 'SNAS.AX': 'Broad Market Index',
@@ -74,17 +76,12 @@ TICKER_THEMES = {
     # Commodities (non-gold)
     'OOO.AX': 'Commodities',
     # Individual stocks, grouped roughly by what they actually do
-    'ANZ.AX': 'Individual Stock - Financials', 'JDO.AX': 'Individual Stock - Financials',
-    'PNI.AX': 'Individual Stock - Financials', 'PPS.AX': 'Individual Stock - Financials',
+    'PNI.AX': 'Individual Stock - Financials',
     'QBE.AX': 'Individual Stock - Financials',
-    'WTC.AX': 'Individual Stock - Tech', 'XRO.AX': 'Individual Stock - Tech', 'FCL.AX': 'Individual Stock - Tech',
-    'A2M.AX': 'Individual Stock - Other', 'AGL.AX': 'Individual Stock - Other', 'APA.AX': 'Individual Stock - Other',
-    'JHX.AX': 'Individual Stock - Other', 'QAN.AX': 'Individual Stock - Other',
+    'WTC.AX': 'Individual Stock - Tech',
+    'AGL.AX': 'Individual Stock - Other',
     # Added 2026-07-16 to plug theme gaps without adding more gold exposure
     'CSL.AX': 'Individual Stock - Healthcare',
-    'TLS.AX': 'Individual Stock - Telecom',
-    'WOW.AX': 'Individual Stock - Consumer Staples',
-    'GMG.AX': 'Individual Stock - Property/REIT',
     'BXB.AX': 'Individual Stock - Industrials',
     'BHP.AX': 'Individual Stock - Resources',
     'WES.AX': 'Individual Stock - Consumer Discretionary',
