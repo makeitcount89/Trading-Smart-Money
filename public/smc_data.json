@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T11:59:30.735597+00:00",
+  "generatedAt": "2026-09-02T09:52:42.715220+00:00",
   "meta": {
     "universe": [
       "A200.AX",
@@ -82,72 +82,72 @@
   },
   "ranking": {
     "1d": [
-      "AGVT.AX",
-      "PNI.AX",
       "ETHI.AX",
-      "WRLD.AX",
-      "EDOC.AX",
-      "CNEW.AX",
+      "PNI.AX",
       "ROBO.AX",
+      "WRLD.AX",
+      "CNEW.AX",
+      "HETH.AX",
+      "EDOC.AX",
+      "A200.AX",
+      "QRE.AX",
       "QFN.AX",
       "FAIR.AX",
-      "HETH.AX",
-      "A200.AX",
-      "BNKS.AX",
-      "SNAS.AX",
-      "AGL.AX",
-      "QRE.AX",
+      "AGVT.AX",
       "HJPN.AX",
-      "WES.AX",
+      "FUEL.AX",
+      "BNKS.AX",
+      "GDX.AX",
       "HNDQ.AX",
       "ATEC.AX",
-      "FUEL.AX",
-      "QBE.AX",
-      "GDX.AX",
-      "QAU.AX",
       "CRYP.AX",
       "HACK.AX",
+      "AGL.AX",
+      "QAU.AX",
+      "WES.AX",
       "BHP.AX",
+      "SNAS.AX",
+      "QBE.AX",
       "EVN.AX",
       "LNAS.AX",
+      "OOO.AX",
       "ACDC.AX",
       "NDQ.AX",
       "CLDD.AX",
       "WTC.AX",
       "BXB.AX",
-      "CSL.AX",
-      "OOO.AX"
+      "CSL.AX"
     ],
     "1wk": [
-      "PNI.AX",
-      "BNKS.AX",
-      "ROBO.AX",
-      "ETHI.AX",
-      "QFN.AX",
       "ATEC.AX",
+      "ETHI.AX",
+      "ROBO.AX",
+      "BNKS.AX",
       "AGVT.AX",
       "A200.AX",
-      "FAIR.AX",
-      "WES.AX",
+      "QFN.AX",
       "LNAS.AX",
-      "QBE.AX",
-      "BHP.AX",
+      "FAIR.AX",
       "HACK.AX",
+      "WES.AX",
+      "BHP.AX",
       "QRE.AX",
-      "WRLD.AX",
+      "QBE.AX",
       "HJPN.AX",
+      "WRLD.AX",
+      "FUEL.AX",
       "CNEW.AX",
       "NDQ.AX",
       "HETH.AX",
       "HNDQ.AX",
       "QAU.AX",
-      "EDOC.AX",
-      "AGL.AX",
-      "EVN.AX",
       "CRYP.AX",
       "CLDD.AX",
+      "EVN.AX",
+      "EDOC.AX",
+      "AGL.AX",
+      "PNI.AX",
       "BXB.AX",
-      "FUEL.AX",
       "GDX.AX",
       "ACDC.AX",
       "OOO.AX",
@@ -157,8 +157,8 @@
     ]
   },
   "closestSymbol": {
-    "1d": "AGVT.AX",
-    "1wk": "PNI.AX"
+    "1d": "ETHI.AX",
+    "1wk": "ATEC.AX"
   },
   "symbols": [
     {
@@ -167,10 +167,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 151.99,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 150.59,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": true,
             "oneYear": true,
@@ -181,7 +181,7 @@
             "top": 146.89,
             "bottom": 145.63,
             "date": "2026-07-21",
-            "distancePct": 3.355,
+            "distancePct": 2.457,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -190,7 +190,7 @@
               "top": 146.89,
               "bottom": 145.63,
               "date": "2026-07-21",
-              "distancePct": 3.355,
+              "distancePct": 2.457,
               "insideZone": false
             },
             {
@@ -198,7 +198,7 @@
               "top": 144.54,
               "bottom": 142.4,
               "date": "2026-06-09",
-              "distancePct": 4.902,
+              "distancePct": 4.018,
               "insideZone": false
             },
             {
@@ -206,7 +206,7 @@
               "top": 143.98,
               "bottom": 142.24,
               "date": "2026-05-20",
-              "distancePct": 5.27,
+              "distancePct": 4.389,
               "insideZone": false
             },
             {
@@ -214,7 +214,7 @@
               "top": 141.43,
               "bottom": 139.26,
               "date": "2026-03-23",
-              "distancePct": 6.948,
+              "distancePct": 6.083,
               "insideZone": false
             },
             {
@@ -222,7 +222,7 @@
               "top": 127.73,
               "bottom": 125.6,
               "date": "2025-04-11",
-              "distancePct": 15.962,
+              "distancePct": 15.18,
               "insideZone": false
             },
             {
@@ -230,15 +230,7 @@
               "top": 124.49,
               "bottom": 122.4,
               "date": "2025-04-09",
-              "distancePct": 18.093,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 117.95,
-              "bottom": 116.78,
-              "date": "2023-11-27",
-              "distancePct": 22.396,
+              "distancePct": 17.332,
               "insideZone": false
             },
             {
@@ -246,7 +238,7 @@
               "top": 112.98,
               "bottom": 112.11,
               "date": "2023-10-30",
-              "distancePct": 25.666,
+              "distancePct": 24.975,
               "insideZone": false
             },
             {
@@ -254,7 +246,7 @@
               "top": 108.3,
               "bottom": 106.57,
               "date": "2022-10-03",
-              "distancePct": 28.745,
+              "distancePct": 28.083,
               "insideZone": false
             },
             {
@@ -262,14 +254,23 @@
               "top": 98.31,
               "bottom": 96.19,
               "date": "2020-06-15",
-              "distancePct": 35.318,
+              "distancePct": 34.717,
               "insideZone": false
             }
           ],
-          "bearishOrderBlocks": []
+          "bearishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 154.34,
+              "bottom": 152.66,
+              "date": "2026-08-26",
+              "distancePct": 1.375,
+              "insideZone": false
+            }
+          ]
         },
         "1wk": {
-          "lastPrice": 151.99,
+          "lastPrice": 150.59,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -283,7 +284,7 @@
             "top": 148.42,
             "bottom": 144.51,
             "date": "2026-06-29",
-            "distancePct": 2.349,
+            "distancePct": 1.441,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -292,7 +293,7 @@
               "top": 148.42,
               "bottom": 144.51,
               "date": "2026-06-29",
-              "distancePct": 2.349,
+              "distancePct": 1.441,
               "insideZone": false
             },
             {
@@ -300,7 +301,7 @@
               "top": 133.23,
               "bottom": 127.95,
               "date": "2025-03-31",
-              "distancePct": 12.343,
+              "distancePct": 11.528,
               "insideZone": false
             },
             {
@@ -308,7 +309,7 @@
               "top": 116.22,
               "bottom": 112.11,
               "date": "2023-10-30",
-              "distancePct": 23.534,
+              "distancePct": 22.824,
               "insideZone": false
             },
             {
@@ -316,7 +317,7 @@
               "top": 111.57,
               "bottom": 108.82,
               "date": "2022-09-26",
-              "distancePct": 26.594,
+              "distancePct": 25.911,
               "insideZone": false
             },
             {
@@ -324,7 +325,7 @@
               "top": 111.32,
               "bottom": 108.71,
               "date": "2022-07-11",
-              "distancePct": 26.758,
+              "distancePct": 26.077,
               "insideZone": false
             },
             {
@@ -332,7 +333,7 @@
               "top": 101.17,
               "bottom": 96.9,
               "date": "2020-09-28",
-              "distancePct": 33.436,
+              "distancePct": 32.818,
               "insideZone": false
             },
             {
@@ -340,7 +341,7 @@
               "top": 88.59,
               "bottom": 74.1,
               "date": "2020-03-23",
-              "distancePct": 41.713,
+              "distancePct": 41.171,
               "insideZone": false
             }
           ],
@@ -354,10 +355,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 126.83,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 122.02,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": false,
             "oneYear": false,
@@ -368,7 +369,7 @@
             "top": 107.0,
             "bottom": 105.23,
             "date": "2025-09-10",
-            "distancePct": 15.635,
+            "distancePct": 12.309,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -377,7 +378,7 @@
               "top": 107.0,
               "bottom": 105.23,
               "date": "2025-09-10",
-              "distancePct": 15.635,
+              "distancePct": 12.309,
               "insideZone": false
             },
             {
@@ -385,15 +386,7 @@
               "top": 104.21,
               "bottom": 103.27,
               "date": "2025-09-03",
-              "distancePct": 17.835,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 97.51,
-              "bottom": 95.31,
-              "date": "2025-08-04",
-              "distancePct": 23.118,
+              "distancePct": 14.596,
               "insideZone": false
             },
             {
@@ -401,7 +394,7 @@
               "top": 77.0,
               "bottom": 74.71,
               "date": "2025-04-08",
-              "distancePct": 39.289,
+              "distancePct": 36.896,
               "insideZone": false
             },
             {
@@ -409,17 +402,25 @@
               "top": 42.26,
               "bottom": 41.0,
               "date": "2020-03-23",
-              "distancePct": 66.68,
+              "distancePct": 65.366,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 129.56,
+              "bottom": 128.33,
+              "date": "2026-08-24",
+              "distancePct": 5.171,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 171.31,
               "bottom": 169.0,
               "date": "2026-06-18",
-              "distancePct": 33.249,
+              "distancePct": 38.502,
               "insideZone": false
             },
             {
@@ -427,7 +428,7 @@
               "top": 183.05,
               "bottom": 180.47,
               "date": "2026-06-03",
-              "distancePct": 42.293,
+              "distancePct": 47.902,
               "insideZone": false
             },
             {
@@ -435,13 +436,13 @@
               "top": 183.05,
               "bottom": 180.47,
               "date": "2026-06-03",
-              "distancePct": 42.293,
+              "distancePct": 47.902,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 126.83,
+          "lastPrice": 122.02,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -455,7 +456,7 @@
             "top": 86.52,
             "bottom": 84.0,
             "date": "2025-06-02",
-            "distancePct": 31.783,
+            "distancePct": 29.094,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -464,7 +465,7 @@
               "top": 86.52,
               "bottom": 84.0,
               "date": "2025-06-02",
-              "distancePct": 31.783,
+              "distancePct": 29.094,
               "insideZone": false
             },
             {
@@ -472,7 +473,7 @@
               "top": 78.0,
               "bottom": 74.0,
               "date": "2024-08-05",
-              "distancePct": 38.5,
+              "distancePct": 36.076,
               "insideZone": false
             },
             {
@@ -480,7 +481,7 @@
               "top": 48.48,
               "bottom": 41.0,
               "date": "2020-03-23",
-              "distancePct": 61.776,
+              "distancePct": 60.269,
               "insideZone": false
             }
           ],
@@ -490,7 +491,7 @@
               "top": 180.91,
               "bottom": 173.48,
               "date": "2026-05-04",
-              "distancePct": 36.782,
+              "distancePct": 42.173,
               "insideZone": false
             }
           ]
@@ -503,8 +504,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 8.68,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 8.75,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -517,7 +518,7 @@
             "top": 8.23,
             "bottom": 8.15,
             "date": "2026-08-10",
-            "distancePct": 5.184,
+            "distancePct": 5.943,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -526,7 +527,7 @@
               "top": 8.23,
               "bottom": 8.15,
               "date": "2026-08-10",
-              "distancePct": 5.184,
+              "distancePct": 5.943,
               "insideZone": false
             },
             {
@@ -534,7 +535,7 @@
               "top": 6.9,
               "bottom": 6.73,
               "date": "2023-03-14",
-              "distancePct": 20.507,
+              "distancePct": 21.143,
               "insideZone": false
             }
           ],
@@ -544,7 +545,7 @@
               "top": 9.18,
               "bottom": 9.04,
               "date": "2026-05-19",
-              "distancePct": 4.147,
+              "distancePct": 3.314,
               "insideZone": false
             },
             {
@@ -552,7 +553,7 @@
               "top": 9.71,
               "bottom": 9.39,
               "date": "2026-05-04",
-              "distancePct": 8.18,
+              "distancePct": 7.314,
               "insideZone": false
             },
             {
@@ -560,7 +561,7 @@
               "top": 10.63,
               "bottom": 10.45,
               "date": "2025-06-16",
-              "distancePct": 20.392,
+              "distancePct": 19.429,
               "insideZone": false
             },
             {
@@ -568,7 +569,7 @@
               "top": 11.235,
               "bottom": 10.97,
               "date": "2025-05-12",
-              "distancePct": 26.382,
+              "distancePct": 25.371,
               "insideZone": false
             },
             {
@@ -576,7 +577,7 @@
               "top": 11.9,
               "bottom": 11.7,
               "date": "2025-01-17",
-              "distancePct": 34.793,
+              "distancePct": 33.714,
               "insideZone": false
             },
             {
@@ -584,7 +585,7 @@
               "top": 11.88,
               "bottom": 11.74,
               "date": "2025-02-06",
-              "distancePct": 35.253,
+              "distancePct": 34.171,
               "insideZone": false
             },
             {
@@ -592,7 +593,7 @@
               "top": 18.21,
               "bottom": 17.92,
               "date": "2020-06-10",
-              "distancePct": 106.452,
+              "distancePct": 104.8,
               "insideZone": false
             },
             {
@@ -600,13 +601,13 @@
               "top": 21.225,
               "bottom": 21.01,
               "date": "2019-12-20",
-              "distancePct": 142.051,
+              "distancePct": 140.114,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 8.68,
+          "lastPrice": 8.75,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BEARISH",
           "internalTrend": "BEARISH",
@@ -620,7 +621,7 @@
             "top": 7.0,
             "bottom": 6.73,
             "date": "2023-03-13",
-            "distancePct": 19.355,
+            "distancePct": 20.0,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -629,7 +630,7 @@
               "top": 7.0,
               "bottom": 6.73,
               "date": "2023-03-13",
-              "distancePct": 19.355,
+              "distancePct": 20.0,
               "insideZone": false
             },
             {
@@ -637,7 +638,7 @@
               "top": 5.39,
               "bottom": 5.1,
               "date": "2021-11-15",
-              "distancePct": 37.903,
+              "distancePct": 38.4,
               "insideZone": false
             }
           ],
@@ -647,7 +648,7 @@
               "top": 10.04,
               "bottom": 9.7,
               "date": "2026-03-30",
-              "distancePct": 11.751,
+              "distancePct": 10.857,
               "insideZone": false
             },
             {
@@ -655,7 +656,7 @@
               "top": 11.235,
               "bottom": 10.31,
               "date": "2025-05-12",
-              "distancePct": 18.779,
+              "distancePct": 17.829,
               "insideZone": false
             },
             {
@@ -663,7 +664,7 @@
               "top": 11.9,
               "bottom": 11.24,
               "date": "2025-01-13",
-              "distancePct": 29.493,
+              "distancePct": 28.457,
               "insideZone": false
             },
             {
@@ -671,7 +672,7 @@
               "top": 23.21,
               "bottom": 21.79,
               "date": "2019-04-22",
-              "distancePct": 151.037,
+              "distancePct": 149.029,
               "insideZone": false
             }
           ]
@@ -684,8 +685,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 40.23,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 40.07,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -694,28 +695,20 @@
             "threeYear": false
           },
           "nearestBullishOrderBlock": {
-            "kind": "internal",
-            "top": 40.28,
-            "bottom": 40.15,
-            "date": "2026-05-18",
-            "distancePct": 0.0,
-            "insideZone": true
+            "kind": "swing",
+            "top": 38.8,
+            "bottom": 38.6,
+            "date": "2023-11-01",
+            "distancePct": 3.169,
+            "insideZone": false
           },
           "bullishOrderBlocks": [
-            {
-              "kind": "internal",
-              "top": 40.28,
-              "bottom": 40.15,
-              "date": "2026-05-18",
-              "distancePct": 0.0,
-              "insideZone": true
-            },
             {
               "kind": "swing",
               "top": 38.8,
               "bottom": 38.6,
               "date": "2023-11-01",
-              "distancePct": 3.555,
+              "distancePct": 3.169,
               "insideZone": false
             }
           ],
@@ -725,7 +718,7 @@
               "top": 40.9,
               "bottom": 40.75,
               "date": "2026-08-26",
-              "distancePct": 1.293,
+              "distancePct": 1.697,
               "insideZone": false
             },
             {
@@ -733,7 +726,7 @@
               "top": 40.95,
               "bottom": 40.82,
               "date": "2026-08-05",
-              "distancePct": 1.467,
+              "distancePct": 1.872,
               "insideZone": false
             },
             {
@@ -741,7 +734,7 @@
               "top": 41.58,
               "bottom": 41.49,
               "date": "2026-06-25",
-              "distancePct": 3.132,
+              "distancePct": 3.544,
               "insideZone": false
             },
             {
@@ -749,7 +742,15 @@
               "top": 41.66,
               "bottom": 41.6,
               "date": "2026-02-27",
-              "distancePct": 3.405,
+              "distancePct": 3.818,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 42.12,
+              "bottom": 41.94,
+              "date": "2025-11-21",
+              "distancePct": 4.667,
               "insideZone": false
             },
             {
@@ -757,7 +758,7 @@
               "top": 43.1,
               "bottom": 42.95,
               "date": "2025-10-17",
-              "distancePct": 6.761,
+              "distancePct": 7.187,
               "insideZone": false
             },
             {
@@ -765,7 +766,7 @@
               "top": 43.94,
               "bottom": 43.77,
               "date": "2023-03-27",
-              "distancePct": 8.799,
+              "distancePct": 9.234,
               "insideZone": false
             },
             {
@@ -773,7 +774,7 @@
               "top": 44.71,
               "bottom": 44.39,
               "date": "2022-08-02",
-              "distancePct": 10.341,
+              "distancePct": 10.781,
               "insideZone": false
             },
             {
@@ -781,13 +782,13 @@
               "top": 50.07,
               "bottom": 49.9,
               "date": "2021-12-29",
-              "distancePct": 24.037,
+              "distancePct": 24.532,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 40.23,
+          "lastPrice": 40.07,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BEARISH",
           "internalTrend": "BEARISH",
@@ -801,7 +802,7 @@
             "top": 39.55,
             "bottom": 38.6,
             "date": "2023-10-30",
-            "distancePct": 1.69,
+            "distancePct": 1.298,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -810,7 +811,7 @@
               "top": 39.55,
               "bottom": 38.6,
               "date": "2023-10-30",
-              "distancePct": 1.69,
+              "distancePct": 1.298,
               "insideZone": false
             }
           ],
@@ -820,7 +821,7 @@
               "top": 41.09,
               "bottom": 40.63,
               "date": "2026-07-27",
-              "distancePct": 0.994,
+              "distancePct": 1.398,
               "insideZone": false
             },
             {
@@ -828,7 +829,7 @@
               "top": 43.1,
               "bottom": 42.42,
               "date": "2025-10-13",
-              "distancePct": 5.444,
+              "distancePct": 5.865,
               "insideZone": false
             },
             {
@@ -836,7 +837,7 @@
               "top": 43.1,
               "bottom": 42.42,
               "date": "2025-10-13",
-              "distancePct": 5.444,
+              "distancePct": 5.865,
               "insideZone": false
             },
             {
@@ -844,7 +845,7 @@
               "top": 45.79,
               "bottom": 43.25,
               "date": "2022-07-25",
-              "distancePct": 7.507,
+              "distancePct": 7.936,
               "insideZone": false
             },
             {
@@ -852,7 +853,7 @@
               "top": 43.94,
               "bottom": 43.3,
               "date": "2023-03-27",
-              "distancePct": 7.631,
+              "distancePct": 8.061,
               "insideZone": false
             },
             {
@@ -860,7 +861,7 @@
               "top": 53.32,
               "bottom": 52.73,
               "date": "2020-11-02",
-              "distancePct": 31.071,
+              "distancePct": 31.595,
               "insideZone": false
             }
           ]
@@ -873,8 +874,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 22.75,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 22.31,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -887,7 +888,7 @@
             "top": 21.19,
             "bottom": 20.76,
             "date": "2026-07-24",
-            "distancePct": 6.857,
+            "distancePct": 5.02,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -896,7 +897,7 @@
               "top": 21.19,
               "bottom": 20.76,
               "date": "2026-07-24",
-              "distancePct": 6.857,
+              "distancePct": 5.02,
               "insideZone": false
             },
             {
@@ -904,7 +905,7 @@
               "top": 20.13,
               "bottom": 19.74,
               "date": "2026-04-13",
-              "distancePct": 11.516,
+              "distancePct": 9.771,
               "insideZone": false
             },
             {
@@ -912,7 +913,7 @@
               "top": 18.1,
               "bottom": 17.76,
               "date": "2023-10-30",
-              "distancePct": 20.44,
+              "distancePct": 18.87,
               "insideZone": false
             },
             {
@@ -920,7 +921,7 @@
               "top": 15.14,
               "bottom": 14.76,
               "date": "2022-10-03",
-              "distancePct": 33.451,
+              "distancePct": 32.138,
               "insideZone": false
             }
           ],
@@ -930,7 +931,7 @@
               "top": 24.18,
               "bottom": 23.61,
               "date": "2026-08-21",
-              "distancePct": 3.78,
+              "distancePct": 5.827,
               "insideZone": false
             },
             {
@@ -938,7 +939,7 @@
               "top": 26.29,
               "bottom": 25.86,
               "date": "2026-01-09",
-              "distancePct": 13.67,
+              "distancePct": 15.912,
               "insideZone": false
             },
             {
@@ -946,7 +947,7 @@
               "top": 28.28,
               "bottom": 27.64,
               "date": "2025-12-01",
-              "distancePct": 21.495,
+              "distancePct": 23.891,
               "insideZone": false
             },
             {
@@ -954,13 +955,13 @@
               "top": 33.42,
               "bottom": 32.8,
               "date": "2025-09-19",
-              "distancePct": 44.176,
+              "distancePct": 47.019,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 22.75,
+          "lastPrice": 22.31,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -974,8 +975,8 @@
             "top": 22.52,
             "bottom": 20.76,
             "date": "2026-07-20",
-            "distancePct": 1.011,
-            "insideZone": false
+            "distancePct": 0.0,
+            "insideZone": true
           },
           "bullishOrderBlocks": [
             {
@@ -983,15 +984,15 @@
               "top": 22.52,
               "bottom": 20.76,
               "date": "2026-07-20",
-              "distancePct": 1.011,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "internal",
               "top": 21.88,
               "bottom": 20.5,
               "date": "2026-05-11",
-              "distancePct": 3.824,
+              "distancePct": 1.927,
               "insideZone": false
             },
             {
@@ -999,7 +1000,7 @@
               "top": 18.98,
               "bottom": 17.76,
               "date": "2023-10-30",
-              "distancePct": 16.571,
+              "distancePct": 14.926,
               "insideZone": false
             },
             {
@@ -1007,7 +1008,7 @@
               "top": 17.16,
               "bottom": 16.5,
               "date": "2023-02-20",
-              "distancePct": 24.571,
+              "distancePct": 23.084,
               "insideZone": false
             },
             {
@@ -1015,7 +1016,7 @@
               "top": 15.35,
               "bottom": 13.7,
               "date": "2022-06-13",
-              "distancePct": 32.527,
+              "distancePct": 31.197,
               "insideZone": false
             }
           ],
@@ -1025,7 +1026,7 @@
               "top": 33.42,
               "bottom": 32.13,
               "date": "2025-09-15",
-              "distancePct": 41.231,
+              "distancePct": 44.016,
               "insideZone": false
             }
           ]
@@ -1038,8 +1039,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 66.84,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 64.65,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1052,7 +1053,7 @@
             "top": 60.04,
             "bottom": 58.57,
             "date": "2026-07-28",
-            "distancePct": 10.174,
+            "distancePct": 7.131,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1061,7 +1062,7 @@
               "top": 60.04,
               "bottom": 58.57,
               "date": "2026-07-28",
-              "distancePct": 10.174,
+              "distancePct": 7.131,
               "insideZone": false
             },
             {
@@ -1069,7 +1070,7 @@
               "top": 54.4,
               "bottom": 53.64,
               "date": "2026-04-30",
-              "distancePct": 18.612,
+              "distancePct": 15.855,
               "insideZone": false
             },
             {
@@ -1077,7 +1078,7 @@
               "top": 44.445,
               "bottom": 43.96,
               "date": "2025-12-17",
-              "distancePct": 33.505,
+              "distancePct": 31.253,
               "insideZone": false
             },
             {
@@ -1085,7 +1086,7 @@
               "top": 40.89,
               "bottom": 40.175,
               "date": "2025-11-24",
-              "distancePct": 38.824,
+              "distancePct": 36.752,
               "insideZone": false
             },
             {
@@ -1093,7 +1094,7 @@
               "top": 39.685,
               "bottom": 39.18,
               "date": "2025-07-31",
-              "distancePct": 40.627,
+              "distancePct": 38.616,
               "insideZone": false
             },
             {
@@ -1101,7 +1102,7 @@
               "top": 34.5,
               "bottom": 33.8,
               "date": "2025-04-09",
-              "distancePct": 48.384,
+              "distancePct": 46.636,
               "insideZone": false
             },
             {
@@ -1109,7 +1110,7 @@
               "top": 30.541,
               "bottom": 30.0335,
               "date": "2020-10-30",
-              "distancePct": 54.307,
+              "distancePct": 52.759,
               "insideZone": false
             },
             {
@@ -1117,7 +1118,7 @@
               "top": 19.9451,
               "bottom": 19.6424,
               "date": "2017-06-21",
-              "distancePct": 70.16,
+              "distancePct": 69.149,
               "insideZone": false
             },
             {
@@ -1125,7 +1126,7 @@
               "top": 15.9205,
               "bottom": 15.5287,
               "date": "2016-05-10",
-              "distancePct": 76.181,
+              "distancePct": 75.374,
               "insideZone": false
             },
             {
@@ -1133,14 +1134,14 @@
               "top": 9.5268,
               "bottom": 9.3853,
               "date": "2004-05-03",
-              "distancePct": 85.747,
+              "distancePct": 85.264,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 66.84,
+          "lastPrice": 64.65,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -1154,7 +1155,7 @@
             "top": 60.8,
             "bottom": 57.03,
             "date": "2026-07-20",
-            "distancePct": 9.037,
+            "distancePct": 5.955,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1163,7 +1164,7 @@
               "top": 60.8,
               "bottom": 57.03,
               "date": "2026-07-20",
-              "distancePct": 9.037,
+              "distancePct": 5.955,
               "insideZone": false
             },
             {
@@ -1171,7 +1172,7 @@
               "top": 50.32,
               "bottom": 46.59,
               "date": "2026-03-16",
-              "distancePct": 24.716,
+              "distancePct": 22.166,
               "insideZone": false
             },
             {
@@ -1179,7 +1180,7 @@
               "top": 41.14,
               "bottom": 39.3,
               "date": "2025-09-15",
-              "distancePct": 38.45,
+              "distancePct": 36.365,
               "insideZone": false
             },
             {
@@ -1187,7 +1188,7 @@
               "top": 37.7,
               "bottom": 35.52,
               "date": "2025-06-23",
-              "distancePct": 43.597,
+              "distancePct": 41.686,
               "insideZone": false
             },
             {
@@ -1195,7 +1196,7 @@
               "top": 36.88,
               "bottom": 33.25,
               "date": "2025-04-07",
-              "distancePct": 44.823,
+              "distancePct": 42.954,
               "insideZone": false
             },
             {
@@ -1203,7 +1204,7 @@
               "top": 32.6423,
               "bottom": 31.6629,
               "date": "2021-11-01",
-              "distancePct": 51.163,
+              "distancePct": 49.509,
               "insideZone": false
             },
             {
@@ -1211,7 +1212,7 @@
               "top": 32.0547,
               "bottom": 30.0335,
               "date": "2020-10-26",
-              "distancePct": 52.043,
+              "distancePct": 50.418,
               "insideZone": false
             },
             {
@@ -1219,7 +1220,7 @@
               "top": 28.2972,
               "bottom": 25.6081,
               "date": "2020-04-20",
-              "distancePct": 57.664,
+              "distancePct": 56.23,
               "insideZone": false
             },
             {
@@ -1227,7 +1228,7 @@
               "top": 13.7479,
               "bottom": 12.5191,
               "date": "2016-01-18",
-              "distancePct": 79.432,
+              "distancePct": 78.735,
               "insideZone": false
             },
             {
@@ -1235,7 +1236,7 @@
               "top": 7.2054,
               "bottom": 6.8393,
               "date": "2003-05-19",
-              "distancePct": 89.22,
+              "distancePct": 88.855,
               "insideZone": false
             }
           ],
@@ -1249,8 +1250,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 14.24,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 14.2,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1263,7 +1264,7 @@
             "top": 13.67,
             "bottom": 13.51,
             "date": "2026-07-02",
-            "distancePct": 4.003,
+            "distancePct": 3.732,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1272,7 +1273,7 @@
               "top": 13.67,
               "bottom": 13.51,
               "date": "2026-07-02",
-              "distancePct": 4.003,
+              "distancePct": 3.732,
               "insideZone": false
             },
             {
@@ -1280,7 +1281,7 @@
               "top": 13.18,
               "bottom": 13.08,
               "date": "2026-06-04",
-              "distancePct": 7.444,
+              "distancePct": 7.183,
               "insideZone": false
             },
             {
@@ -1288,7 +1289,7 @@
               "top": 12.99,
               "bottom": 12.9,
               "date": "2026-05-29",
-              "distancePct": 8.778,
+              "distancePct": 8.521,
               "insideZone": false
             },
             {
@@ -1296,7 +1297,7 @@
               "top": 12.62,
               "bottom": 12.3,
               "date": "2026-05-20",
-              "distancePct": 11.376,
+              "distancePct": 11.127,
               "insideZone": false
             },
             {
@@ -1304,7 +1305,7 @@
               "top": 11.6,
               "bottom": 11.3,
               "date": "2026-03-23",
-              "distancePct": 18.539,
+              "distancePct": 18.31,
               "insideZone": false
             },
             {
@@ -1312,7 +1313,7 @@
               "top": 11.6,
               "bottom": 11.3,
               "date": "2026-03-23",
-              "distancePct": 18.539,
+              "distancePct": 18.31,
               "insideZone": false
             },
             {
@@ -1320,7 +1321,7 @@
               "top": 7.92,
               "bottom": 7.55,
               "date": "2025-04-09",
-              "distancePct": 44.382,
+              "distancePct": 44.225,
               "insideZone": false
             },
             {
@@ -1328,7 +1329,7 @@
               "top": 7.19,
               "bottom": 7.05,
               "date": "2024-08-06",
-              "distancePct": 49.508,
+              "distancePct": 49.366,
               "insideZone": false
             },
             {
@@ -1336,7 +1337,7 @@
               "top": 5.79,
               "bottom": 5.7,
               "date": "2023-10-26",
-              "distancePct": 59.34,
+              "distancePct": 59.225,
               "insideZone": false
             },
             {
@@ -1344,14 +1345,14 @@
               "top": 5.51,
               "bottom": 5.44,
               "date": "2022-10-12",
-              "distancePct": 61.306,
+              "distancePct": 61.197,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 14.24,
+          "lastPrice": 14.2,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -1365,7 +1366,7 @@
             "top": 14.19,
             "bottom": 13.74,
             "date": "2026-07-20",
-            "distancePct": 0.351,
+            "distancePct": 0.07,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1374,7 +1375,7 @@
               "top": 14.19,
               "bottom": 13.74,
               "date": "2026-07-20",
-              "distancePct": 0.351,
+              "distancePct": 0.07,
               "insideZone": false
             },
             {
@@ -1382,7 +1383,7 @@
               "top": 13.0,
               "bottom": 12.45,
               "date": "2026-05-04",
-              "distancePct": 8.708,
+              "distancePct": 8.451,
               "insideZone": false
             },
             {
@@ -1390,7 +1391,7 @@
               "top": 8.47,
               "bottom": 8.15,
               "date": "2025-04-14",
-              "distancePct": 40.52,
+              "distancePct": 40.352,
               "insideZone": false
             },
             {
@@ -1398,7 +1399,7 @@
               "top": 7.59,
               "bottom": 7.27,
               "date": "2024-08-12",
-              "distancePct": 46.699,
+              "distancePct": 46.549,
               "insideZone": false
             },
             {
@@ -1406,7 +1407,7 @@
               "top": 6.48,
               "bottom": 6.33,
               "date": "2024-01-15",
-              "distancePct": 54.494,
+              "distancePct": 54.366,
               "insideZone": false
             },
             {
@@ -1414,7 +1415,7 @@
               "top": 5.7,
               "bottom": 5.44,
               "date": "2022-10-10",
-              "distancePct": 59.972,
+              "distancePct": 59.859,
               "insideZone": false
             },
             {
@@ -1422,7 +1423,7 @@
               "top": 4.76,
               "bottom": 3.79,
               "date": "2020-03-23",
-              "distancePct": 66.573,
+              "distancePct": 66.479,
               "insideZone": false
             }
           ],
@@ -1436,8 +1437,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 19.44,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 19.23,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1450,7 +1451,7 @@
             "top": 14.84,
             "bottom": 14.39,
             "date": "2024-08-06",
-            "distancePct": 23.663,
+            "distancePct": 22.829,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1459,7 +1460,7 @@
               "top": 14.84,
               "bottom": 14.39,
               "date": "2024-08-06",
-              "distancePct": 23.663,
+              "distancePct": 22.829,
               "insideZone": false
             },
             {
@@ -1467,7 +1468,7 @@
               "top": 14.04,
               "bottom": 13.82,
               "date": "2024-07-08",
-              "distancePct": 27.778,
+              "distancePct": 26.989,
               "insideZone": false
             },
             {
@@ -1475,7 +1476,7 @@
               "top": 13.12,
               "bottom": 12.7,
               "date": "2023-11-22",
-              "distancePct": 32.51,
+              "distancePct": 31.773,
               "insideZone": false
             },
             {
@@ -1483,7 +1484,7 @@
               "top": 11.21,
               "bottom": 10.88,
               "date": "2022-10-21",
-              "distancePct": 42.335,
+              "distancePct": 41.706,
               "insideZone": false
             },
             {
@@ -1491,7 +1492,7 @@
               "top": 10.5,
               "bottom": 10.16,
               "date": "2022-06-14",
-              "distancePct": 45.988,
+              "distancePct": 45.398,
               "insideZone": false
             },
             {
@@ -1499,7 +1500,7 @@
               "top": 8.86,
               "bottom": 8.58,
               "date": "2018-06-27",
-              "distancePct": 54.424,
+              "distancePct": 53.926,
               "insideZone": false
             }
           ],
@@ -1509,7 +1510,7 @@
               "top": 23.11,
               "bottom": 22.27,
               "date": "2026-05-01",
-              "distancePct": 14.558,
+              "distancePct": 15.809,
               "insideZone": false
             },
             {
@@ -1517,7 +1518,7 @@
               "top": 25.43,
               "bottom": 24.77,
               "date": "2026-02-26",
-              "distancePct": 27.418,
+              "distancePct": 28.809,
               "insideZone": false
             },
             {
@@ -1525,7 +1526,7 @@
               "top": 25.56,
               "bottom": 25.06,
               "date": "2025-10-28",
-              "distancePct": 28.909,
+              "distancePct": 30.317,
               "insideZone": false
             },
             {
@@ -1533,13 +1534,13 @@
               "top": 26.93,
               "bottom": 26.33,
               "date": "2025-09-08",
-              "distancePct": 35.442,
+              "distancePct": 36.921,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 19.44,
+          "lastPrice": 19.23,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -1553,7 +1554,7 @@
             "top": 14.49,
             "bottom": 13.82,
             "date": "2024-07-08",
-            "distancePct": 25.463,
+            "distancePct": 24.649,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1562,7 +1563,7 @@
               "top": 14.49,
               "bottom": 13.82,
               "date": "2024-07-08",
-              "distancePct": 25.463,
+              "distancePct": 24.649,
               "insideZone": false
             },
             {
@@ -1570,7 +1571,7 @@
               "top": 13.25,
               "bottom": 12.7,
               "date": "2023-11-20",
-              "distancePct": 31.842,
+              "distancePct": 31.097,
               "insideZone": false
             },
             {
@@ -1578,7 +1579,7 @@
               "top": 11.79,
               "bottom": 11.39,
               "date": "2023-01-09",
-              "distancePct": 39.352,
+              "distancePct": 38.69,
               "insideZone": false
             },
             {
@@ -1586,7 +1587,7 @@
               "top": 10.79,
               "bottom": 10.16,
               "date": "2022-06-13",
-              "distancePct": 44.496,
+              "distancePct": 43.89,
               "insideZone": false
             },
             {
@@ -1594,7 +1595,7 @@
               "top": 9.82,
               "bottom": 9.26,
               "date": "2022-01-31",
-              "distancePct": 49.486,
+              "distancePct": 48.934,
               "insideZone": false
             },
             {
@@ -1602,7 +1603,7 @@
               "top": 5.9695,
               "bottom": 5.2448,
               "date": "2011-08-08",
-              "distancePct": 69.293,
+              "distancePct": 68.958,
               "insideZone": false
             },
             {
@@ -1610,7 +1611,7 @@
               "top": 3.8136,
               "bottom": 3.5328,
               "date": "2003-02-17",
-              "distancePct": 80.383,
+              "distancePct": 80.169,
               "insideZone": false
             },
             {
@@ -1618,7 +1619,7 @@
               "top": 2.5816,
               "bottom": 2.5816,
               "date": "1995-02-06",
-              "distancePct": 86.72,
+              "distancePct": 86.575,
               "insideZone": false
             }
           ],
@@ -1628,7 +1629,7 @@
               "top": 26.9,
               "bottom": 25.76,
               "date": "2025-08-25",
-              "distancePct": 32.51,
+              "distancePct": 33.957,
               "insideZone": false
             }
           ]
@@ -1641,8 +1642,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 15.65,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 15.07,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1655,7 +1656,7 @@
             "top": 12.65,
             "bottom": 12.57,
             "date": "2026-07-24",
-            "distancePct": 19.169,
+            "distancePct": 16.058,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1664,7 +1665,7 @@
               "top": 12.65,
               "bottom": 12.57,
               "date": "2026-07-24",
-              "distancePct": 19.169,
+              "distancePct": 16.058,
               "insideZone": false
             },
             {
@@ -1672,7 +1673,7 @@
               "top": 11.88,
               "bottom": 11.71,
               "date": "2026-05-14",
-              "distancePct": 24.089,
+              "distancePct": 21.168,
               "insideZone": false
             },
             {
@@ -1680,7 +1681,7 @@
               "top": 10.73,
               "bottom": 10.65,
               "date": "2026-04-24",
-              "distancePct": 31.438,
+              "distancePct": 28.799,
               "insideZone": false
             },
             {
@@ -1688,7 +1689,7 @@
               "top": 9.68,
               "bottom": 9.62,
               "date": "2026-04-13",
-              "distancePct": 38.147,
+              "distancePct": 35.766,
               "insideZone": false
             },
             {
@@ -1696,7 +1697,7 @@
               "top": 9.45,
               "bottom": 9.39,
               "date": "2023-05-04",
-              "distancePct": 39.617,
+              "distancePct": 37.293,
               "insideZone": false
             },
             {
@@ -1704,7 +1705,7 @@
               "top": 9.45,
               "bottom": 9.39,
               "date": "2023-05-04",
-              "distancePct": 39.617,
+              "distancePct": 37.293,
               "insideZone": false
             }
           ],
@@ -1714,7 +1715,7 @@
               "top": 16.3,
               "bottom": 16.1,
               "date": "2025-02-06",
-              "distancePct": 2.875,
+              "distancePct": 6.835,
               "insideZone": false
             },
             {
@@ -1722,13 +1723,13 @@
               "top": 17.39,
               "bottom": 17.26,
               "date": "2021-11-05",
-              "distancePct": 10.288,
+              "distancePct": 14.532,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 15.65,
+          "lastPrice": 15.07,
           "lastBarDate": "2026-08-31",
           "swingTrend": null,
           "internalTrend": "BULLISH",
@@ -1742,7 +1743,7 @@
             "top": 12.24,
             "bottom": 11.81,
             "date": "2026-06-22",
-            "distancePct": 21.789,
+            "distancePct": 18.779,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1751,7 +1752,7 @@
               "top": 12.24,
               "bottom": 11.81,
               "date": "2026-06-22",
-              "distancePct": 21.789,
+              "distancePct": 18.779,
               "insideZone": false
             },
             {
@@ -1759,7 +1760,7 @@
               "top": 9.92,
               "bottom": 9.39,
               "date": "2023-05-01",
-              "distancePct": 36.613,
+              "distancePct": 34.174,
               "insideZone": false
             },
             {
@@ -1767,7 +1768,7 @@
               "top": 9.24,
               "bottom": 8.96,
               "date": "2022-12-26",
-              "distancePct": 40.958,
+              "distancePct": 38.686,
               "insideZone": false
             }
           ],
@@ -1777,15 +1778,15 @@
               "top": 16.48,
               "bottom": 15.41,
               "date": "2025-01-27",
-              "distancePct": 0.0,
-              "insideZone": true
+              "distancePct": 2.256,
+              "insideZone": false
             },
             {
               "kind": "internal",
               "top": 17.39,
               "bottom": 16.71,
               "date": "2021-11-01",
-              "distancePct": 6.773,
+              "distancePct": 10.883,
               "insideZone": false
             }
           ]
@@ -1798,8 +1799,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 7.81,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 7.72,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1812,7 +1813,7 @@
             "top": 7.65,
             "bottom": 7.48,
             "date": "2026-07-27",
-            "distancePct": 2.049,
+            "distancePct": 0.907,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1821,7 +1822,7 @@
               "top": 7.65,
               "bottom": 7.48,
               "date": "2026-07-27",
-              "distancePct": 2.049,
+              "distancePct": 0.907,
               "insideZone": false
             },
             {
@@ -1829,7 +1830,7 @@
               "top": 6.94,
               "bottom": 6.77,
               "date": "2025-06-02",
-              "distancePct": 11.14,
+              "distancePct": 10.104,
               "insideZone": false
             },
             {
@@ -1837,7 +1838,7 @@
               "top": 6.93,
               "bottom": 6.85,
               "date": "2025-06-20",
-              "distancePct": 11.268,
+              "distancePct": 10.233,
               "insideZone": false
             },
             {
@@ -1845,7 +1846,7 @@
               "top": 6.56,
               "bottom": 6.3,
               "date": "2025-04-08",
-              "distancePct": 16.005,
+              "distancePct": 15.026,
               "insideZone": false
             },
             {
@@ -1853,7 +1854,7 @@
               "top": 5.14,
               "bottom": 5.06,
               "date": "2024-09-18",
-              "distancePct": 34.187,
+              "distancePct": 33.42,
               "insideZone": false
             }
           ],
@@ -1863,7 +1864,7 @@
               "top": 8.4,
               "bottom": 8.17,
               "date": "2026-05-14",
-              "distancePct": 4.609,
+              "distancePct": 5.829,
               "insideZone": false
             },
             {
@@ -1871,7 +1872,7 @@
               "top": 8.36,
               "bottom": 8.24,
               "date": "2026-07-06",
-              "distancePct": 5.506,
+              "distancePct": 6.736,
               "insideZone": false
             },
             {
@@ -1879,7 +1880,7 @@
               "top": 8.57,
               "bottom": 8.42,
               "date": "2026-01-14",
-              "distancePct": 7.811,
+              "distancePct": 9.067,
               "insideZone": false
             },
             {
@@ -1887,13 +1888,13 @@
               "top": 9.98,
               "bottom": 9.83,
               "date": "2021-12-14",
-              "distancePct": 25.864,
+              "distancePct": 27.332,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 7.81,
+          "lastPrice": 7.72,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
@@ -1907,7 +1908,7 @@
             "top": 6.85,
             "bottom": 6.26,
             "date": "2025-04-07",
-            "distancePct": 12.292,
+            "distancePct": 11.269,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1916,7 +1917,7 @@
               "top": 6.85,
               "bottom": 6.26,
               "date": "2025-04-07",
-              "distancePct": 12.292,
+              "distancePct": 11.269,
               "insideZone": false
             },
             {
@@ -1924,7 +1925,7 @@
               "top": 5.21,
               "bottom": 5.06,
               "date": "2024-09-16",
-              "distancePct": 33.291,
+              "distancePct": 32.513,
               "insideZone": false
             },
             {
@@ -1932,7 +1933,7 @@
               "top": 5.14,
               "bottom": 4.91,
               "date": "2018-12-17",
-              "distancePct": 34.187,
+              "distancePct": 33.42,
               "insideZone": false
             }
           ],
@@ -1942,7 +1943,7 @@
               "top": 9.98,
               "bottom": 9.55,
               "date": "2021-12-13",
-              "distancePct": 22.279,
+              "distancePct": 23.705,
               "insideZone": false
             },
             {
@@ -1950,7 +1951,7 @@
               "top": 9.98,
               "bottom": 9.55,
               "date": "2021-12-13",
-              "distancePct": 22.279,
+              "distancePct": 23.705,
               "insideZone": false
             },
             {
@@ -1958,7 +1959,7 @@
               "top": 10.27,
               "bottom": 9.73,
               "date": "2020-10-19",
-              "distancePct": 24.584,
+              "distancePct": 26.036,
               "insideZone": false
             }
           ]
@@ -1971,8 +1972,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 7.83,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 7.51,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -1985,7 +1986,7 @@
             "top": 7.1,
             "bottom": 6.93,
             "date": "2026-08-19",
-            "distancePct": 9.323,
+            "distancePct": 5.459,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -1994,7 +1995,7 @@
               "top": 7.1,
               "bottom": 6.93,
               "date": "2026-08-19",
-              "distancePct": 9.323,
+              "distancePct": 5.459,
               "insideZone": false
             },
             {
@@ -2002,7 +2003,7 @@
               "top": 5.95,
               "bottom": 5.74,
               "date": "2026-03-31",
-              "distancePct": 24.01,
+              "distancePct": 20.772,
               "insideZone": false
             },
             {
@@ -2010,7 +2011,7 @@
               "top": 4.96,
               "bottom": 4.64,
               "date": "2025-04-11",
-              "distancePct": 36.654,
+              "distancePct": 33.955,
               "insideZone": false
             },
             {
@@ -2018,7 +2019,7 @@
               "top": 4.51,
               "bottom": 4.32,
               "date": "2025-04-07",
-              "distancePct": 42.401,
+              "distancePct": 39.947,
               "insideZone": false
             },
             {
@@ -2026,7 +2027,7 @@
               "top": 4.2,
               "bottom": 4.15,
               "date": "2024-09-09",
-              "distancePct": 46.36,
+              "distancePct": 44.075,
               "insideZone": false
             },
             {
@@ -2034,7 +2035,7 @@
               "top": 2.58,
               "bottom": 2.55,
               "date": "2023-10-19",
-              "distancePct": 67.05,
+              "distancePct": 65.646,
               "insideZone": false
             },
             {
@@ -2042,7 +2043,7 @@
               "top": 1.37,
               "bottom": 1.36,
               "date": "2022-12-29",
-              "distancePct": 82.503,
+              "distancePct": 81.758,
               "insideZone": false
             }
           ],
@@ -2052,7 +2053,7 @@
               "top": 8.81,
               "bottom": 8.55,
               "date": "2026-06-22",
-              "distancePct": 9.195,
+              "distancePct": 13.848,
               "insideZone": false
             },
             {
@@ -2060,13 +2061,13 @@
               "top": 10.52,
               "bottom": 10.3,
               "date": "2025-10-27",
-              "distancePct": 31.545,
+              "distancePct": 37.15,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 7.83,
+          "lastPrice": 7.51,
           "lastBarDate": "2026-08-31",
           "swingTrend": null,
           "internalTrend": "BULLISH",
@@ -2080,7 +2081,7 @@
             "top": 6.13,
             "bottom": 5.74,
             "date": "2026-03-30",
-            "distancePct": 21.711,
+            "distancePct": 18.376,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2089,7 +2090,7 @@
               "top": 6.13,
               "bottom": 5.74,
               "date": "2026-03-30",
-              "distancePct": 21.711,
+              "distancePct": 18.376,
               "insideZone": false
             },
             {
@@ -2097,7 +2098,7 @@
               "top": 4.5,
               "bottom": 4.15,
               "date": "2024-09-09",
-              "distancePct": 42.529,
+              "distancePct": 40.08,
               "insideZone": false
             },
             {
@@ -2105,7 +2106,7 @@
               "top": 3.48,
               "bottom": 3.34,
               "date": "2024-01-22",
-              "distancePct": 55.556,
+              "distancePct": 53.662,
               "insideZone": false
             },
             {
@@ -2113,7 +2114,7 @@
               "top": 2.69,
               "bottom": 2.55,
               "date": "2023-10-16",
-              "distancePct": 65.645,
+              "distancePct": 64.181,
               "insideZone": false
             }
           ],
@@ -2123,7 +2124,7 @@
               "top": 10.81,
               "bottom": 9.91,
               "date": "2025-10-13",
-              "distancePct": 26.564,
+              "distancePct": 31.957,
               "insideZone": false
             }
           ]
@@ -2136,8 +2137,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 172.31,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 173.85,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -2150,7 +2151,7 @@
             "top": 116.5,
             "bottom": 112.4,
             "date": "2026-06-29",
-            "distancePct": 32.389,
+            "distancePct": 32.988,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2159,7 +2160,7 @@
               "top": 116.5,
               "bottom": 112.4,
               "date": "2026-06-29",
-              "distancePct": 32.389,
+              "distancePct": 32.988,
               "insideZone": false
             },
             {
@@ -2167,7 +2168,7 @@
               "top": 115.75,
               "bottom": 113.75,
               "date": "2026-07-24",
-              "distancePct": 32.825,
+              "distancePct": 33.42,
               "insideZone": false
             },
             {
@@ -2175,7 +2176,7 @@
               "top": 92.27,
               "bottom": 90.0,
               "date": "2026-06-03",
-              "distancePct": 46.451,
+              "distancePct": 46.926,
               "insideZone": false
             },
             {
@@ -2183,7 +2184,7 @@
               "top": 89.39,
               "bottom": 87.68,
               "date": "2015-09-29",
-              "distancePct": 48.123,
+              "distancePct": 48.582,
               "insideZone": false
             }
           ],
@@ -2193,7 +2194,7 @@
               "top": 188.67,
               "bottom": 185.65,
               "date": "2025-11-28",
-              "distancePct": 7.742,
+              "distancePct": 6.787,
               "insideZone": false
             },
             {
@@ -2201,7 +2202,7 @@
               "top": 188.67,
               "bottom": 185.65,
               "date": "2025-11-28",
-              "distancePct": 7.742,
+              "distancePct": 6.787,
               "insideZone": false
             },
             {
@@ -2209,7 +2210,7 @@
               "top": 222.47,
               "bottom": 218.44,
               "date": "2025-10-17",
-              "distancePct": 26.772,
+              "distancePct": 25.649,
               "insideZone": false
             },
             {
@@ -2217,7 +2218,7 @@
               "top": 275.79,
               "bottom": 271.11,
               "date": "2025-07-30",
-              "distancePct": 57.339,
+              "distancePct": 55.945,
               "insideZone": false
             },
             {
@@ -2225,7 +2226,7 @@
               "top": 313.55,
               "bottom": 310.06,
               "date": "2024-07-24",
-              "distancePct": 79.943,
+              "distancePct": 78.349,
               "insideZone": false
             },
             {
@@ -2233,13 +2234,13 @@
               "top": 320.42,
               "bottom": 317.51,
               "date": "2020-11-24",
-              "distancePct": 84.267,
+              "distancePct": 82.634,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 172.31,
+          "lastPrice": 173.85,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BEARISH",
           "internalTrend": "BEARISH",
@@ -2253,7 +2254,7 @@
             "top": 27.09,
             "bottom": 26.12,
             "date": "2011-09-12",
-            "distancePct": 84.278,
+            "distancePct": 84.418,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2262,7 +2263,7 @@
               "top": 27.09,
               "bottom": 26.12,
               "date": "2011-09-12",
-              "distancePct": 84.278,
+              "distancePct": 84.418,
               "insideZone": false
             },
             {
@@ -2270,7 +2271,7 @@
               "top": 4.0733,
               "bottom": 3.8567,
               "date": "2003-05-26",
-              "distancePct": 97.636,
+              "distancePct": 97.657,
               "insideZone": false
             }
           ],
@@ -2280,7 +2281,7 @@
               "top": 188.67,
               "bottom": 179.94,
               "date": "2025-11-24",
-              "distancePct": 4.428,
+              "distancePct": 3.503,
               "insideZone": false
             },
             {
@@ -2288,7 +2289,7 @@
               "top": 275.79,
               "bottom": 263.18,
               "date": "2025-07-28",
-              "distancePct": 52.736,
+              "distancePct": 51.383,
               "insideZone": false
             },
             {
@@ -2296,7 +2297,7 @@
               "top": 290.315,
               "bottom": 282.84,
               "date": "2025-01-06",
-              "distancePct": 64.146,
+              "distancePct": 62.692,
               "insideZone": false
             },
             {
@@ -2304,7 +2305,7 @@
               "top": 314.21,
               "bottom": 302.38,
               "date": "2023-02-06",
-              "distancePct": 75.486,
+              "distancePct": 73.932,
               "insideZone": false
             },
             {
@@ -2312,7 +2313,7 @@
               "top": 311.38,
               "bottom": 304.34,
               "date": "2024-08-19",
-              "distancePct": 76.624,
+              "distancePct": 75.059,
               "insideZone": false
             },
             {
@@ -2320,7 +2321,7 @@
               "top": 313.55,
               "bottom": 305.54,
               "date": "2024-07-22",
-              "distancePct": 77.32,
+              "distancePct": 75.749,
               "insideZone": false
             },
             {
@@ -2328,7 +2329,7 @@
               "top": 319.78,
               "bottom": 311.12,
               "date": "2021-11-22",
-              "distancePct": 80.558,
+              "distancePct": 78.959,
               "insideZone": false
             }
           ]
@@ -2482,8 +2483,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 16.95,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 16.74,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -2496,8 +2497,8 @@
             "top": 16.78,
             "bottom": 16.67,
             "date": "2026-07-24",
-            "distancePct": 1.003,
-            "insideZone": false
+            "distancePct": 0.0,
+            "insideZone": true
           },
           "bullishOrderBlocks": [
             {
@@ -2505,15 +2506,15 @@
               "top": 16.78,
               "bottom": 16.67,
               "date": "2026-07-24",
-              "distancePct": 1.003,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "internal",
               "top": 16.12,
               "bottom": 15.98,
               "date": "2026-06-04",
-              "distancePct": 4.897,
+              "distancePct": 3.704,
               "insideZone": false
             },
             {
@@ -2521,7 +2522,7 @@
               "top": 15.34,
               "bottom": 15.22,
               "date": "2026-05-06",
-              "distancePct": 9.499,
+              "distancePct": 8.363,
               "insideZone": false
             },
             {
@@ -2529,7 +2530,7 @@
               "top": 14.6,
               "bottom": 14.32,
               "date": "2026-03-30",
-              "distancePct": 13.864,
+              "distancePct": 12.784,
               "insideZone": false
             },
             {
@@ -2537,7 +2538,7 @@
               "top": 14.35,
               "bottom": 14.12,
               "date": "2025-04-09",
-              "distancePct": 15.339,
+              "distancePct": 14.277,
               "insideZone": false
             },
             {
@@ -2545,7 +2546,7 @@
               "top": 14.11,
               "bottom": 14.0,
               "date": "2024-08-08",
-              "distancePct": 16.755,
+              "distancePct": 15.711,
               "insideZone": false
             },
             {
@@ -2553,7 +2554,7 @@
               "top": 12.86,
               "bottom": 12.8,
               "date": "2024-01-04",
-              "distancePct": 24.13,
+              "distancePct": 23.178,
               "insideZone": false
             },
             {
@@ -2561,7 +2562,7 @@
               "top": 12.57,
               "bottom": 12.51,
               "date": "2023-11-29",
-              "distancePct": 25.841,
+              "distancePct": 24.91,
               "insideZone": false
             },
             {
@@ -2569,7 +2570,7 @@
               "top": 11.85,
               "bottom": 11.78,
               "date": "2023-10-30",
-              "distancePct": 30.088,
+              "distancePct": 29.211,
               "insideZone": false
             },
             {
@@ -2577,14 +2578,14 @@
               "top": 10.39,
               "bottom": 10.24,
               "date": "2022-10-03",
-              "distancePct": 38.702,
+              "distancePct": 37.933,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 16.95,
+          "lastPrice": 16.74,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -2598,8 +2599,8 @@
             "top": 16.88,
             "bottom": 16.67,
             "date": "2026-07-20",
-            "distancePct": 0.413,
-            "insideZone": false
+            "distancePct": 0.0,
+            "insideZone": true
           },
           "bullishOrderBlocks": [
             {
@@ -2607,15 +2608,15 @@
               "top": 16.88,
               "bottom": 16.67,
               "date": "2026-07-20",
-              "distancePct": 0.413,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "internal",
               "top": 14.85,
               "bottom": 14.32,
               "date": "2026-03-30",
-              "distancePct": 12.389,
+              "distancePct": 11.29,
               "insideZone": false
             },
             {
@@ -2623,7 +2624,7 @@
               "top": 14.39,
               "bottom": 14.0,
               "date": "2024-08-05",
-              "distancePct": 15.103,
+              "distancePct": 14.038,
               "insideZone": false
             },
             {
@@ -2631,7 +2632,7 @@
               "top": 12.22,
               "bottom": 11.78,
               "date": "2023-10-30",
-              "distancePct": 27.906,
+              "distancePct": 27.001,
               "insideZone": false
             },
             {
@@ -2639,7 +2640,7 @@
               "top": 11.17,
               "bottom": 10.9,
               "date": "2022-12-26",
-              "distancePct": 34.1,
+              "distancePct": 33.274,
               "insideZone": false
             },
             {
@@ -2647,7 +2648,7 @@
               "top": 10.69,
               "bottom": 10.18,
               "date": "2022-06-20",
-              "distancePct": 36.932,
+              "distancePct": 36.141,
               "insideZone": false
             }
           ],
@@ -2661,8 +2662,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 14.92,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 14.63,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -2675,7 +2676,7 @@
             "top": 13.34,
             "bottom": 13.05,
             "date": "2026-08-14",
-            "distancePct": 10.59,
+            "distancePct": 8.817,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2684,7 +2685,7 @@
               "top": 13.34,
               "bottom": 13.05,
               "date": "2026-08-14",
-              "distancePct": 10.59,
+              "distancePct": 8.817,
               "insideZone": false
             },
             {
@@ -2692,7 +2693,7 @@
               "top": 11.51,
               "bottom": 11.06,
               "date": "2026-07-30",
-              "distancePct": 22.855,
+              "distancePct": 21.326,
               "insideZone": false
             },
             {
@@ -2700,7 +2701,7 @@
               "top": 10.95,
               "bottom": 10.205,
               "date": "2026-06-11",
-              "distancePct": 26.609,
+              "distancePct": 25.154,
               "insideZone": false
             },
             {
@@ -2708,7 +2709,7 @@
               "top": 9.27,
               "bottom": 9.11,
               "date": "2025-09-18",
-              "distancePct": 37.869,
+              "distancePct": 36.637,
               "insideZone": false
             },
             {
@@ -2716,7 +2717,7 @@
               "top": 7.11,
               "bottom": 6.96,
               "date": "2025-07-31",
-              "distancePct": 52.346,
+              "distancePct": 51.401,
               "insideZone": false
             },
             {
@@ -2724,7 +2725,7 @@
               "top": 4.62,
               "bottom": 4.47,
               "date": "2024-11-14",
-              "distancePct": 69.035,
+              "distancePct": 68.421,
               "insideZone": false
             },
             {
@@ -2732,7 +2733,7 @@
               "top": 3.45,
               "bottom": 3.3,
               "date": "2024-06-27",
-              "distancePct": 76.877,
+              "distancePct": 76.418,
               "insideZone": false
             },
             {
@@ -2740,7 +2741,7 @@
               "top": 2.69,
               "bottom": 2.555,
               "date": "2023-03-17",
-              "distancePct": 81.971,
+              "distancePct": 81.613,
               "insideZone": false
             },
             {
@@ -2748,7 +2749,7 @@
               "top": 1.4969,
               "bottom": 1.4351,
               "date": "2016-03-24",
-              "distancePct": 89.967,
+              "distancePct": 89.768,
               "insideZone": false
             }
           ],
@@ -2758,13 +2759,13 @@
               "top": 17.28,
               "bottom": 16.67,
               "date": "2026-03-03",
-              "distancePct": 11.729,
+              "distancePct": 13.944,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 14.92,
+          "lastPrice": 14.63,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -2778,7 +2779,7 @@
             "top": 11.85,
             "bottom": 11.06,
             "date": "2026-07-27",
-            "distancePct": 20.576,
+            "distancePct": 19.002,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2787,7 +2788,7 @@
               "top": 11.85,
               "bottom": 11.06,
               "date": "2026-07-27",
-              "distancePct": 20.576,
+              "distancePct": 19.002,
               "insideZone": false
             },
             {
@@ -2795,7 +2796,7 @@
               "top": 10.97,
               "bottom": 10.06,
               "date": "2025-10-27",
-              "distancePct": 26.475,
+              "distancePct": 25.017,
               "insideZone": false
             },
             {
@@ -2803,7 +2804,7 @@
               "top": 7.41,
               "bottom": 6.96,
               "date": "2025-07-28",
-              "distancePct": 50.335,
+              "distancePct": 49.351,
               "insideZone": false
             },
             {
@@ -2811,7 +2812,7 @@
               "top": 4.91,
               "bottom": 4.47,
               "date": "2024-11-11",
-              "distancePct": 67.091,
+              "distancePct": 66.439,
               "insideZone": false
             },
             {
@@ -2819,7 +2820,7 @@
               "top": 3.64,
               "bottom": 3.3,
               "date": "2024-06-24",
-              "distancePct": 75.603,
+              "distancePct": 75.12,
               "insideZone": false
             },
             {
@@ -2827,7 +2828,7 @@
               "top": 2.04,
               "bottom": 1.8,
               "date": "2022-10-17",
-              "distancePct": 86.327,
+              "distancePct": 86.056,
               "insideZone": false
             },
             {
@@ -2835,7 +2836,7 @@
               "top": 1.8875,
               "bottom": 1.61,
               "date": "2016-12-12",
-              "distancePct": 87.349,
+              "distancePct": 87.098,
               "insideZone": false
             }
           ],
@@ -2849,8 +2850,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 18.81,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 18.93,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -2863,7 +2864,7 @@
             "top": 18.35,
             "bottom": 18.16,
             "date": "2026-07-24",
-            "distancePct": 2.446,
+            "distancePct": 3.064,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2872,7 +2873,7 @@
               "top": 18.35,
               "bottom": 18.16,
               "date": "2026-07-24",
-              "distancePct": 2.446,
+              "distancePct": 3.064,
               "insideZone": false
             },
             {
@@ -2880,7 +2881,7 @@
               "top": 17.99,
               "bottom": 17.81,
               "date": "2026-05-28",
-              "distancePct": 4.359,
+              "distancePct": 4.966,
               "insideZone": false
             },
             {
@@ -2888,7 +2889,7 @@
               "top": 17.85,
               "bottom": 17.54,
               "date": "2026-03-23",
-              "distancePct": 5.104,
+              "distancePct": 5.705,
               "insideZone": false
             },
             {
@@ -2896,7 +2897,7 @@
               "top": 16.47,
               "bottom": 16.25,
               "date": "2023-10-30",
-              "distancePct": 12.44,
+              "distancePct": 12.995,
               "insideZone": false
             },
             {
@@ -2904,7 +2905,7 @@
               "top": 16.28,
               "bottom": 16.04,
               "date": "2022-10-03",
-              "distancePct": 13.45,
+              "distancePct": 13.999,
               "insideZone": false
             }
           ],
@@ -2914,7 +2915,7 @@
               "top": 20.42,
               "bottom": 20.29,
               "date": "2026-01-13",
-              "distancePct": 7.868,
+              "distancePct": 7.184,
               "insideZone": false
             },
             {
@@ -2922,7 +2923,7 @@
               "top": 20.65,
               "bottom": 20.49,
               "date": "2025-12-23",
-              "distancePct": 8.931,
+              "distancePct": 8.241,
               "insideZone": false
             },
             {
@@ -2930,13 +2931,13 @@
               "top": 22.91,
               "bottom": 22.68,
               "date": "2025-08-21",
-              "distancePct": 20.574,
+              "distancePct": 19.81,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 18.81,
+          "lastPrice": 18.93,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -2950,7 +2951,7 @@
             "top": 18.18,
             "bottom": 17.77,
             "date": "2026-05-18",
-            "distancePct": 3.349,
+            "distancePct": 3.962,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -2959,7 +2960,7 @@
               "top": 18.18,
               "bottom": 17.77,
               "date": "2026-05-18",
-              "distancePct": 3.349,
+              "distancePct": 3.962,
               "insideZone": false
             },
             {
@@ -2967,7 +2968,7 @@
               "top": 17.12,
               "bottom": 16.25,
               "date": "2023-10-30",
-              "distancePct": 8.985,
+              "distancePct": 9.562,
               "insideZone": false
             },
             {
@@ -2975,7 +2976,7 @@
               "top": 17.07,
               "bottom": 16.04,
               "date": "2022-10-03",
-              "distancePct": 9.25,
+              "distancePct": 9.826,
               "insideZone": false
             },
             {
@@ -2983,7 +2984,7 @@
               "top": 15.34,
               "bottom": 13.06,
               "date": "2020-03-23",
-              "distancePct": 18.448,
+              "distancePct": 18.965,
               "insideZone": false
             }
           ],
@@ -2993,7 +2994,7 @@
               "top": 22.91,
               "bottom": 22.5,
               "date": "2025-08-18",
-              "distancePct": 19.617,
+              "distancePct": 18.859,
               "insideZone": false
             }
           ]
@@ -3006,8 +3007,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 8.97,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 9.08,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -3017,19 +3018,27 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 8.34,
-            "bottom": 8.28,
-            "date": "2026-08-06",
-            "distancePct": 7.023,
+            "top": 8.77,
+            "bottom": 8.67,
+            "date": "2026-08-28",
+            "distancePct": 3.414,
             "insideZone": false
           },
           "bullishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 8.77,
+              "bottom": 8.67,
+              "date": "2026-08-28",
+              "distancePct": 3.414,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 8.34,
               "bottom": 8.28,
               "date": "2026-08-06",
-              "distancePct": 7.023,
+              "distancePct": 8.15,
               "insideZone": false
             },
             {
@@ -3037,7 +3046,7 @@
               "top": 6.69,
               "bottom": 6.63,
               "date": "2026-01-08",
-              "distancePct": 25.418,
+              "distancePct": 26.322,
               "insideZone": false
             },
             {
@@ -3045,7 +3054,7 @@
               "top": 6.46,
               "bottom": 6.35,
               "date": "2025-10-17",
-              "distancePct": 27.982,
+              "distancePct": 28.855,
               "insideZone": false
             },
             {
@@ -3053,15 +3062,7 @@
               "top": 6.33,
               "bottom": 6.28,
               "date": "2025-08-20",
-              "distancePct": 29.431,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 6.31,
-              "bottom": 6.24,
-              "date": "2025-07-22",
-              "distancePct": 29.654,
+              "distancePct": 30.286,
               "insideZone": false
             },
             {
@@ -3069,7 +3070,7 @@
               "top": 6.29,
               "bottom": 6.16,
               "date": "2025-06-26",
-              "distancePct": 29.877,
+              "distancePct": 30.727,
               "insideZone": false
             },
             {
@@ -3077,7 +3078,7 @@
               "top": 4.56,
               "bottom": 4.47,
               "date": "2021-12-21",
-              "distancePct": 49.164,
+              "distancePct": 49.78,
               "insideZone": false
             },
             {
@@ -3085,7 +3086,7 @@
               "top": 4.05,
               "bottom": 3.99,
               "date": "2021-07-20",
-              "distancePct": 54.849,
+              "distancePct": 55.396,
               "insideZone": false
             },
             {
@@ -3093,26 +3094,17 @@
               "top": 2.87,
               "bottom": 2.81,
               "date": "2020-10-29",
-              "distancePct": 68.004,
+              "distancePct": 68.392,
               "insideZone": false
             }
           ],
-          "bearishOrderBlocks": [
-            {
-              "kind": "swing",
-              "top": 9.13,
-              "bottom": 9.06,
-              "date": "2026-03-30",
-              "distancePct": 1.003,
-              "insideZone": false
-            }
-          ]
+          "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 8.97,
+          "lastPrice": 9.08,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
-          "internalTrend": "BEARISH",
+          "internalTrend": "BULLISH",
           "guppyTrend": {
             "sixMonth": true,
             "oneYear": true,
@@ -3120,19 +3112,27 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 6.54,
-            "bottom": 6.35,
-            "date": "2025-10-13",
-            "distancePct": 27.09,
+            "top": 8.13,
+            "bottom": 7.65,
+            "date": "2026-06-29",
+            "distancePct": 10.463,
             "insideZone": false
           },
           "bullishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 8.13,
+              "bottom": 7.65,
+              "date": "2026-06-29",
+              "distancePct": 10.463,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 6.54,
               "bottom": 6.35,
               "date": "2025-10-13",
-              "distancePct": 27.09,
+              "distancePct": 27.974,
               "insideZone": false
             },
             {
@@ -3140,7 +3140,7 @@
               "top": 5.82,
               "bottom": 5.62,
               "date": "2025-04-14",
-              "distancePct": 35.117,
+              "distancePct": 35.903,
               "insideZone": false
             },
             {
@@ -3148,7 +3148,7 @@
               "top": 5.52,
               "bottom": 5.23,
               "date": "2022-07-11",
-              "distancePct": 38.462,
+              "distancePct": 39.207,
               "insideZone": false
             },
             {
@@ -3156,7 +3156,7 @@
               "top": 4.71,
               "bottom": 4.47,
               "date": "2021-12-20",
-              "distancePct": 47.492,
+              "distancePct": 48.128,
               "insideZone": false
             },
             {
@@ -3164,7 +3164,7 @@
               "top": 4.21,
               "bottom": 3.99,
               "date": "2021-07-19",
-              "distancePct": 53.066,
+              "distancePct": 53.634,
               "insideZone": false
             },
             {
@@ -3172,20 +3172,11 @@
               "top": 3.03,
               "bottom": 2.81,
               "date": "2020-10-26",
-              "distancePct": 66.221,
+              "distancePct": 66.63,
               "insideZone": false
             }
           ],
-          "bearishOrderBlocks": [
-            {
-              "kind": "internal",
-              "top": 9.07,
-              "bottom": 8.8,
-              "date": "2026-05-18",
-              "distancePct": 0.0,
-              "insideZone": true
-            }
-          ]
+          "bearishOrderBlocks": []
         }
       }
     },
@@ -3195,8 +3186,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 118.75,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 114.68,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -3209,7 +3200,7 @@
             "top": 109.5,
             "bottom": 107.07,
             "date": "2026-08-14",
-            "distancePct": 7.789,
+            "distancePct": 4.517,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3218,7 +3209,7 @@
               "top": 109.5,
               "bottom": 107.07,
               "date": "2026-08-14",
-              "distancePct": 7.789,
+              "distancePct": 4.517,
               "insideZone": false
             },
             {
@@ -3226,7 +3217,7 @@
               "top": 94.99,
               "bottom": 91.6,
               "date": "2026-07-30",
-              "distancePct": 20.008,
+              "distancePct": 17.17,
               "insideZone": false
             },
             {
@@ -3234,7 +3225,7 @@
               "top": 54.96,
               "bottom": 54.06,
               "date": "2024-12-20",
-              "distancePct": 53.718,
+              "distancePct": 52.075,
               "insideZone": false
             },
             {
@@ -3242,7 +3233,7 @@
               "top": 40.4,
               "bottom": 40.05,
               "date": "2024-02-28",
-              "distancePct": 65.979,
+              "distancePct": 64.772,
               "insideZone": false
             },
             {
@@ -3250,7 +3241,7 @@
               "top": 28.97,
               "bottom": 28.81,
               "date": "2019-05-03",
-              "distancePct": 75.604,
+              "distancePct": 74.738,
               "insideZone": false
             },
             {
@@ -3258,7 +3249,7 @@
               "top": 24.84,
               "bottom": 24.65,
               "date": "2018-09-12",
-              "distancePct": 79.082,
+              "distancePct": 78.34,
               "insideZone": false
             }
           ],
@@ -3268,7 +3259,7 @@
               "top": 127.67,
               "bottom": 125.89,
               "date": "2026-06-18",
-              "distancePct": 6.013,
+              "distancePct": 9.775,
               "insideZone": false
             },
             {
@@ -3276,7 +3267,7 @@
               "top": 127.75,
               "bottom": 126.18,
               "date": "2026-06-01",
-              "distancePct": 6.257,
+              "distancePct": 10.028,
               "insideZone": false
             },
             {
@@ -3284,7 +3275,7 @@
               "top": 139.4,
               "bottom": 137.35,
               "date": "2026-05-12",
-              "distancePct": 15.663,
+              "distancePct": 19.768,
               "insideZone": false
             },
             {
@@ -3292,13 +3283,13 @@
               "top": 145.78,
               "bottom": 143.0,
               "date": "2026-04-08",
-              "distancePct": 20.421,
+              "distancePct": 24.695,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 118.75,
+          "lastPrice": 114.68,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -3312,7 +3303,7 @@
             "top": 81.9,
             "bottom": 77.5,
             "date": "2025-07-07",
-            "distancePct": 31.032,
+            "distancePct": 28.584,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3321,7 +3312,7 @@
               "top": 81.9,
               "bottom": 77.5,
               "date": "2025-07-07",
-              "distancePct": 31.032,
+              "distancePct": 28.584,
               "insideZone": false
             },
             {
@@ -3329,7 +3320,7 @@
               "top": 78.01,
               "bottom": 74.35,
               "date": "2025-04-28",
-              "distancePct": 34.307,
+              "distancePct": 31.976,
               "insideZone": false
             },
             {
@@ -3337,7 +3328,7 @@
               "top": 57.88,
               "bottom": 54.06,
               "date": "2024-12-16",
-              "distancePct": 51.259,
+              "distancePct": 49.529,
               "insideZone": false
             },
             {
@@ -3345,7 +3336,7 @@
               "top": 54.61,
               "bottom": 50.44,
               "date": "2024-06-10",
-              "distancePct": 54.013,
+              "distancePct": 52.381,
               "insideZone": false
             },
             {
@@ -3353,7 +3344,7 @@
               "top": 36.73,
               "bottom": 33.72,
               "date": "2022-09-26",
-              "distancePct": 69.069,
+              "distancePct": 67.972,
               "insideZone": false
             },
             {
@@ -3361,7 +3352,7 @@
               "top": 25.33,
               "bottom": 24.65,
               "date": "2018-09-10",
-              "distancePct": 78.669,
+              "distancePct": 77.912,
               "insideZone": false
             }
           ],
@@ -3371,7 +3362,7 @@
               "top": 145.69,
               "bottom": 138.45,
               "date": "2026-04-13",
-              "distancePct": 16.589,
+              "distancePct": 20.727,
               "insideZone": false
             }
           ]
@@ -3384,8 +3375,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 17.87,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 17.05,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -3398,7 +3389,7 @@
             "top": 16.09,
             "bottom": 15.94,
             "date": "2026-07-24",
-            "distancePct": 9.961,
+            "distancePct": 5.63,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3407,7 +3398,7 @@
               "top": 16.09,
               "bottom": 15.94,
               "date": "2026-07-24",
-              "distancePct": 9.961,
+              "distancePct": 5.63,
               "insideZone": false
             },
             {
@@ -3415,7 +3406,7 @@
               "top": 15.89,
               "bottom": 15.64,
               "date": "2026-06-23",
-              "distancePct": 11.08,
+              "distancePct": 6.804,
               "insideZone": false
             },
             {
@@ -3423,7 +3414,7 @@
               "top": 11.47,
               "bottom": 11.29,
               "date": "2026-04-13",
-              "distancePct": 35.814,
+              "distancePct": 32.727,
               "insideZone": false
             },
             {
@@ -3431,7 +3422,7 @@
               "top": 11.47,
               "bottom": 11.29,
               "date": "2026-04-13",
-              "distancePct": 35.814,
+              "distancePct": 32.727,
               "insideZone": false
             },
             {
@@ -3439,7 +3430,7 @@
               "top": 11.14,
               "bottom": 10.96,
               "date": "2024-08-06",
-              "distancePct": 37.661,
+              "distancePct": 34.663,
               "insideZone": false
             },
             {
@@ -3447,7 +3438,7 @@
               "top": 10.91,
               "bottom": 10.86,
               "date": "2024-06-04",
-              "distancePct": 38.948,
+              "distancePct": 36.012,
               "insideZone": false
             },
             {
@@ -3455,7 +3446,7 @@
               "top": 10.55,
               "bottom": 10.49,
               "date": "2024-01-08",
-              "distancePct": 40.963,
+              "distancePct": 38.123,
               "insideZone": false
             },
             {
@@ -3463,7 +3454,7 @@
               "top": 7.55,
               "bottom": 7.51,
               "date": "2023-01-10",
-              "distancePct": 57.75,
+              "distancePct": 55.718,
               "insideZone": false
             },
             {
@@ -3471,7 +3462,7 @@
               "top": 7.3,
               "bottom": 7.11,
               "date": "2020-09-21",
-              "distancePct": 59.149,
+              "distancePct": 57.185,
               "insideZone": false
             },
             {
@@ -3479,14 +3470,14 @@
               "top": 6.14,
               "bottom": 5.85,
               "date": "2020-03-13",
-              "distancePct": 65.641,
+              "distancePct": 63.988,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 17.87,
+          "lastPrice": 17.05,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -3500,7 +3491,7 @@
             "top": 16.21,
             "bottom": 15.64,
             "date": "2026-06-22",
-            "distancePct": 9.289,
+            "distancePct": 4.927,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3509,7 +3500,7 @@
               "top": 16.21,
               "bottom": 15.64,
               "date": "2026-06-22",
-              "distancePct": 9.289,
+              "distancePct": 4.927,
               "insideZone": false
             },
             {
@@ -3517,7 +3508,7 @@
               "top": 12.01,
               "bottom": 11.44,
               "date": "2026-02-23",
-              "distancePct": 32.792,
+              "distancePct": 29.56,
               "insideZone": false
             },
             {
@@ -3525,7 +3516,7 @@
               "top": 11.32,
               "bottom": 10.73,
               "date": "2024-08-05",
-              "distancePct": 36.654,
+              "distancePct": 33.607,
               "insideZone": false
             },
             {
@@ -3533,7 +3524,7 @@
               "top": 9.63,
               "bottom": 9.39,
               "date": "2023-10-30",
-              "distancePct": 46.111,
+              "distancePct": 43.519,
               "insideZone": false
             },
             {
@@ -3541,7 +3532,7 @@
               "top": 8.26,
               "bottom": 7.86,
               "date": "2023-05-01",
-              "distancePct": 53.777,
+              "distancePct": 51.554,
               "insideZone": false
             },
             {
@@ -3549,7 +3540,7 @@
               "top": 7.64,
               "bottom": 7.51,
               "date": "2023-01-09",
-              "distancePct": 57.247,
+              "distancePct": 55.191,
               "insideZone": false
             }
           ],
@@ -3563,10 +3554,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 17.46,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 17.2,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": true,
             "oneYear": true,
@@ -3577,7 +3568,7 @@
             "top": 16.94,
             "bottom": 16.8,
             "date": "2026-07-24",
-            "distancePct": 2.978,
+            "distancePct": 1.512,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3586,7 +3577,7 @@
               "top": 16.94,
               "bottom": 16.8,
               "date": "2026-07-24",
-              "distancePct": 2.978,
+              "distancePct": 1.512,
               "insideZone": false
             },
             {
@@ -3594,7 +3585,7 @@
               "top": 16.8,
               "bottom": 16.63,
               "date": "2026-06-24",
-              "distancePct": 3.78,
+              "distancePct": 2.326,
               "insideZone": false
             },
             {
@@ -3602,7 +3593,7 @@
               "top": 16.33,
               "bottom": 16.19,
               "date": "2026-06-11",
-              "distancePct": 6.472,
+              "distancePct": 5.058,
               "insideZone": false
             },
             {
@@ -3610,15 +3601,7 @@
               "top": 15.7,
               "bottom": 15.58,
               "date": "2026-04-30",
-              "distancePct": 10.08,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 14.35,
-              "bottom": 14.13,
-              "date": "2026-03-30",
-              "distancePct": 17.812,
+              "distancePct": 8.721,
               "insideZone": false
             },
             {
@@ -3626,7 +3609,7 @@
               "top": 14.35,
               "bottom": 14.13,
               "date": "2026-03-30",
-              "distancePct": 17.812,
+              "distancePct": 16.57,
               "insideZone": false
             },
             {
@@ -3634,7 +3617,7 @@
               "top": 12.8,
               "bottom": 12.11,
               "date": "2025-04-09",
-              "distancePct": 26.69,
+              "distancePct": 25.581,
               "insideZone": false
             },
             {
@@ -3642,7 +3625,7 @@
               "top": 11.17,
               "bottom": 11.04,
               "date": "2023-10-30",
-              "distancePct": 36.025,
+              "distancePct": 35.058,
               "insideZone": false
             },
             {
@@ -3650,14 +3633,23 @@
               "top": 11.03,
               "bottom": 10.94,
               "date": "2023-03-14",
-              "distancePct": 36.827,
+              "distancePct": 35.872,
               "insideZone": false
             }
           ],
-          "bearishOrderBlocks": []
+          "bearishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 17.62,
+              "bottom": 17.57,
+              "date": "2026-08-28",
+              "distancePct": 2.151,
+              "insideZone": false
+            }
+          ]
         },
         "1wk": {
-          "lastPrice": 17.46,
+          "lastPrice": 17.2,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -3671,7 +3663,7 @@
             "top": 14.78,
             "bottom": 14.13,
             "date": "2026-03-30",
-            "distancePct": 15.349,
+            "distancePct": 14.07,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3680,7 +3672,7 @@
               "top": 14.78,
               "bottom": 14.13,
               "date": "2026-03-30",
-              "distancePct": 15.349,
+              "distancePct": 14.07,
               "insideZone": false
             },
             {
@@ -3688,7 +3680,7 @@
               "top": 11.6,
               "bottom": 11.04,
               "date": "2023-10-30",
-              "distancePct": 33.562,
+              "distancePct": 32.558,
               "insideZone": false
             },
             {
@@ -3696,7 +3688,7 @@
               "top": 11.21,
               "bottom": 10.94,
               "date": "2023-03-13",
-              "distancePct": 35.796,
+              "distancePct": 34.826,
               "insideZone": false
             },
             {
@@ -3704,7 +3696,7 @@
               "top": 10.93,
               "bottom": 10.76,
               "date": "2022-12-26",
-              "distancePct": 37.4,
+              "distancePct": 36.453,
               "insideZone": false
             },
             {
@@ -3712,7 +3704,7 @@
               "top": 10.53,
               "bottom": 9.89,
               "date": "2022-10-03",
-              "distancePct": 39.691,
+              "distancePct": 38.779,
               "insideZone": false
             }
           ],
@@ -3726,8 +3718,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 31.43,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 30.64,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -3740,7 +3732,7 @@
             "top": 29.64,
             "bottom": 29.0,
             "date": "2026-07-29",
-            "distancePct": 5.695,
+            "distancePct": 3.264,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3749,7 +3741,7 @@
               "top": 29.64,
               "bottom": 29.0,
               "date": "2026-07-29",
-              "distancePct": 5.695,
+              "distancePct": 3.264,
               "insideZone": false
             },
             {
@@ -3757,7 +3749,7 @@
               "top": 29.2,
               "bottom": 28.61,
               "date": "2026-04-23",
-              "distancePct": 7.095,
+              "distancePct": 4.7,
               "insideZone": false
             },
             {
@@ -3765,7 +3757,7 @@
               "top": 26.84,
               "bottom": 26.2,
               "date": "2026-03-23",
-              "distancePct": 14.604,
+              "distancePct": 12.402,
               "insideZone": false
             },
             {
@@ -3773,7 +3765,7 @@
               "top": 25.59,
               "bottom": 25.44,
               "date": "2025-12-31",
-              "distancePct": 18.581,
+              "distancePct": 16.482,
               "insideZone": false
             },
             {
@@ -3781,7 +3773,7 @@
               "top": 25.16,
               "bottom": 24.95,
               "date": "2025-12-18",
-              "distancePct": 19.949,
+              "distancePct": 17.885,
               "insideZone": false
             },
             {
@@ -3789,7 +3781,7 @@
               "top": 16.75,
               "bottom": 15.6,
               "date": "2025-04-07",
-              "distancePct": 46.707,
+              "distancePct": 45.333,
               "insideZone": false
             },
             {
@@ -3797,7 +3789,7 @@
               "top": 13.04,
               "bottom": 12.8,
               "date": "2023-01-03",
-              "distancePct": 58.511,
+              "distancePct": 57.441,
               "insideZone": false
             },
             {
@@ -3805,14 +3797,14 @@
               "top": 9.51,
               "bottom": 9.37,
               "date": "2020-03-19",
-              "distancePct": 69.742,
+              "distancePct": 68.962,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 31.43,
+          "lastPrice": 30.64,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -3826,7 +3818,7 @@
             "top": 28.08,
             "bottom": 26.2,
             "date": "2026-03-23",
-            "distancePct": 10.659,
+            "distancePct": 8.355,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3835,7 +3827,7 @@
               "top": 28.08,
               "bottom": 26.2,
               "date": "2026-03-23",
-              "distancePct": 10.659,
+              "distancePct": 8.355,
               "insideZone": false
             },
             {
@@ -3843,7 +3835,7 @@
               "top": 23.88,
               "bottom": 23.02,
               "date": "2025-10-13",
-              "distancePct": 24.022,
+              "distancePct": 22.063,
               "insideZone": false
             },
             {
@@ -3851,7 +3843,7 @@
               "top": 22.4,
               "bottom": 21.84,
               "date": "2025-09-01",
-              "distancePct": 28.731,
+              "distancePct": 26.893,
               "insideZone": false
             },
             {
@@ -3859,7 +3851,7 @@
               "top": 18.48,
               "bottom": 17.51,
               "date": "2024-09-09",
-              "distancePct": 41.203,
+              "distancePct": 39.687,
               "insideZone": false
             },
             {
@@ -3867,7 +3859,7 @@
               "top": 18.19,
               "bottom": 17.54,
               "date": "2025-04-14",
-              "distancePct": 42.125,
+              "distancePct": 40.633,
               "insideZone": false
             },
             {
@@ -3875,7 +3867,7 @@
               "top": 13.24,
               "bottom": 12.8,
               "date": "2023-01-02",
-              "distancePct": 57.875,
+              "distancePct": 56.789,
               "insideZone": false
             },
             {
@@ -3883,7 +3875,7 @@
               "top": 13.24,
               "bottom": 12.8,
               "date": "2023-01-02",
-              "distancePct": 57.875,
+              "distancePct": 56.789,
               "insideZone": false
             },
             {
@@ -3891,7 +3883,7 @@
               "top": 10.85,
               "bottom": 10.16,
               "date": "2020-04-06",
-              "distancePct": 65.479,
+              "distancePct": 64.589,
               "insideZone": false
             }
           ],
@@ -3905,21 +3897,21 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 56.54,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 55.51,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
-            "sixMonth": true,
-            "oneYear": true,
-            "threeYear": true
+            "sixMonth": false,
+            "oneYear": false,
+            "threeYear": false
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
             "top": 52.75,
             "bottom": 52.27,
             "date": "2026-07-30",
-            "distancePct": 6.703,
+            "distancePct": 4.972,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -3928,7 +3920,7 @@
               "top": 52.75,
               "bottom": 52.27,
               "date": "2026-07-30",
-              "distancePct": 6.703,
+              "distancePct": 4.972,
               "insideZone": false
             },
             {
@@ -3936,7 +3928,7 @@
               "top": 45.6,
               "bottom": 44.77,
               "date": "2026-03-31",
-              "distancePct": 19.349,
+              "distancePct": 17.853,
               "insideZone": false
             },
             {
@@ -3944,7 +3936,7 @@
               "top": 45.6,
               "bottom": 44.77,
               "date": "2026-03-31",
-              "distancePct": 19.349,
+              "distancePct": 17.853,
               "insideZone": false
             },
             {
@@ -3952,7 +3944,7 @@
               "top": 44.77,
               "bottom": 44.44,
               "date": "2025-07-02",
-              "distancePct": 20.817,
+              "distancePct": 19.348,
               "insideZone": false
             },
             {
@@ -3960,7 +3952,7 @@
               "top": 34.34,
               "bottom": 33.36,
               "date": "2025-04-09",
-              "distancePct": 39.264,
+              "distancePct": 38.137,
               "insideZone": false
             },
             {
@@ -3968,7 +3960,7 @@
               "top": 29.9,
               "bottom": 29.75,
               "date": "2023-10-27",
-              "distancePct": 47.117,
+              "distancePct": 46.136,
               "insideZone": false
             },
             {
@@ -3976,7 +3968,7 @@
               "top": 23.28,
               "bottom": 22.7,
               "date": "2022-11-04",
-              "distancePct": 58.826,
+              "distancePct": 58.062,
               "insideZone": false
             }
           ],
@@ -3986,7 +3978,7 @@
               "top": 57.8,
               "bottom": 57.63,
               "date": "2026-08-17",
-              "distancePct": 1.928,
+              "distancePct": 3.819,
               "insideZone": false
             },
             {
@@ -3994,13 +3986,13 @@
               "top": 59.99,
               "bottom": 59.72,
               "date": "2026-06-03",
-              "distancePct": 5.624,
+              "distancePct": 7.584,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 56.54,
+          "lastPrice": 55.51,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -4014,7 +4006,7 @@
             "top": 47.34,
             "bottom": 44.77,
             "date": "2026-03-30",
-            "distancePct": 16.272,
+            "distancePct": 14.718,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4023,7 +4015,7 @@
               "top": 47.34,
               "bottom": 44.77,
               "date": "2026-03-30",
-              "distancePct": 16.272,
+              "distancePct": 14.718,
               "insideZone": false
             },
             {
@@ -4031,7 +4023,7 @@
               "top": 37.89,
               "bottom": 36.1,
               "date": "2025-04-21",
-              "distancePct": 32.985,
+              "distancePct": 31.742,
               "insideZone": false
             },
             {
@@ -4039,7 +4031,7 @@
               "top": 30.97,
               "bottom": 29.75,
               "date": "2023-10-23",
-              "distancePct": 45.225,
+              "distancePct": 44.208,
               "insideZone": false
             },
             {
@@ -4047,7 +4039,7 @@
               "top": 25.67,
               "bottom": 25.13,
               "date": "2023-02-27",
-              "distancePct": 54.599,
+              "distancePct": 53.756,
               "insideZone": false
             },
             {
@@ -4055,7 +4047,7 @@
               "top": 24.78,
               "bottom": 22.7,
               "date": "2022-10-31",
-              "distancePct": 56.173,
+              "distancePct": 55.359,
               "insideZone": false
             },
             {
@@ -4063,7 +4055,7 @@
               "top": 23.43,
               "bottom": 22.84,
               "date": "2022-12-26",
-              "distancePct": 58.56,
+              "distancePct": 57.791,
               "insideZone": false
             }
           ],
@@ -4077,8 +4069,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 12.01,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 11.52,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -4091,7 +4083,7 @@
             "top": 10.39,
             "bottom": 9.95,
             "date": "2026-03-31",
-            "distancePct": 13.489,
+            "distancePct": 9.809,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4100,7 +4092,7 @@
               "top": 10.39,
               "bottom": 9.95,
               "date": "2026-03-31",
-              "distancePct": 13.489,
+              "distancePct": 9.809,
               "insideZone": false
             },
             {
@@ -4108,7 +4100,7 @@
               "top": 10.39,
               "bottom": 9.95,
               "date": "2026-03-31",
-              "distancePct": 13.489,
+              "distancePct": 9.809,
               "insideZone": false
             },
             {
@@ -4116,7 +4108,7 @@
               "top": 9.9,
               "bottom": 9.77,
               "date": "2025-06-02",
-              "distancePct": 17.569,
+              "distancePct": 14.063,
               "insideZone": false
             },
             {
@@ -4124,7 +4116,7 @@
               "top": 5.8,
               "bottom": 5.29,
               "date": "2025-04-07",
-              "distancePct": 51.707,
+              "distancePct": 49.653,
               "insideZone": false
             },
             {
@@ -4132,7 +4124,7 @@
               "top": 4.11,
               "bottom": 4.08,
               "date": "2022-12-29",
-              "distancePct": 65.779,
+              "distancePct": 64.323,
               "insideZone": false
             }
           ],
@@ -4142,7 +4134,7 @@
               "top": 12.71,
               "bottom": 12.6,
               "date": "2026-08-17",
-              "distancePct": 4.913,
+              "distancePct": 9.375,
               "insideZone": false
             },
             {
@@ -4150,7 +4142,7 @@
               "top": 18.85,
               "bottom": 18.73,
               "date": "2026-06-16",
-              "distancePct": 55.953,
+              "distancePct": 62.587,
               "insideZone": false
             },
             {
@@ -4158,13 +4150,13 @@
               "top": 19.33,
               "bottom": 19.17,
               "date": "2026-06-03",
-              "distancePct": 59.617,
+              "distancePct": 66.406,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 12.01,
+          "lastPrice": 11.52,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -4178,7 +4170,7 @@
             "top": 11.26,
             "bottom": 9.95,
             "date": "2026-03-30",
-            "distancePct": 6.245,
+            "distancePct": 2.257,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4187,7 +4179,7 @@
               "top": 11.26,
               "bottom": 9.95,
               "date": "2026-03-30",
-              "distancePct": 6.245,
+              "distancePct": 2.257,
               "insideZone": false
             },
             {
@@ -4195,7 +4187,7 @@
               "top": 7.5,
               "bottom": 6.68,
               "date": "2025-04-21",
-              "distancePct": 37.552,
+              "distancePct": 34.896,
               "insideZone": false
             },
             {
@@ -4203,7 +4195,7 @@
               "top": 7.5,
               "bottom": 6.68,
               "date": "2025-04-21",
-              "distancePct": 37.552,
+              "distancePct": 34.896,
               "insideZone": false
             },
             {
@@ -4211,7 +4203,7 @@
               "top": 5.3,
               "bottom": 5.02,
               "date": "2023-02-27",
-              "distancePct": 55.87,
+              "distancePct": 53.993,
               "insideZone": false
             },
             {
@@ -4219,7 +4211,7 @@
               "top": 4.34,
               "bottom": 4.08,
               "date": "2022-12-26",
-              "distancePct": 63.863,
+              "distancePct": 62.326,
               "insideZone": false
             }
           ],
@@ -4233,8 +4225,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 59.77,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 59.03,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -4247,7 +4239,7 @@
             "top": 49.89,
             "bottom": 49.14,
             "date": "2026-03-31",
-            "distancePct": 16.53,
+            "distancePct": 15.484,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4256,7 +4248,7 @@
               "top": 49.89,
               "bottom": 49.14,
               "date": "2026-03-31",
-              "distancePct": 16.53,
+              "distancePct": 15.484,
               "insideZone": false
             },
             {
@@ -4264,7 +4256,7 @@
               "top": 48.38,
               "bottom": 48.11,
               "date": "2025-05-26",
-              "distancePct": 19.056,
+              "distancePct": 18.042,
               "insideZone": false
             },
             {
@@ -4272,7 +4264,7 @@
               "top": 42.0,
               "bottom": 41.23,
               "date": "2025-04-22",
-              "distancePct": 29.731,
+              "distancePct": 28.85,
               "insideZone": false
             },
             {
@@ -4280,7 +4272,7 @@
               "top": 42.0,
               "bottom": 41.23,
               "date": "2025-04-22",
-              "distancePct": 29.731,
+              "distancePct": 28.85,
               "insideZone": false
             },
             {
@@ -4288,7 +4280,7 @@
               "top": 40.77,
               "bottom": 40.41,
               "date": "2024-08-08",
-              "distancePct": 31.789,
+              "distancePct": 30.933,
               "insideZone": false
             },
             {
@@ -4296,7 +4288,7 @@
               "top": 39.86,
               "bottom": 39.61,
               "date": "2024-02-01",
-              "distancePct": 33.311,
+              "distancePct": 32.475,
               "insideZone": false
             },
             {
@@ -4304,7 +4296,7 @@
               "top": 24.63,
               "bottom": 24.55,
               "date": "2022-12-29",
-              "distancePct": 58.792,
+              "distancePct": 58.275,
               "insideZone": false
             },
             {
@@ -4312,7 +4304,7 @@
               "top": 19.63,
               "bottom": 18.68,
               "date": "2020-03-13",
-              "distancePct": 67.157,
+              "distancePct": 66.746,
               "insideZone": false
             }
           ],
@@ -4322,7 +4314,7 @@
               "top": 61.98,
               "bottom": 61.49,
               "date": "2026-08-14",
-              "distancePct": 2.878,
+              "distancePct": 4.167,
               "insideZone": false
             },
             {
@@ -4330,13 +4322,13 @@
               "top": 62.44,
               "bottom": 61.59,
               "date": "2026-07-13",
-              "distancePct": 3.045,
+              "distancePct": 4.337,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 59.77,
+          "lastPrice": 59.03,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -4350,7 +4342,7 @@
             "top": 51.19,
             "bottom": 49.14,
             "date": "2026-03-30",
-            "distancePct": 14.355,
+            "distancePct": 13.281,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4359,7 +4351,7 @@
               "top": 51.19,
               "bottom": 49.14,
               "date": "2026-03-30",
-              "distancePct": 14.355,
+              "distancePct": 13.281,
               "insideZone": false
             },
             {
@@ -4367,7 +4359,7 @@
               "top": 43.85,
               "bottom": 41.23,
               "date": "2025-04-21",
-              "distancePct": 26.635,
+              "distancePct": 25.716,
               "insideZone": false
             },
             {
@@ -4375,7 +4367,7 @@
               "top": 35.1,
               "bottom": 33.95,
               "date": "2023-10-23",
-              "distancePct": 41.275,
+              "distancePct": 40.539,
               "insideZone": false
             },
             {
@@ -4383,7 +4375,7 @@
               "top": 25.47,
               "bottom": 24.55,
               "date": "2022-12-26",
-              "distancePct": 57.387,
+              "distancePct": 56.852,
               "insideZone": false
             },
             {
@@ -4391,7 +4383,7 @@
               "top": 25.47,
               "bottom": 24.55,
               "date": "2022-12-26",
-              "distancePct": 57.387,
+              "distancePct": 56.852,
               "insideZone": false
             },
             {
@@ -4399,7 +4391,7 @@
               "top": 22.52,
               "bottom": 21.65,
               "date": "2020-04-06",
-              "distancePct": 62.322,
+              "distancePct": 61.85,
               "insideZone": false
             }
           ],
@@ -4413,10 +4405,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 8.91,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 9.37,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
-          "internalTrend": "BEARISH",
+          "internalTrend": "BULLISH",
           "guppyTrend": {
             "sixMonth": true,
             "oneYear": true,
@@ -4424,19 +4416,27 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 5.55,
-            "bottom": 5.46,
-            "date": "2026-02-03",
-            "distancePct": 37.71,
+            "top": 8.38,
+            "bottom": 8.27,
+            "date": "2026-08-26",
+            "distancePct": 10.566,
             "insideZone": false
           },
           "bullishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 8.38,
+              "bottom": 8.27,
+              "date": "2026-08-26",
+              "distancePct": 10.566,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 5.55,
               "bottom": 5.46,
               "date": "2026-02-03",
-              "distancePct": 37.71,
+              "distancePct": 40.768,
               "insideZone": false
             },
             {
@@ -4444,15 +4444,7 @@
               "top": 5.29,
               "bottom": 5.2,
               "date": "2026-01-19",
-              "distancePct": 40.629,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 5.06,
-              "bottom": 4.93,
-              "date": "2026-01-07",
-              "distancePct": 43.21,
+              "distancePct": 43.543,
               "insideZone": false
             },
             {
@@ -4460,7 +4452,7 @@
               "top": 4.96,
               "bottom": 4.87,
               "date": "2025-12-17",
-              "distancePct": 44.332,
+              "distancePct": 47.065,
               "insideZone": false
             },
             {
@@ -4468,7 +4460,7 @@
               "top": 4.56,
               "bottom": 4.5,
               "date": "2025-05-05",
-              "distancePct": 48.822,
+              "distancePct": 51.334,
               "insideZone": false
             },
             {
@@ -4476,7 +4468,7 @@
               "top": 3.45,
               "bottom": 3.35,
               "date": "2020-11-02",
-              "distancePct": 61.279,
+              "distancePct": 63.18,
               "insideZone": false
             }
           ],
@@ -4486,7 +4478,7 @@
               "top": 9.9,
               "bottom": 9.78,
               "date": "2026-06-04",
-              "distancePct": 9.764,
+              "distancePct": 4.376,
               "insideZone": false
             },
             {
@@ -4494,7 +4486,7 @@
               "top": 10.76,
               "bottom": 10.65,
               "date": "2026-05-20",
-              "distancePct": 19.529,
+              "distancePct": 13.661,
               "insideZone": false
             },
             {
@@ -4502,7 +4494,7 @@
               "top": 16.56,
               "bottom": 16.39,
               "date": "2020-01-06",
-              "distancePct": 83.951,
+              "distancePct": 74.92,
               "insideZone": false
             },
             {
@@ -4510,13 +4502,13 @@
               "top": 16.9,
               "bottom": 16.5,
               "date": "2019-09-17",
-              "distancePct": 85.185,
+              "distancePct": 76.094,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 8.91,
+          "lastPrice": 9.37,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -4530,7 +4522,7 @@
             "top": 5.12,
             "bottom": 4.87,
             "date": "2025-12-15",
-            "distancePct": 42.536,
+            "distancePct": 45.358,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4539,7 +4531,7 @@
               "top": 5.12,
               "bottom": 4.87,
               "date": "2025-12-15",
-              "distancePct": 42.536,
+              "distancePct": 45.358,
               "insideZone": false
             },
             {
@@ -4547,7 +4539,7 @@
               "top": 4.87,
               "bottom": 4.5,
               "date": "2025-05-05",
-              "distancePct": 45.342,
+              "distancePct": 48.026,
               "insideZone": false
             },
             {
@@ -4555,7 +4547,7 @@
               "top": 3.85,
               "bottom": 3.35,
               "date": "2020-11-02",
-              "distancePct": 56.79,
+              "distancePct": 58.911,
               "insideZone": false
             }
           ],
@@ -4565,7 +4557,7 @@
               "top": 16.84,
               "bottom": 15.22,
               "date": "2020-01-06",
-              "distancePct": 70.819,
+              "distancePct": 62.433,
               "insideZone": false
             },
             {
@@ -4573,7 +4565,7 @@
               "top": 16.9,
               "bottom": 15.81,
               "date": "2019-09-16",
-              "distancePct": 77.441,
+              "distancePct": 68.73,
               "insideZone": false
             },
             {
@@ -4581,7 +4573,7 @@
               "top": 18.3,
               "bottom": 17.69,
               "date": "2019-04-22",
-              "distancePct": 98.541,
+              "distancePct": 88.794,
               "insideZone": false
             },
             {
@@ -4589,7 +4581,7 @@
               "top": 21.7,
               "bottom": 20.85,
               "date": "2018-10-01",
-              "distancePct": 134.007,
+              "distancePct": 122.519,
               "insideZone": false
             },
             {
@@ -4597,7 +4589,7 @@
               "top": 57.5,
               "bottom": 54.42,
               "date": "2013-08-26",
-              "distancePct": 510.774,
+              "distancePct": 480.79,
               "insideZone": false
             }
           ]
@@ -4610,10 +4602,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 15.16,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 14.28,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": false,
             "oneYear": false,
@@ -4621,43 +4613,27 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 15.43,
-            "bottom": 14.8,
-            "date": "2026-07-30",
+            "top": 14.58,
+            "bottom": 13.96,
+            "date": "2026-04-13",
             "distancePct": 0.0,
             "insideZone": true
           },
           "bullishOrderBlocks": [
             {
               "kind": "internal",
-              "top": 15.43,
-              "bottom": 14.8,
-              "date": "2026-07-30",
-              "distancePct": 0.0,
-              "insideZone": true
-            },
-            {
-              "kind": "internal",
-              "top": 15.51,
-              "bottom": 14.76,
-              "date": "2026-06-09",
-              "distancePct": 0.0,
-              "insideZone": true
-            },
-            {
-              "kind": "internal",
               "top": 14.58,
               "bottom": 13.96,
               "date": "2026-04-13",
-              "distancePct": 3.826,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "swing",
               "top": 13.24,
               "bottom": 12.3,
               "date": "2026-03-23",
-              "distancePct": 12.665,
+              "distancePct": 7.283,
               "insideZone": false
             },
             {
@@ -4665,7 +4641,7 @@
               "top": 7.73,
               "bottom": 7.43,
               "date": "2023-10-30",
-              "distancePct": 49.011,
+              "distancePct": 45.868,
               "insideZone": false
             },
             {
@@ -4673,7 +4649,7 @@
               "top": 4.96,
               "bottom": 4.73,
               "date": "2020-09-15",
-              "distancePct": 67.282,
+              "distancePct": 65.266,
               "insideZone": false
             },
             {
@@ -4681,7 +4657,7 @@
               "top": 2.24,
               "bottom": 2.15,
               "date": "2017-04-27",
-              "distancePct": 85.224,
+              "distancePct": 84.314,
               "insideZone": false
             },
             {
@@ -4689,17 +4665,25 @@
               "top": 0.9,
               "bottom": 0.89,
               "date": "2016-03-29",
-              "distancePct": 94.063,
+              "distancePct": 93.697,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 19.395,
+              "bottom": 18.61,
+              "date": "2026-08-07",
+              "distancePct": 30.322,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 21.13,
               "bottom": 20.09,
               "date": "2025-10-22",
-              "distancePct": 32.52,
+              "distancePct": 40.686,
               "insideZone": false
             },
             {
@@ -4707,16 +4691,24 @@
               "top": 21.96,
               "bottom": 21.29,
               "date": "2025-08-27",
-              "distancePct": 40.435,
+              "distancePct": 49.09,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 25.33,
+              "bottom": 24.63,
+              "date": "2025-08-07",
+              "distancePct": 72.479,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 15.16,
+          "lastPrice": 14.28,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": false,
             "oneYear": false,
@@ -4724,27 +4716,19 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 15.49,
-            "bottom": 14.5,
-            "date": "2026-05-25",
-            "distancePct": 0.0,
-            "insideZone": true
+            "top": 11.2,
+            "bottom": 10.34,
+            "date": "2024-04-15",
+            "distancePct": 21.569,
+            "insideZone": false
           },
           "bullishOrderBlocks": [
-            {
-              "kind": "internal",
-              "top": 15.49,
-              "bottom": 14.5,
-              "date": "2026-05-25",
-              "distancePct": 0.0,
-              "insideZone": true
-            },
             {
               "kind": "internal",
               "top": 11.2,
               "bottom": 10.34,
               "date": "2024-04-15",
-              "distancePct": 26.121,
+              "distancePct": 21.569,
               "insideZone": false
             },
             {
@@ -4752,7 +4736,7 @@
               "top": 8.05,
               "bottom": 7.47,
               "date": "2023-03-20",
-              "distancePct": 46.9,
+              "distancePct": 43.627,
               "insideZone": false
             },
             {
@@ -4760,7 +4744,7 @@
               "top": 3.14,
               "bottom": 2.64,
               "date": "2020-04-06",
-              "distancePct": 79.288,
+              "distancePct": 78.011,
               "insideZone": false
             },
             {
@@ -4768,17 +4752,25 @@
               "top": 0.95,
               "bottom": 0.89,
               "date": "2016-03-28",
-              "distancePct": 93.734,
+              "distancePct": 93.347,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 18.82,
+              "bottom": 18.14,
+              "date": "2026-08-10",
+              "distancePct": 27.031,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 20.575,
               "bottom": 19.67,
               "date": "2025-10-27",
-              "distancePct": 29.749,
+              "distancePct": 37.745,
               "insideZone": false
             },
             {
@@ -4786,7 +4778,7 @@
               "top": 22.98,
               "bottom": 21.57,
               "date": "2025-07-21",
-              "distancePct": 42.282,
+              "distancePct": 51.05,
               "insideZone": false
             },
             {
@@ -4794,7 +4786,7 @@
               "top": 26.21,
               "bottom": 25.24,
               "date": "2025-01-27",
-              "distancePct": 66.491,
+              "distancePct": 76.751,
               "insideZone": false
             }
           ]
@@ -4807,8 +4799,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 33.24,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 32.41,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -4821,7 +4813,7 @@
             "top": 30.32,
             "bottom": 30.15,
             "date": "2026-07-29",
-            "distancePct": 8.785,
+            "distancePct": 6.449,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4830,7 +4822,7 @@
               "top": 30.32,
               "bottom": 30.15,
               "date": "2026-07-29",
-              "distancePct": 8.785,
+              "distancePct": 6.449,
               "insideZone": false
             },
             {
@@ -4838,7 +4830,7 @@
               "top": 26.71,
               "bottom": 26.61,
               "date": "2025-08-20",
-              "distancePct": 19.645,
+              "distancePct": 17.587,
               "insideZone": false
             },
             {
@@ -4846,7 +4838,7 @@
               "top": 26.6,
               "bottom": 26.4,
               "date": "2025-07-31",
-              "distancePct": 19.976,
+              "distancePct": 17.927,
               "insideZone": false
             },
             {
@@ -4854,7 +4846,7 @@
               "top": 21.29,
               "bottom": 21.08,
               "date": "2024-11-14",
-              "distancePct": 35.951,
+              "distancePct": 34.31,
               "insideZone": false
             },
             {
@@ -4862,7 +4854,7 @@
               "top": 16.73,
               "bottom": 16.56,
               "date": "2023-12-12",
-              "distancePct": 49.669,
+              "distancePct": 48.38,
               "insideZone": false
             },
             {
@@ -4870,7 +4862,7 @@
               "top": 12.96,
               "bottom": 12.91,
               "date": "2019-04-24",
-              "distancePct": 61.011,
+              "distancePct": 60.012,
               "insideZone": false
             }
           ],
@@ -4880,7 +4872,7 @@
               "top": 36.09,
               "bottom": 35.84,
               "date": "2026-06-01",
-              "distancePct": 7.822,
+              "distancePct": 10.583,
               "insideZone": false
             },
             {
@@ -4888,7 +4880,7 @@
               "top": 37.9,
               "bottom": 37.37,
               "date": "2026-05-12",
-              "distancePct": 12.425,
+              "distancePct": 15.304,
               "insideZone": false
             },
             {
@@ -4896,7 +4888,7 @@
               "top": 38.68,
               "bottom": 38.27,
               "date": "2026-04-15",
-              "distancePct": 15.132,
+              "distancePct": 18.081,
               "insideZone": false
             },
             {
@@ -4904,13 +4896,13 @@
               "top": 42.74,
               "bottom": 42.27,
               "date": "2026-03-03",
-              "distancePct": 27.166,
+              "distancePct": 30.423,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 33.24,
+          "lastPrice": 32.41,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -4924,7 +4916,7 @@
             "top": 26.92,
             "bottom": 26.4,
             "date": "2025-07-28",
-            "distancePct": 19.013,
+            "distancePct": 16.939,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -4933,7 +4925,7 @@
               "top": 26.92,
               "bottom": 26.4,
               "date": "2025-07-28",
-              "distancePct": 19.013,
+              "distancePct": 16.939,
               "insideZone": false
             },
             {
@@ -4941,7 +4933,7 @@
               "top": 22.05,
               "bottom": 21.32,
               "date": "2024-12-16",
-              "distancePct": 33.664,
+              "distancePct": 31.965,
               "insideZone": false
             },
             {
@@ -4949,7 +4941,7 @@
               "top": 19.59,
               "bottom": 19.14,
               "date": "2024-06-24",
-              "distancePct": 41.065,
+              "distancePct": 39.556,
               "insideZone": false
             },
             {
@@ -4957,7 +4949,7 @@
               "top": 14.46,
               "bottom": 14.09,
               "date": "2022-09-26",
-              "distancePct": 56.498,
+              "distancePct": 55.384,
               "insideZone": false
             },
             {
@@ -4965,7 +4957,7 @@
               "top": 12.47,
               "bottom": 12.0,
               "date": "2018-08-13",
-              "distancePct": 62.485,
+              "distancePct": 61.524,
               "insideZone": false
             }
           ],
@@ -4975,7 +4967,7 @@
               "top": 38.36,
               "bottom": 37.01,
               "date": "2026-04-20",
-              "distancePct": 11.342,
+              "distancePct": 14.193,
               "insideZone": false
             },
             {
@@ -4983,7 +4975,7 @@
               "top": 41.75,
               "bottom": 40.58,
               "date": "2026-02-23",
-              "distancePct": 22.082,
+              "distancePct": 25.208,
               "insideZone": false
             }
           ]
@@ -4996,8 +4988,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 22.48,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 22.76,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -5010,7 +5002,7 @@
             "top": 20.79,
             "bottom": 20.28,
             "date": "2026-03-12",
-            "distancePct": 7.518,
+            "distancePct": 8.656,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5019,7 +5011,7 @@
               "top": 20.79,
               "bottom": 20.28,
               "date": "2026-03-12",
-              "distancePct": 7.518,
+              "distancePct": 8.656,
               "insideZone": false
             },
             {
@@ -5027,7 +5019,7 @@
               "top": 19.655,
               "bottom": 19.33,
               "date": "2026-02-16",
-              "distancePct": 12.567,
+              "distancePct": 13.642,
               "insideZone": false
             },
             {
@@ -5035,7 +5027,7 @@
               "top": 19.02,
               "bottom": 18.57,
               "date": "2025-12-04",
-              "distancePct": 15.391,
+              "distancePct": 16.432,
               "insideZone": false
             },
             {
@@ -5043,7 +5035,7 @@
               "top": 17.02,
               "bottom": 16.81,
               "date": "2024-11-05",
-              "distancePct": 24.288,
+              "distancePct": 25.22,
               "insideZone": false
             },
             {
@@ -5051,7 +5043,7 @@
               "top": 16.42,
               "bottom": 15.79,
               "date": "2024-10-08",
-              "distancePct": 26.957,
+              "distancePct": 27.856,
               "insideZone": false
             },
             {
@@ -5059,7 +5051,7 @@
               "top": 15.8,
               "bottom": 15.41,
               "date": "2024-08-28",
-              "distancePct": 29.715,
+              "distancePct": 30.58,
               "insideZone": false
             },
             {
@@ -5067,7 +5059,7 @@
               "top": 14.25,
               "bottom": 13.8,
               "date": "2023-12-14",
-              "distancePct": 36.61,
+              "distancePct": 37.39,
               "insideZone": false
             },
             {
@@ -5075,7 +5067,7 @@
               "top": 11.69,
               "bottom": 11.205,
               "date": "2022-09-28",
-              "distancePct": 47.998,
+              "distancePct": 48.638,
               "insideZone": false
             },
             {
@@ -5083,7 +5075,7 @@
               "top": 8.15,
               "bottom": 7.88,
               "date": "2021-02-01",
-              "distancePct": 63.746,
+              "distancePct": 64.192,
               "insideZone": false
             }
           ],
@@ -5093,13 +5085,13 @@
               "top": 25.77,
               "bottom": 25.49,
               "date": "2026-07-29",
-              "distancePct": 13.39,
+              "distancePct": 11.995,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 22.48,
+          "lastPrice": 22.76,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -5113,7 +5105,7 @@
             "top": 21.0,
             "bottom": 20.02,
             "date": "2026-03-09",
-            "distancePct": 6.584,
+            "distancePct": 7.733,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5122,7 +5114,7 @@
               "top": 21.0,
               "bottom": 20.02,
               "date": "2026-03-09",
-              "distancePct": 6.584,
+              "distancePct": 7.733,
               "insideZone": false
             },
             {
@@ -5130,7 +5122,7 @@
               "top": 16.13,
               "bottom": 15.41,
               "date": "2024-08-26",
-              "distancePct": 28.247,
+              "distancePct": 29.13,
               "insideZone": false
             },
             {
@@ -5138,7 +5130,7 @@
               "top": 14.705,
               "bottom": 13.8,
               "date": "2023-12-11",
-              "distancePct": 34.586,
+              "distancePct": 35.391,
               "insideZone": false
             },
             {
@@ -5146,7 +5138,7 @@
               "top": 11.85,
               "bottom": 11.205,
               "date": "2022-09-26",
-              "distancePct": 47.286,
+              "distancePct": 47.935,
               "insideZone": false
             },
             {
@@ -5154,7 +5146,7 @@
               "top": 8.68,
               "bottom": 7.88,
               "date": "2021-02-01",
-              "distancePct": 61.388,
+              "distancePct": 61.863,
               "insideZone": false
             },
             {
@@ -5162,7 +5154,7 @@
               "top": 7.72,
               "bottom": 7.18,
               "date": "2020-05-11",
-              "distancePct": 65.658,
+              "distancePct": 66.081,
               "insideZone": false
             },
             {
@@ -5170,7 +5162,7 @@
               "top": 6.2865,
               "bottom": 5.7915,
               "date": "2001-10-08",
-              "distancePct": 72.035,
+              "distancePct": 72.379,
               "insideZone": false
             },
             {
@@ -5178,7 +5170,7 @@
               "top": 2.6136,
               "bottom": 2.6136,
               "date": "1994-07-04",
-              "distancePct": 88.374,
+              "distancePct": 88.517,
               "insideZone": false
             },
             {
@@ -5186,7 +5178,7 @@
               "top": 1.9325,
               "bottom": 1.9325,
               "date": "1992-11-02",
-              "distancePct": 91.404,
+              "distancePct": 91.509,
               "insideZone": false
             }
           ],
@@ -5200,8 +5192,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 17.62,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 17.75,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -5214,7 +5206,7 @@
             "top": 17.22,
             "bottom": 16.95,
             "date": "2026-06-09",
-            "distancePct": 2.27,
+            "distancePct": 2.986,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5223,7 +5215,7 @@
               "top": 17.22,
               "bottom": 16.95,
               "date": "2026-06-09",
-              "distancePct": 2.27,
+              "distancePct": 2.986,
               "insideZone": false
             },
             {
@@ -5231,7 +5223,7 @@
               "top": 17.15,
               "bottom": 16.83,
               "date": "2026-05-14",
-              "distancePct": 2.667,
+              "distancePct": 3.38,
               "insideZone": false
             },
             {
@@ -5239,7 +5231,7 @@
               "top": 17.03,
               "bottom": 16.81,
               "date": "2026-01-21",
-              "distancePct": 3.348,
+              "distancePct": 4.056,
               "insideZone": false
             },
             {
@@ -5247,7 +5239,7 @@
               "top": 16.48,
               "bottom": 16.35,
               "date": "2025-05-06",
-              "distancePct": 6.47,
+              "distancePct": 7.155,
               "insideZone": false
             },
             {
@@ -5255,7 +5247,7 @@
               "top": 14.84,
               "bottom": 14.61,
               "date": "2025-04-08",
-              "distancePct": 15.778,
+              "distancePct": 16.394,
               "insideZone": false
             },
             {
@@ -5263,7 +5255,7 @@
               "top": 11.36,
               "bottom": 11.23,
               "date": "2023-10-30",
-              "distancePct": 35.528,
+              "distancePct": 36.0,
               "insideZone": false
             },
             {
@@ -5271,7 +5263,7 @@
               "top": 8.01,
               "bottom": 7.92,
               "date": "2020-09-22",
-              "distancePct": 54.54,
+              "distancePct": 54.873,
               "insideZone": false
             }
           ],
@@ -5281,13 +5273,13 @@
               "top": 19.25,
               "bottom": 18.93,
               "date": "2026-08-05",
-              "distancePct": 7.435,
+              "distancePct": 6.648,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 17.62,
+          "lastPrice": 17.75,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -5301,7 +5293,7 @@
             "top": 17.46,
             "bottom": 16.81,
             "date": "2026-01-19",
-            "distancePct": 0.908,
+            "distancePct": 1.634,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5310,7 +5302,7 @@
               "top": 17.46,
               "bottom": 16.81,
               "date": "2026-01-19",
-              "distancePct": 0.908,
+              "distancePct": 1.634,
               "insideZone": false
             },
             {
@@ -5318,7 +5310,7 @@
               "top": 15.66,
               "bottom": 15.0,
               "date": "2025-03-10",
-              "distancePct": 11.124,
+              "distancePct": 11.775,
               "insideZone": false
             },
             {
@@ -5326,7 +5318,7 @@
               "top": 13.53,
               "bottom": 13.01,
               "date": "2024-04-15",
-              "distancePct": 23.212,
+              "distancePct": 23.775,
               "insideZone": false
             },
             {
@@ -5334,7 +5326,7 @@
               "top": 11.7,
               "bottom": 11.23,
               "date": "2023-10-30",
-              "distancePct": 33.598,
+              "distancePct": 34.085,
               "insideZone": false
             },
             {
@@ -5342,7 +5334,7 @@
               "top": 11.37,
               "bottom": 11.07,
               "date": "2023-06-05",
-              "distancePct": 35.471,
+              "distancePct": 35.944,
               "insideZone": false
             },
             {
@@ -5350,7 +5342,7 @@
               "top": 11.24,
               "bottom": 10.95,
               "date": "2023-03-27",
-              "distancePct": 36.209,
+              "distancePct": 36.676,
               "insideZone": false
             },
             {
@@ -5358,7 +5350,7 @@
               "top": 7.8,
               "bottom": 7.3,
               "date": "2020-04-20",
-              "distancePct": 55.732,
+              "distancePct": 56.056,
               "insideZone": false
             }
           ],
@@ -5372,8 +5364,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 10.88,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 10.59,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -5386,7 +5378,7 @@
             "top": 10.3,
             "bottom": 10.15,
             "date": "2026-08-14",
-            "distancePct": 5.331,
+            "distancePct": 2.738,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5395,7 +5387,7 @@
               "top": 10.3,
               "bottom": 10.15,
               "date": "2026-08-14",
-              "distancePct": 5.331,
+              "distancePct": 2.738,
               "insideZone": false
             },
             {
@@ -5403,7 +5395,7 @@
               "top": 9.64,
               "bottom": 9.485,
               "date": "2026-07-28",
-              "distancePct": 11.397,
+              "distancePct": 8.971,
               "insideZone": false
             },
             {
@@ -5411,7 +5403,7 @@
               "top": 9.36,
               "bottom": 9.25,
               "date": "2026-07-09",
-              "distancePct": 13.971,
+              "distancePct": 11.615,
               "insideZone": false
             },
             {
@@ -5419,7 +5411,7 @@
               "top": 8.65,
               "bottom": 8.5,
               "date": "2025-12-17",
-              "distancePct": 20.496,
+              "distancePct": 18.319,
               "insideZone": false
             },
             {
@@ -5427,7 +5419,7 @@
               "top": 8.19,
               "bottom": 8.04,
               "date": "2025-11-24",
-              "distancePct": 24.724,
+              "distancePct": 22.663,
               "insideZone": false
             },
             {
@@ -5435,7 +5427,7 @@
               "top": 8.04,
               "bottom": 7.89,
               "date": "2025-11-05",
-              "distancePct": 26.103,
+              "distancePct": 24.079,
               "insideZone": false
             },
             {
@@ -5443,14 +5435,14 @@
               "top": 6.11,
               "bottom": 5.94,
               "date": "2025-04-09",
-              "distancePct": 43.842,
+              "distancePct": 42.304,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": []
         },
         "1wk": {
-          "lastPrice": 10.88,
+          "lastPrice": 10.59,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -5464,7 +5456,7 @@
             "top": 9.835,
             "bottom": 9.25,
             "date": "2026-07-20",
-            "distancePct": 9.605,
+            "distancePct": 7.129,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5473,7 +5465,7 @@
               "top": 9.835,
               "bottom": 9.25,
               "date": "2026-07-20",
-              "distancePct": 9.605,
+              "distancePct": 7.129,
               "insideZone": false
             },
             {
@@ -5481,7 +5473,7 @@
               "top": 6.8,
               "bottom": 6.36,
               "date": "2024-09-09",
-              "distancePct": 37.5,
+              "distancePct": 35.788,
               "insideZone": false
             },
             {
@@ -5489,7 +5481,7 @@
               "top": 6.55,
               "bottom": 6.4,
               "date": "2025-04-14",
-              "distancePct": 39.798,
+              "distancePct": 38.149,
               "insideZone": false
             },
             {
@@ -5497,7 +5489,7 @@
               "top": 3.89,
               "bottom": 3.85,
               "date": "2016-09-12",
-              "distancePct": 64.246,
+              "distancePct": 63.267,
               "insideZone": false
             },
             {
@@ -5505,7 +5497,7 @@
               "top": 3.68,
               "bottom": 3.53,
               "date": "2016-05-09",
-              "distancePct": 66.176,
+              "distancePct": 65.25,
               "insideZone": false
             },
             {
@@ -5513,7 +5505,7 @@
               "top": 3.35,
               "bottom": 3.24,
               "date": "2016-04-04",
-              "distancePct": 69.21,
+              "distancePct": 68.366,
               "insideZone": false
             },
             {
@@ -5521,7 +5513,7 @@
               "top": 2.89,
               "bottom": 2.75,
               "date": "2016-01-18",
-              "distancePct": 73.437,
+              "distancePct": 72.71,
               "insideZone": false
             }
           ],
@@ -5535,8 +5527,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 90.97,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 88.09,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -5549,8 +5541,8 @@
             "top": 89.01,
             "bottom": 87.78,
             "date": "2026-07-30",
-            "distancePct": 2.155,
-            "insideZone": false
+            "distancePct": 0.0,
+            "insideZone": true
           },
           "bullishOrderBlocks": [
             {
@@ -5558,23 +5550,15 @@
               "top": 89.01,
               "bottom": 87.78,
               "date": "2026-07-30",
-              "distancePct": 2.155,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 87.0,
-              "bottom": 85.0,
-              "date": "2026-03-30",
-              "distancePct": 4.364,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "swing",
               "top": 64.98,
               "bottom": 63.01,
               "date": "2025-04-09",
-              "distancePct": 28.57,
+              "distancePct": 26.235,
               "insideZone": false
             },
             {
@@ -5582,7 +5566,7 @@
               "top": 63.45,
               "bottom": 62.01,
               "date": "2023-10-31",
-              "distancePct": 30.252,
+              "distancePct": 27.971,
               "insideZone": false
             },
             {
@@ -5590,7 +5574,7 @@
               "top": 56.38,
               "bottom": 55.87,
               "date": "2022-09-26",
-              "distancePct": 38.024,
+              "distancePct": 35.997,
               "insideZone": false
             },
             {
@@ -5598,17 +5582,25 @@
               "top": 51.26,
               "bottom": 48.0,
               "date": "2020-03-23",
-              "distancePct": 43.652,
+              "distancePct": 41.81,
               "insideZone": false
             }
           ],
           "bearishOrderBlocks": [
             {
               "kind": "internal",
+              "top": 92.02,
+              "bottom": 91.4,
+              "date": "2026-08-28",
+              "distancePct": 3.758,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
               "top": 97.0,
               "bottom": 95.9,
               "date": "2026-08-14",
-              "distancePct": 5.419,
+              "distancePct": 8.866,
               "insideZone": false
             },
             {
@@ -5616,7 +5608,7 @@
               "top": 110.23,
               "bottom": 108.0,
               "date": "2026-07-01",
-              "distancePct": 18.72,
+              "distancePct": 22.602,
               "insideZone": false
             },
             {
@@ -5624,13 +5616,13 @@
               "top": 110.29,
               "bottom": 109.38,
               "date": "2026-06-04",
-              "distancePct": 20.237,
+              "distancePct": 24.168,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 90.97,
+          "lastPrice": 88.09,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -5644,8 +5636,8 @@
             "top": 90.6,
             "bottom": 85.14,
             "date": "2026-03-23",
-            "distancePct": 0.407,
-            "insideZone": false
+            "distancePct": 0.0,
+            "insideZone": true
           },
           "bullishOrderBlocks": [
             {
@@ -5653,15 +5645,15 @@
               "top": 90.6,
               "bottom": 85.14,
               "date": "2026-03-23",
-              "distancePct": 0.407,
-              "insideZone": false
+              "distancePct": 0.0,
+              "insideZone": true
             },
             {
               "kind": "internal",
               "top": 68.09,
               "bottom": 64.2,
               "date": "2025-04-21",
-              "distancePct": 25.151,
+              "distancePct": 22.704,
               "insideZone": false
             },
             {
@@ -5669,7 +5661,7 @@
               "top": 64.58,
               "bottom": 62.01,
               "date": "2023-10-30",
-              "distancePct": 29.01,
+              "distancePct": 26.689,
               "insideZone": false
             },
             {
@@ -5677,7 +5669,7 @@
               "top": 60.8,
               "bottom": 59.02,
               "date": "2022-12-26",
-              "distancePct": 33.165,
+              "distancePct": 30.98,
               "insideZone": false
             },
             {
@@ -5685,7 +5677,7 @@
               "top": 57.36,
               "bottom": 55.87,
               "date": "2022-09-26",
-              "distancePct": 36.946,
+              "distancePct": 34.885,
               "insideZone": false
             },
             {
@@ -5693,7 +5685,7 @@
               "top": 48.0,
               "bottom": 46.28,
               "date": "2018-12-24",
-              "distancePct": 47.235,
+              "distancePct": 45.51,
               "insideZone": false
             }
           ],
@@ -5707,8 +5699,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 10.62,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 11.06,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -5721,7 +5713,7 @@
             "top": 10.14,
             "bottom": 10.06,
             "date": "2026-08-17",
-            "distancePct": 4.52,
+            "distancePct": 8.318,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5730,7 +5722,7 @@
               "top": 10.14,
               "bottom": 10.06,
               "date": "2026-08-17",
-              "distancePct": 4.52,
+              "distancePct": 8.318,
               "insideZone": false
             },
             {
@@ -5738,7 +5730,7 @@
               "top": 1.18,
               "bottom": 1.165,
               "date": "2024-11-11",
-              "distancePct": 88.889,
+              "distancePct": 89.331,
               "insideZone": false
             }
           ],
@@ -5748,7 +5740,7 @@
               "top": 12.81,
               "bottom": 12.53,
               "date": "2026-07-30",
-              "distancePct": 17.985,
+              "distancePct": 13.291,
               "insideZone": false
             },
             {
@@ -5756,7 +5748,7 @@
               "top": 20.1,
               "bottom": 19.28,
               "date": "2026-03-31",
-              "distancePct": 81.544,
+              "distancePct": 74.322,
               "insideZone": false
             },
             {
@@ -5764,7 +5756,7 @@
               "top": 20.1,
               "bottom": 19.28,
               "date": "2026-03-31",
-              "distancePct": 81.544,
+              "distancePct": 74.322,
               "insideZone": false
             },
             {
@@ -5772,7 +5764,7 @@
               "top": 22.64,
               "bottom": 22.41,
               "date": "2025-06-23",
-              "distancePct": 111.017,
+              "distancePct": 102.622,
               "insideZone": false
             },
             {
@@ -5780,7 +5772,7 @@
               "top": 23.35,
               "bottom": 23.08,
               "date": "2025-06-02",
-              "distancePct": 117.326,
+              "distancePct": 108.68,
               "insideZone": false
             },
             {
@@ -5788,13 +5780,13 @@
               "top": 40.3,
               "bottom": 38.22,
               "date": "2025-04-09",
-              "distancePct": 259.887,
+              "distancePct": 245.57,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 10.62,
+          "lastPrice": 11.06,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -5808,7 +5800,7 @@
             "top": 1.22,
             "bottom": 1.165,
             "date": "2024-11-11",
-            "distancePct": 88.512,
+            "distancePct": 88.969,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5817,7 +5809,7 @@
               "top": 1.22,
               "bottom": 1.165,
               "date": "2024-11-11",
-              "distancePct": 88.512,
+              "distancePct": 88.969,
               "insideZone": false
             },
             {
@@ -5825,7 +5817,7 @@
               "top": 1.22,
               "bottom": 1.165,
               "date": "2024-11-11",
-              "distancePct": 88.512,
+              "distancePct": 88.969,
               "insideZone": false
             }
           ],
@@ -5835,7 +5827,7 @@
               "top": 20.1,
               "bottom": 17.68,
               "date": "2026-03-30",
-              "distancePct": 66.478,
+              "distancePct": 59.855,
               "insideZone": false
             },
             {
@@ -5843,7 +5835,7 @@
               "top": 35.18,
               "bottom": 31.29,
               "date": "2025-04-21",
-              "distancePct": 194.633,
+              "distancePct": 182.911,
               "insideZone": false
             }
           ]
@@ -5856,8 +5848,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 77.08,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 77.16,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
           "guppyTrend": {
@@ -5870,7 +5862,7 @@
             "top": 72.0,
             "bottom": 70.8,
             "date": "2026-05-13",
-            "distancePct": 6.591,
+            "distancePct": 6.687,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5879,7 +5871,7 @@
               "top": 72.0,
               "bottom": 70.8,
               "date": "2026-05-13",
-              "distancePct": 6.591,
+              "distancePct": 6.687,
               "insideZone": false
             },
             {
@@ -5887,7 +5879,7 @@
               "top": 72.0,
               "bottom": 70.8,
               "date": "2026-05-13",
-              "distancePct": 6.591,
+              "distancePct": 6.687,
               "insideZone": false
             },
             {
@@ -5895,7 +5887,7 @@
               "top": 70.18,
               "bottom": 68.0,
               "date": "2025-04-09",
-              "distancePct": 8.952,
+              "distancePct": 9.046,
               "insideZone": false
             },
             {
@@ -5903,7 +5895,7 @@
               "top": 70.18,
               "bottom": 68.0,
               "date": "2025-04-09",
-              "distancePct": 8.952,
+              "distancePct": 9.046,
               "insideZone": false
             },
             {
@@ -5911,7 +5903,7 @@
               "top": 66.94,
               "bottom": 66.245,
               "date": "2024-11-01",
-              "distancePct": 13.155,
+              "distancePct": 13.245,
               "insideZone": false
             },
             {
@@ -5919,7 +5911,7 @@
               "top": 66.94,
               "bottom": 66.245,
               "date": "2024-11-01",
-              "distancePct": 13.155,
+              "distancePct": 13.245,
               "insideZone": false
             },
             {
@@ -5927,7 +5919,7 @@
               "top": 64.29,
               "bottom": 63.06,
               "date": "2024-05-30",
-              "distancePct": 16.593,
+              "distancePct": 16.68,
               "insideZone": false
             },
             {
@@ -5935,7 +5927,7 @@
               "top": 50.39,
               "bottom": 49.57,
               "date": "2023-10-30",
-              "distancePct": 34.626,
+              "distancePct": 34.694,
               "insideZone": false
             }
           ],
@@ -5945,7 +5937,7 @@
               "top": 91.88,
               "bottom": 90.22,
               "date": "2026-08-06",
-              "distancePct": 17.047,
+              "distancePct": 16.926,
               "insideZone": false
             },
             {
@@ -5953,13 +5945,13 @@
               "top": 94.7,
               "bottom": 93.0,
               "date": "2025-10-28",
-              "distancePct": 20.654,
+              "distancePct": 20.529,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 77.08,
+          "lastPrice": 77.16,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -5973,7 +5965,7 @@
             "top": 73.04,
             "bottom": 70.8,
             "date": "2026-05-11",
-            "distancePct": 5.241,
+            "distancePct": 5.34,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -5982,7 +5974,7 @@
               "top": 73.04,
               "bottom": 70.8,
               "date": "2026-05-11",
-              "distancePct": 5.241,
+              "distancePct": 5.34,
               "insideZone": false
             },
             {
@@ -5990,7 +5982,7 @@
               "top": 72.46,
               "bottom": 68.65,
               "date": "2025-03-10",
-              "distancePct": 5.994,
+              "distancePct": 6.091,
               "insideZone": false
             },
             {
@@ -5998,7 +5990,7 @@
               "top": 64.95,
               "bottom": 63.06,
               "date": "2024-05-27",
-              "distancePct": 15.737,
+              "distancePct": 15.824,
               "insideZone": false
             },
             {
@@ -6006,7 +5998,7 @@
               "top": 52.355,
               "bottom": 49.57,
               "date": "2023-10-30",
-              "distancePct": 32.077,
+              "distancePct": 32.147,
               "insideZone": false
             },
             {
@@ -6014,7 +6006,7 @@
               "top": 48.94,
               "bottom": 46.64,
               "date": "2023-07-10",
-              "distancePct": 36.508,
+              "distancePct": 36.573,
               "insideZone": false
             },
             {
@@ -6022,7 +6014,7 @@
               "top": 43.81,
               "bottom": 41.43,
               "date": "2022-06-20",
-              "distancePct": 43.163,
+              "distancePct": 43.222,
               "insideZone": false
             },
             {
@@ -6030,7 +6022,7 @@
               "top": 29.9472,
               "bottom": 28.1253,
               "date": "2017-06-05",
-              "distancePct": 61.148,
+              "distancePct": 61.188,
               "insideZone": false
             },
             {
@@ -6038,7 +6030,7 @@
               "top": 21.2582,
               "bottom": 19.095,
               "date": "2011-08-08",
-              "distancePct": 72.421,
+              "distancePct": 72.449,
               "insideZone": false
             },
             {
@@ -6046,7 +6038,7 @@
               "top": 8.0655,
               "bottom": 7.7491,
               "date": "2000-05-22",
-              "distancePct": 89.536,
+              "distancePct": 89.547,
               "insideZone": false
             },
             {
@@ -6054,7 +6046,7 @@
               "top": 4.8001,
               "bottom": 4.8001,
               "date": "1996-08-05",
-              "distancePct": 93.773,
+              "distancePct": 93.779,
               "insideZone": false
             }
           ],
@@ -6068,10 +6060,10 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 23.66,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 23.55,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BULLISH",
-          "internalTrend": "BULLISH",
+          "internalTrend": "BEARISH",
           "guppyTrend": {
             "sixMonth": false,
             "oneYear": false,
@@ -6082,7 +6074,7 @@
             "top": 23.38,
             "bottom": 23.31,
             "date": "2026-07-30",
-            "distancePct": 1.183,
+            "distancePct": 0.722,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -6091,7 +6083,7 @@
               "top": 23.38,
               "bottom": 23.31,
               "date": "2026-07-30",
-              "distancePct": 1.183,
+              "distancePct": 0.722,
               "insideZone": false
             },
             {
@@ -6099,7 +6091,7 @@
               "top": 23.0,
               "bottom": 22.72,
               "date": "2026-06-11",
-              "distancePct": 2.79,
+              "distancePct": 2.335,
               "insideZone": false
             },
             {
@@ -6107,7 +6099,7 @@
               "top": 21.04,
               "bottom": 20.88,
               "date": "2026-03-23",
-              "distancePct": 11.074,
+              "distancePct": 10.658,
               "insideZone": false
             },
             {
@@ -6115,7 +6107,7 @@
               "top": 21.04,
               "bottom": 20.88,
               "date": "2026-03-23",
-              "distancePct": 11.074,
+              "distancePct": 10.658,
               "insideZone": false
             },
             {
@@ -6123,15 +6115,7 @@
               "top": 20.81,
               "bottom": 20.81,
               "date": "2025-07-14",
-              "distancePct": 12.046,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 20.5,
-              "bottom": 20.44,
-              "date": "2025-06-20",
-              "distancePct": 13.356,
+              "distancePct": 11.635,
               "insideZone": false
             },
             {
@@ -6139,7 +6123,7 @@
               "top": 19.11,
               "bottom": 18.88,
               "date": "2025-04-09",
-              "distancePct": 19.231,
+              "distancePct": 18.853,
               "insideZone": false
             },
             {
@@ -6147,7 +6131,7 @@
               "top": 13.88,
               "bottom": 13.88,
               "date": "2022-10-03",
-              "distancePct": 41.336,
+              "distancePct": 41.062,
               "insideZone": false
             },
             {
@@ -6155,7 +6139,7 @@
               "top": 12.33,
               "bottom": 12.29,
               "date": "2020-03-24",
-              "distancePct": 47.887,
+              "distancePct": 47.643,
               "insideZone": false
             },
             {
@@ -6163,14 +6147,23 @@
               "top": 11.36,
               "bottom": 11.36,
               "date": "2018-12-24",
-              "distancePct": 51.986,
+              "distancePct": 51.762,
               "insideZone": false
             }
           ],
-          "bearishOrderBlocks": []
+          "bearishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 23.77,
+              "bottom": 23.75,
+              "date": "2026-08-27",
+              "distancePct": 0.849,
+              "insideZone": false
+            }
+          ]
         },
         "1wk": {
-          "lastPrice": 23.66,
+          "lastPrice": 23.55,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BULLISH",
@@ -6184,7 +6177,7 @@
             "top": 21.31,
             "bottom": 20.88,
             "date": "2026-03-23",
-            "distancePct": 9.932,
+            "distancePct": 9.512,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -6193,7 +6186,7 @@
               "top": 21.31,
               "bottom": 20.88,
               "date": "2026-03-23",
-              "distancePct": 9.932,
+              "distancePct": 9.512,
               "insideZone": false
             },
             {
@@ -6201,7 +6194,7 @@
               "top": 19.54,
               "bottom": 19.04,
               "date": "2025-04-21",
-              "distancePct": 17.413,
+              "distancePct": 17.028,
               "insideZone": false
             },
             {
@@ -6209,7 +6202,7 @@
               "top": 18.78,
               "bottom": 18.38,
               "date": "2024-09-09",
-              "distancePct": 20.626,
+              "distancePct": 20.255,
               "insideZone": false
             },
             {
@@ -6217,7 +6210,7 @@
               "top": 18.0,
               "bottom": 17.73,
               "date": "2024-04-22",
-              "distancePct": 23.922,
+              "distancePct": 23.567,
               "insideZone": false
             },
             {
@@ -6225,7 +6218,7 @@
               "top": 15.4,
               "bottom": 15.11,
               "date": "2023-10-30",
-              "distancePct": 34.911,
+              "distancePct": 34.607,
               "insideZone": false
             },
             {
@@ -6233,7 +6226,7 @@
               "top": 14.32,
               "bottom": 13.88,
               "date": "2022-10-03",
-              "distancePct": 39.476,
+              "distancePct": 39.193,
               "insideZone": false
             },
             {
@@ -6241,7 +6234,7 @@
               "top": 12.68,
               "bottom": 12.48,
               "date": "2020-03-30",
-              "distancePct": 46.407,
+              "distancePct": 46.157,
               "insideZone": false
             }
           ],
@@ -6255,8 +6248,8 @@
       "error": null,
       "timeframes": {
         "1d": {
-          "lastPrice": 39.7,
-          "lastBarDate": "2026-09-01",
+          "lastPrice": 37.65,
+          "lastBarDate": "2026-09-02",
           "swingTrend": "BEARISH",
           "internalTrend": "BULLISH",
           "guppyTrend": {
@@ -6269,7 +6262,7 @@
             "top": 30.78,
             "bottom": 29.87,
             "date": "2026-07-24",
-            "distancePct": 22.469,
+            "distancePct": 18.247,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -6278,7 +6271,7 @@
               "top": 30.78,
               "bottom": 29.87,
               "date": "2026-07-24",
-              "distancePct": 22.469,
+              "distancePct": 18.247,
               "insideZone": false
             },
             {
@@ -6286,7 +6279,7 @@
               "top": 26.01,
               "bottom": 25.15,
               "date": "2021-05-19",
-              "distancePct": 34.484,
+              "distancePct": 30.916,
               "insideZone": false
             },
             {
@@ -6294,7 +6287,7 @@
               "top": 19.72,
               "bottom": 18.325,
               "date": "2020-07-01",
-              "distancePct": 50.327,
+              "distancePct": 47.623,
               "insideZone": false
             }
           ],
@@ -6304,7 +6297,7 @@
               "top": 47.0,
               "bottom": 44.52,
               "date": "2026-05-05",
-              "distancePct": 12.141,
+              "distancePct": 18.247,
               "insideZone": false
             },
             {
@@ -6312,7 +6305,7 @@
               "top": 47.19,
               "bottom": 45.51,
               "date": "2026-04-21",
-              "distancePct": 14.635,
+              "distancePct": 20.876,
               "insideZone": false
             },
             {
@@ -6320,7 +6313,7 @@
               "top": 53.43,
               "bottom": 50.74,
               "date": "2026-03-10",
-              "distancePct": 27.809,
+              "distancePct": 34.768,
               "insideZone": false
             },
             {
@@ -6328,7 +6321,7 @@
               "top": 69.0,
               "bottom": 67.16,
               "date": "2026-01-08",
-              "distancePct": 69.169,
+              "distancePct": 78.38,
               "insideZone": false
             },
             {
@@ -6336,7 +6329,7 @@
               "top": 86.92,
               "bottom": 84.76,
               "date": "2025-10-27",
-              "distancePct": 113.501,
+              "distancePct": 125.126,
               "insideZone": false
             },
             {
@@ -6344,7 +6337,7 @@
               "top": 121.31,
               "bottom": 119.48,
               "date": "2025-07-24",
-              "distancePct": 200.957,
+              "distancePct": 217.344,
               "insideZone": false
             },
             {
@@ -6352,13 +6345,13 @@
               "top": 134.26,
               "bottom": 129.14,
               "date": "2024-12-05",
-              "distancePct": 225.29,
+              "distancePct": 243.001,
               "insideZone": false
             }
           ]
         },
         "1wk": {
-          "lastPrice": 39.7,
+          "lastPrice": 37.65,
           "lastBarDate": "2026-08-31",
           "swingTrend": "BULLISH",
           "internalTrend": "BEARISH",
@@ -6372,7 +6365,7 @@
             "top": 14.02,
             "bottom": 9.97,
             "date": "2020-03-16",
-            "distancePct": 64.685,
+            "distancePct": 62.762,
             "insideZone": false
           },
           "bullishOrderBlocks": [
@@ -6381,7 +6374,7 @@
               "top": 14.02,
               "bottom": 9.97,
               "date": "2020-03-16",
-              "distancePct": 64.685,
+              "distancePct": 62.762,
               "insideZone": false
             }
           ],
@@ -6391,7 +6384,7 @@
               "top": 47.19,
               "bottom": 42.56,
               "date": "2026-04-20",
-              "distancePct": 7.204,
+              "distancePct": 13.041,
               "insideZone": false
             },
             {
@@ -6399,7 +6392,7 @@
               "top": 53.43,
               "bottom": 46.11,
               "date": "2026-03-09",
-              "distancePct": 16.146,
+              "distancePct": 22.47,
               "insideZone": false
             },
             {
@@ -6407,7 +6400,7 @@
               "top": 76.29,
               "bottom": 69.29,
               "date": "2025-12-01",
-              "distancePct": 74.534,
+              "distancePct": 84.037,
               "insideZone": false
             },
             {
@@ -6415,7 +6408,7 @@
               "top": 121.31,
               "bottom": 114.77,
               "date": "2025-07-21",
-              "distancePct": 189.093,
+              "distancePct": 204.834,
               "insideZone": false
             },
             {
@@ -6423,7 +6416,7 @@
               "top": 127.42,
               "bottom": 124.61,
               "date": "2025-01-06",
-              "distancePct": 213.879,
+              "distancePct": 230.969,
               "insideZone": false
             }
           ]
