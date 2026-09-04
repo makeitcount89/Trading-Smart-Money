@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T09:54:29.543889+00:00",
+  "generatedAt": "2026-09-04T11:43:21.179532+00:00",
   "meta": {
     "universe": [
       "A200.AX",
@@ -85,6 +85,7 @@
       "ETHI.AX",
       "ROBO.AX",
       "WRLD.AX",
+      "EDOC.AX",
       "CNEW.AX",
       "HETH.AX",
       "FUEL.AX",
@@ -139,6 +140,7 @@
       "NDQ.AX",
       "HETH.AX",
       "HNDQ.AX",
+      "EDOC.AX",
       "QAU.AX",
       "AGL.AX",
       "CLDD.AX",
@@ -2336,11 +2338,143 @@
     },
     {
       "ticker": "EDOC.AX",
-      "ok": false,
-      "error": "Daily: Not enough 1d history for EDOC.AX (1 bars); Weekly: Not enough 1wk history for EDOC.AX (1 bars)",
+      "ok": true,
+      "error": null,
       "timeframes": {
-        "1d": null,
-        "1wk": null
+        "1d": {
+          "lastPrice": 10.56,
+          "lastBarDate": "2025-02-14",
+          "swingTrend": "BULLISH",
+          "internalTrend": "BULLISH",
+          "guppyTrend": {
+            "sixMonth": true,
+            "oneYear": true,
+            "threeYear": null
+          },
+          "nearestBullishOrderBlock": {
+            "kind": "internal",
+            "top": 10.39,
+            "bottom": 10.26,
+            "date": "2025-01-13",
+            "distancePct": 1.61,
+            "insideZone": false
+          },
+          "bullishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 10.39,
+              "bottom": 10.26,
+              "date": "2025-01-13",
+              "distancePct": 1.61,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 10.01,
+              "bottom": 10.01,
+              "date": "2025-01-03",
+              "distancePct": 5.208,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 9.53,
+              "bottom": 9.51,
+              "date": "2024-11-19",
+              "distancePct": 9.754,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 9.2,
+              "bottom": 9.13,
+              "date": "2024-10-04",
+              "distancePct": 12.879,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 8.93,
+              "bottom": 8.8,
+              "date": "2024-09-18",
+              "distancePct": 15.436,
+              "insideZone": false
+            },
+            {
+              "kind": "swing",
+              "top": 8.32,
+              "bottom": 8.32,
+              "date": "2024-08-08",
+              "distancePct": 21.212,
+              "insideZone": false
+            }
+          ],
+          "bearishOrderBlocks": [
+            {
+              "kind": "swing",
+              "top": 11.59,
+              "bottom": 11.58,
+              "date": "2023-04-24",
+              "distancePct": 9.659,
+              "insideZone": false
+            }
+          ]
+        },
+        "1wk": {
+          "lastPrice": 10.56,
+          "lastBarDate": "2025-02-10",
+          "swingTrend": "BEARISH",
+          "internalTrend": "BULLISH",
+          "guppyTrend": {
+            "sixMonth": true,
+            "oneYear": false,
+            "threeYear": null
+          },
+          "nearestBullishOrderBlock": {
+            "kind": "internal",
+            "top": 8.53,
+            "bottom": 8.23,
+            "date": "2024-08-26",
+            "distancePct": 19.223,
+            "insideZone": false
+          },
+          "bullishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 8.53,
+              "bottom": 8.23,
+              "date": "2024-08-26",
+              "distancePct": 19.223,
+              "insideZone": false
+            }
+          ],
+          "bearishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 11.13,
+              "bottom": 10.84,
+              "date": "2023-07-31",
+              "distancePct": 2.652,
+              "insideZone": false
+            },
+            {
+              "kind": "swing",
+              "top": 11.72,
+              "bottom": 11.24,
+              "date": "2022-08-15",
+              "distancePct": 6.439,
+              "insideZone": false
+            },
+            {
+              "kind": "internal",
+              "top": 11.59,
+              "bottom": 11.58,
+              "date": "2023-04-24",
+              "distancePct": 9.659,
+              "insideZone": false
+            }
+          ]
+        }
       }
     },
     {
