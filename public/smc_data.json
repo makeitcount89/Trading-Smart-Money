@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T10:23:59.614236+00:00",
+  "generatedAt": "2026-09-15T12:04:44.737833+00:00",
   "meta": {
     "universe": [
       "A200.AX",
@@ -100,11 +100,11 @@
       "QBE.AX",
       "GDX.AX",
       "BNKS.AX",
+      "SNAS.AX",
       "QRE.AX",
       "HNDQ.AX",
       "QAU.AX",
       "WTC.AX",
-      "SNAS.AX",
       "CNEW.AX",
       "HACK.AX",
       "LNAS.AX",
@@ -4115,14 +4115,6 @@
               "insideZone": false
             },
             {
-              "kind": "internal",
-              "top": 9.9,
-              "bottom": 9.77,
-              "date": "2025-06-02",
-              "distancePct": 14.286,
-              "insideZone": false
-            },
-            {
               "kind": "swing",
               "top": 5.8,
               "bottom": 5.29,
@@ -4140,6 +4132,14 @@
             }
           ],
           "bearishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 12.18,
+              "bottom": 12.03,
+              "date": "2026-09-08",
+              "distancePct": 4.156,
+              "insideZone": false
+            },
             {
               "kind": "internal",
               "top": 12.71,
@@ -5731,13 +5731,21 @@
           },
           "nearestBullishOrderBlock": {
             "kind": "internal",
-            "top": 10.14,
-            "bottom": 10.06,
-            "date": "2026-08-17",
-            "distancePct": 7.985,
+            "top": 10.58,
+            "bottom": 10.43,
+            "date": "2026-09-08",
+            "distancePct": 3.993,
             "insideZone": false
           },
           "bullishOrderBlocks": [
+            {
+              "kind": "internal",
+              "top": 10.58,
+              "bottom": 10.43,
+              "date": "2026-09-08",
+              "distancePct": 3.993,
+              "insideZone": false
+            },
             {
               "kind": "internal",
               "top": 10.14,
@@ -5786,14 +5794,6 @@
               "bottom": 22.41,
               "date": "2025-06-23",
               "distancePct": 103.358,
-              "insideZone": false
-            },
-            {
-              "kind": "internal",
-              "top": 23.35,
-              "bottom": 23.08,
-              "date": "2025-06-02",
-              "distancePct": 109.437,
               "insideZone": false
             },
             {
